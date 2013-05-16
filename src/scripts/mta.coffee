@@ -38,6 +38,7 @@ mtaMe = (msg) ->
             else if k.status[0] == 'PLANNED WORK'
               msg.send 'heads up, the ' + str + ' train has planned work.'
             else
-              msg.send 'the ' + str + ' train is all kinds of messed up'
+              msg.send 'the ' + str + ' train is all kinds of messed up: ' + k.status[0].toLowerCase().replace /^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, (char1) ->
+                return char1.toUpperCase()
       else
         msg.send 'thats not a valid subway line!'

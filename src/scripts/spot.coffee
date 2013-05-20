@@ -28,8 +28,8 @@
 #   hubot album #n - Pull up album info for the nth track in the last search results
 #   hubot last find - Pulls up the most recent find query
 # Authors:
-#   mcminton, <Shad Downey> github:andromedado
-VERSION = '1.3.1'
+#   mcminton, andromedado
+VERSION = '1.3.2'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -108,7 +108,7 @@ showResults = (robot, message, results) ->
   if not results or not results.length
     return message.send(':small_blue_diamond: I found nothin\'')
   explanations = (explain track for track in results)
-  message.send(':small_blue_diamond: I found:')
+  message.send(':small_blue_diamond:')
   message.send(render(explanations))
 
 calcLength = (seconds) ->
@@ -128,6 +128,22 @@ playTrack = (track, message) ->
   spotRequest message, '/play-uri', 'post', {'uri' : track.uri}, (err, res, body) ->
     if (err)
       message.send(":flushed: " + err)
+
+words =
+  'a couple': 2
+  'default': 3
+  'a few': 4
+  'many': 6
+  'a lot': 10
+  'lots of': 10
+
+
+determineLimit = (word) ->
+  if (String(word).match(/^\d+$/))
+    return word
+  if (!word || !words.hasOwnProperty(word))
+    word = 'default'
+  return words[word]
 
 module.exports = (robot) ->
 
@@ -227,9 +243,9 @@ module.exports = (robot) ->
       message.send(":small_blue_diamond: I found:")
       message.send(explain track)
 
-  robot.respond /find ?(\d+)? music (.*)/i, (message) ->
-    limit = message.match[1] || 3
-    params = {q: message.match[2]}
+  robot.respond /,?\s*find ?(.*) (music|((songs|tracks)( of)?)) (.*)/i, (message) ->
+    limit = determineLimit message.match[1]
+    params = {q: message.match[6]}
     spotRequest message, '/query', 'get', params, (err, res, body) ->
       try
         data = JSON.parse(body)

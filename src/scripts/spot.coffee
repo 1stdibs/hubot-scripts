@@ -29,7 +29,7 @@
 #   hubot last find - Pulls up the most recent find query
 # Authors:
 #   mcminton, andromedado
-VERSION = '1.3.2'
+VERSION = '1.3.3'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -229,10 +229,11 @@ module.exports = (robot) ->
     spotRequest message, '/album-info', 'get', {'uri' : r[n].album.uri}, (err, res, body) ->
       album = JSON.parse(body)
       album.tracks.forEach((track) ->
-        track.album = track.album || {}
+        track.album = track.album || r[n].album
         track.album.uri = r[n].album.uri
       )
       recordUserQueryResults(message, album.tracks)
+      robot.brain.set('lastQueryResults', album.tracks)
       message.send(renderAlbum album)
 
   robot.respond /(how much )?(time )?(remaining|left)\??$/i, (message) ->

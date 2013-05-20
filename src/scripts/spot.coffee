@@ -33,6 +33,8 @@ VERSION = '1.3.2'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
+CAMPFIRE_CHRONOLOGICAL_DELAY = 700
+
 spotRequest = (message, path, action, options, callback) ->
   message.http("#{URL}#{path}")
     .query(options)[action]() (err, res, body) ->
@@ -108,8 +110,10 @@ showResults = (robot, message, results) ->
   if not results or not results.length
     return message.send(':small_blue_diamond: I found nothin\'')
   explanations = (explain track for track in results)
-  message.send(':small_blue_diamond:')
-  message.send(render(explanations))
+  message.send(":small_blue_diamond: I found:")
+  setTimeout(() ->
+    message.send(render(explanations))
+  , CAMPFIRE_CHRONOLOGICAL_DELAY)
 
 calcLength = (seconds) ->
   iSeconds = parseInt(seconds, 10)
@@ -241,7 +245,9 @@ module.exports = (robot) ->
       track = JSON.parse(body)
       robot.brain.set('lastSingleQuery', track)
       message.send(":small_blue_diamond: I found:")
-      message.send(explain track)
+      setTimeout(() ->
+        message.send(explain track)
+      , CAMPFIRE_CHRONOLOGICAL_DELAY)
 
   robot.respond /,?\s*find ?(.*) (music|((songs|tracks)( of)?)) (.*)/i, (message) ->
     limit = determineLimit message.match[1]

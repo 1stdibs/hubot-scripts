@@ -29,11 +29,59 @@
 #   hubot last find - Pulls up the most recent find query
 # Authors:
 #   mcminton, andromedado
-VERSION = '1.3.3'
+https = require 'https'
+
+VERSION = '1.3.4'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
 CAMPFIRE_CHRONOLOGICAL_DELAY = 700
+
+getCurrentVersion = (callback) ->
+  https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.coffee', (res) ->
+    data = ''
+    res.on('data', (d) ->
+      data += d
+    )
+    res.on('end', () ->
+      bits = data.match(/VERSION = '([\d\.]+)'/)
+      version = bits && bits[1]
+      callback(!version, version)
+    )
+  ).on('error', (e) ->
+    callback(e);
+  )
+
+compareVersions = (base, comparator) ->
+  if (base == comparator)
+    return 'up-to-date'
+  re = /^(\d+)(\.(\d+))?(\.(\d+))?/
+  bParts = base.match(re)
+  cParts = comparator.match(re)
+  diff = false
+  if (bParts && cParts)
+    [{k : 1, n : 'major version'}, {k : 3, n : 'minor version'}, {k : 5, n : 'patch', pn : 'patches'}].forEach((obj) ->
+      diff = diff || comparePart(bParts[obj.k], cParts[obj.k], obj.n, obj.pn);
+    )
+  if (!diff)
+    diff = 'different than the repo version: ' + base
+  return diff
+
+comparePart = (b, c, partName, partNamePlural) ->
+  if (b == c)
+    return false
+  diff = Math.abs(Number(c) - Number(b))
+  if (Number(c) > Number(b))
+    stem = 'ahead'
+    suffix = '; the repo should probably be updated.'
+  else
+    stem = 'behind'
+    suffix = '; you should probably update me. https://github.com/1stdibs/hubot-scripts'
+  if (diff == 1)
+    whats = partName
+  else
+    whats = partNamePlural || (partName + 's')
+  return stem + ' by ' + diff + ' ' + whats + suffix
 
 spotRequest = (message, path, action, options, callback) ->
   message.http("#{URL}#{path}")
@@ -290,6 +338,11 @@ module.exports = (robot) ->
       message.send("Spot volume set to #{body}. :mega:")
 
   robot.respond /spot version\??/i, (message) ->
-    message.send(':small_blue_diamond: Well, ' + message.message.user.name + ', my Spot version is presently ' + VERSION)
+    getCurrentVersion((e, repoVersion) ->
+      msg = ':small_blue_diamond: Well, ' + message.message.user.name + ', my Spot version is presently ' + VERSION
+      if (!e)
+        msg += '; I am ' + compareVersions(repoVersion, VERSION)
+      message.send msg
+    )
 
 

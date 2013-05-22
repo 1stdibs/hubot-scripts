@@ -1,9 +1,9 @@
 {
     "name" : "hubot-1stdibs",
     "description" : "1stdibs Custom Hubot Scripts",
-    "version" : "0.0.4",
+    "version" : "0.0.5",
     "author" : "1stdibs.com",
-    "main" : "./index.js",
+    "main" : "./src/index.js",
     "repository" : {
         "type" : "git",
         "url" : "https://github.com/1stdibs/hubot-scripts.git"

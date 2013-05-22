@@ -7,7 +7,7 @@ scripts = [
     'pokeblender.js',
     'nugme.coffee',
     'mta.coffee',
-    "redis-brain.coffee", "tweet.coffee", "shipit.coffee", "brewerydb.coffee", "applause.coffee", "ambush.coffee", "dealwithit.coffee", "decide.coffee", "futurama.coffee", "fortune.coffee", "hashing.coffee", "github-activity.coffee", "github-commit-link.coffee", "github-commits.coffee", "github-pulls.coffee", "http-say.coffee", "isup.coffee", "jenkins-notifier.coffee", "phpdoc.coffee", "scotch.coffee", "sudo.coffee", "swanson.coffee", "wikipedia.coffee", "wunderground.coffee", "xkcd.coffee", 'spot.coffee'
+    'spot.coffee'
 ];
 
 module.exports = function (robot) {

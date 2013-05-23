@@ -52,7 +52,7 @@ module.exports = function(robot) {
         if (!faceId || !bodyId) {
             msg.send(":small_blue_diamond: What's a \"" + (faceId ? reqBody : reqFace) + "\"?");
         } else {
-            showPokemon(msg, faceId, bodyId, wildCards.indexOf(reqFace) > -1 || wildCards.indexOf(reqBody) > -1);
+            showPokemon(msg, faceId, bodyId, wildCards.indexOf(reqFace) > -1 || wildCards.indexOf(reqBody) > -1 || void 0);
         }
     });
     robot.respond(/lickitung me/i, function (msg) {

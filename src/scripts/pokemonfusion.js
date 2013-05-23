@@ -10,19 +10,27 @@
 // Commands:
 //   hubot make me a pokemon
 //   hubot fusion me[ (name|id|*)[ (+|and|&&?) (name|id|*)]]
+//   hubot lickitung me
+//   hubot lickitung bomb[ X]
 //
 // Author:
 //   andromedado
 
 var pokedex = require('./support/pokedex'),
-    wildCards = [void 0, '*'];
+    lickId = pokedex.getId('lickitung'),
+    wildCards = [void 0, '*'],
+    showPokemon;
+
+showPokemon = function (msg, faceId, bodyId, verbose) {
+    msg.send(":small_blue_diamond: " + pokedex.name(faceId, bodyId, verbose));
+    msg.send(pokedex.image(faceId, bodyId));
+};
 
 module.exports = function(robot) {
     robot.respond(/make me a pokemon/i, function(msg) {
         var faceId = pokedex.random(),
             bodyId = pokedex.random(faceId);
-        msg.send(":small_blue_diamond: I call it " + pokedex.name(faceId, bodyId, true));
-        msg.send(pokedex.image(faceId, bodyId));
+        showPokemon(msg, faceId, bodyId, true);
     });
     robot.respond(/fusion me( ([\S]+)( (\+|and|&&?) ([\S]+))?)?/i, function(msg) {
         var faceId, bodyId,
@@ -42,8 +50,16 @@ module.exports = function(robot) {
         if (!faceId || !bodyId) {
             msg.send(":small_blue_diamond: What's a \"" + (faceId ? reqBody : reqFace) + "\"?");
         } else {
-            msg.send(":small_blue_diamond: " + pokedex.name(faceId, bodyId, !reqFace || !reqBody));
-            msg.send(pokedex.image(faceId, bodyId));
+            showPokemon(msg, faceId, bodyId, !reqFace || !reqBody);
+        }
+    });
+    robot.respond(/lickitung me/i, function (msg) {
+        showPokemon(msg, lickId, pokedex.random(lickId), true);
+    });
+    robot.respond(/lickitung bomb( (\d+))?/i, function (msg) {
+        var num = Math.min(msg.match[2] || 3, 40);
+        while (num--) {
+            showPokemon(msg, lickId, pokedex.random(lickId), true);
         }
     });
 };

@@ -644,6 +644,9 @@ function translateToId (str) {
         }
         return null;
     }
+    if (str == '*') {
+        return getRandomPokeId();
+    }
     for (var i in pokemon) {
         if (pokemon.hasOwnProperty(i)) {
             if (pokemon[i].name.toLowerCase() === str.toLowerCase()) {

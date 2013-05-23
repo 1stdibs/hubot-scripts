@@ -22,7 +22,9 @@ var pokedex = require('./support/pokedex'),
     showPokemon;
 
 showPokemon = function (msg, faceId, bodyId, verbose) {
-    msg.send(":small_blue_diamond: " + pokedex.name(faceId, bodyId, verbose));
+    if (verbose !== false) {
+        msg.send(":small_blue_diamond: " + pokedex.name(faceId, bodyId, verbose));
+    }
     msg.send(pokedex.image(faceId, bodyId));
 };
 
@@ -59,7 +61,7 @@ module.exports = function(robot) {
     robot.respond(/lickitung bomb( (\d+))?/i, function (msg) {
         var num = Math.min(msg.match[2] || 3, 40);
         while (num--) {
-            showPokemon(msg, lickId, pokedex.random(lickId), true);
+            showPokemon(msg, lickId, pokedex.random(lickId), false);
         }
     });
 };

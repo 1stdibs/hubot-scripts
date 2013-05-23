@@ -1,21 +1,5 @@
-// Description:
-//   Hubot api for http://pokemon.alexonsager.net/
-//
-// Dependencies:
-//   none
-//
-// Configuration:
-//
-// Commands:
-//   hubot make me a pokemon
-//   hubot fusion me (name|id) + (name|id)
-//
-// Author:
-//   andromedado
 
-var pokemon;
-
-pokemon = {
+module.exports = {
     "1": {
         "name": "Bulbasaur",
         "prefix": "Bulb",
@@ -622,57 +606,3 @@ pokemon = {
         "suffix": "mie"
     }
 };
-
-function makeName (firstId, secondId) {
-    var first = pokemon[firstId].prefix,
-        second = pokemon[secondId].suffix;
-    return first.slice(-2)===second.slice(0,2)?first.slice(0,first.length-2)+second:first.slice(-1)===second.slice(0,1)?first.slice(0,first.length-1)+second:first+second;
-}
-
-function getRandomPokeId (not) {
-    var max = 121, id;
-    do {
-        id = Math.ceil(Math.random() * max);
-    } while (id == not);
-    return id;
-}
-
-function translateToId (str) {
-    if (str.match(/^\d+$/)) {
-        if (pokemon.hasOwnProperty(str)) {
-            return str;
-        }
-        return null;
-    }
-    if (str == '*') {
-        return getRandomPokeId();
-    }
-    for (var i in pokemon) {
-        if (pokemon.hasOwnProperty(i)) {
-            if (pokemon[i].name.toLowerCase() === str.toLowerCase()) {
-                return i;
-            }
-        }
-    }
-    return null;
-}
-
-module.exports = function(robot) {
-    robot.respond(/make me a pokemon/i, function(msg) {
-        var one = getRandomPokeId(),
-            two = getRandomPokeId(one);
-        msg.send(":small_blue_diamond: I call it " + makeName(one, two));
-        msg.send("http://images.alexonsager.net/pokemon/fused/" + one + "/" + one + "." + two + ".png");
-    });
-    robot.respond(/fusion me ([\S]+) \+ ([\S]+)/i, function(msg) {
-        var face = translateToId(msg.match[1]),
-            body = translateToId(msg.match[2]);
-        if (!face || !body) {
-            msg.send(":small_blue_diamond: What's a \"" + (face ? msg.match[2] : msg.match[1]) + "\"?");
-        } else {
-            msg.send(":small_blue_diamond: " + makeName(face, body));
-            msg.send("http://images.alexonsager.net/pokemon/fused/" + body + "/" + body + "." + face + ".png");
-        }
-    });
-};
-

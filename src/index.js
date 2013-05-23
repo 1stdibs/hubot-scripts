@@ -4,7 +4,7 @@ var fs = require('fs'),
     scripts;
 
 scripts = [
-    'pokeblender.js',
+    'pokemonfusion.js',
     'nugme.coffee',
     'mta.coffee',
     'spot.coffee'

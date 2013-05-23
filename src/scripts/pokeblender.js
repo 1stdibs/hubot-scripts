@@ -662,13 +662,13 @@ module.exports = function(robot) {
         msg.send("http://images.alexonsager.net/pokemon/fused/" + one + "/" + one + "." + two + ".png");
     });
     robot.respond(/fusion me ([\S]+) \+ ([\S]+)/i, function(msg) {
-        var one = translateToId(msg.match[1]),
-            two = translateToId(msg.match[2]);
-        if (!one || !two) {
-            msg.send(":small_blue_diamond: What's a \"" + (one ? msg.match[2] : msg.match[1]) + "\"?");
+        var face = translateToId(msg.match[1]),
+            body = translateToId(msg.match[2]);
+        if (!face || !body) {
+            msg.send(":small_blue_diamond: What's a \"" + (face ? msg.match[2] : msg.match[1]) + "\"?");
         } else {
-            msg.send(":small_blue_diamond: " + makeName(one, two));
-            msg.send("http://images.alexonsager.net/pokemon/fused/" + one + "/" + one + "." + two + ".png");
+            msg.send(":small_blue_diamond: " + makeName(face, body));
+            msg.send("http://images.alexonsager.net/pokemon/fused/" + body + "/" + body + "." + face + ".png");
         }
     });
 };

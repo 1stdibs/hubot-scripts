@@ -11,7 +11,7 @@
 //   hubot make me a pokemon
 //   hubot fusion me[ (name|id|*)[ (+|and|&&?) (name|id|*)]]
 //   hubot lickitung me
-//   hubot lickitung bomb[ X]
+//   hubot (pokemonName|id) bomb[ X]
 //
 // Author:
 //   andromedado
@@ -58,10 +58,20 @@ module.exports = function(robot) {
     robot.respond(/lickitung me/i, function (msg) {
         showPokemon(msg, lickId, pokedex.random(lickId), true);
     });
-    robot.respond(/lickitung bomb( (\d+))?/i, function (msg) {
-        var num = Math.min(msg.match[2] || 3, 40);
+    robot.respond(/([\S]+) bomb( (\d+))?/i, function (msg) {
+        var num, w = msg.match[1], id;
+        if (w == 'fusion') {
+            id = pokedex.random();
+        } else {
+            id = pokedex.getId(w);
+            if (!id) {
+                //wasn't a bomb for me
+                return;
+            }
+        }
+        num = Math.min(msg.match[3] || 3, 40);
         while (num--) {
-            showPokemon(msg, lickId, pokedex.random(lickId), false);
+            showPokemon(msg, id, pokedex.random(id), false);
         }
     });
 };

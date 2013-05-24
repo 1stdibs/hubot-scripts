@@ -58,8 +58,8 @@ module.exports = function(robot) {
     robot.respond(/lickitung me/i, function (msg) {
         showPokemon(msg, lickId, pokedex.random(lickId), true);
     });
-    robot.respond(/([\S]+) bomb( (\d+))?/i, function (msg) {
-        var num, w = msg.match[1], id;
+    robot.respond(/([\S]+)( body)? bomb( (\d+))?/i, function (msg) {
+        var num, w = msg.match[1], id, randId, nots, faceId, bodyId;
         if (w == 'fusion') {
             id = pokedex.random();
         } else {
@@ -69,9 +69,22 @@ module.exports = function(robot) {
                 return;
             }
         }
-        num = Math.min(msg.match[3] || 3, 40);
+        nots = [id];
+        num = Math.min(msg.match[4] || 3, 40);
+        if (msg.match[2]) {
+            bodyId = id;
+        } else {
+            faceId = id;
+        }
         while (num--) {
-            showPokemon(msg, id, pokedex.random(id), false);
+            randId = pokedex.random(nots);
+            nots.push(randId);
+            if (msg.match[2]) {
+                faceId = randId;
+            } else {
+                bodyId = randId;
+            }
+            showPokemon(msg, faceId, bodyId, false);
         }
     });
 };

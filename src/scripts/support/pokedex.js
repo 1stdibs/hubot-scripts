@@ -23,11 +23,16 @@ function makeName (firstId, secondId) {
     return first.slice(-2)===second.slice(0,2)?first.slice(0,first.length-2)+second:first.slice(-1)===second.slice(0,1)?first.slice(0,first.length-1)+second:first+second;
 }
 
-pokedex.random = function (not) {
+pokedex.random = function (nots) {
     var id;
+    if (!nots) {
+        nots = [];
+    } else if (!_.isArray(nots)) {
+        nots = [nots];
+    }
     do {
         id = Math.ceil(Math.random() * max);
-    } while (id == not);
+    } while (nots.indexOf(id) > -1);
     return id;
 };
 

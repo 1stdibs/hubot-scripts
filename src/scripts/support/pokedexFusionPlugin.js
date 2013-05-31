@@ -2,7 +2,7 @@
 var fusion = {},
     _ = require('underscore'),
     pokemonFusionList = require('./pokemonFusionList'),
-    max = _.chain(pokemonFusionList).keys().map(parseInt).max().value();
+    max = _.chain(pokemonFusionList).keys().map(function (num) {return parseInt(num, 10);}).max().value();
 
 function makeName (firstId, secondId) {
     var first = pokemonFusionList[firstId].prefix,
@@ -20,7 +20,7 @@ fusion.fusable = function (id) {
 
 fusion.image = function (faceId, bodyId) {
     //If no body, use vanilla pokemon image
-    if (!bodyId) {
+    if (!bodyId || faceId === bodyId) {
         return 'http://images.alexonsager.net/pokemon/' + faceId + '.png';
     }
     return "http://images.alexonsager.net/pokemon/fused/" + bodyId + "/" + bodyId + "." + faceId + ".png";

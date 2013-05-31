@@ -3,7 +3,7 @@ var _ = require('underscore'),
     pokemonData = require('./pokemonData'),
     pokemonFusionList = require('./pokemonFusionList'),
     evaluations = require('./pokedexEvaluations'),
-    max = _.chain(pokemonData).keys().map(parseInt).max().value(),
+    max = _.chain(pokemonData).keys().map(function(num){return parseInt(num, 10);}).max().value(),
     nameToIdLookup,
     evaluationIntro,
     pokedex = {};
@@ -25,6 +25,10 @@ function idToName (id) {
 function sizeToSrcName (size) {
     return 'tinySrc';
 }
+
+pokedex.getMax = function () {
+    return max;
+};
 
 pokedex.evaluate = function (num) {
     var i;

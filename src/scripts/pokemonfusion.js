@@ -43,12 +43,20 @@ function showPokemon (msg, id, verbose) {
     msg.send(pokedex.image(id));
 }
 
+function showAndRateUpTo (msg, id) {
+    showPokemon(msg, id);
+    msg.send(":small_blue_diamond: Currently up to " + id + " (" + pokedex.name(id) + ")");
+    setTimeout(function () {
+        msg.send(":small_blue_diamond: " + pokedex.evaluate(id));
+    }, stutter);
+}
+
 module.exports = function(robot) {
+    robot.respond(/pok[eé]dex\??/i, function (msg) {
+        showAndRateUpTo(msg, pokedex.getMax());
+    });
     robot.respond(/fusion pok[eé]dex\??/i, function (msg) {
-        msg.send(":small_blue_diamond: Currently up to " + pokedex.fusion.getMax() + " (" + pokedex.name(pokedex.fusion.getMax()) + ")");
-        setTimeout(function () {
-            msg.send(":small_blue_diamond: " + pokedex.evaluate(pokedex.fusion.getMax()));
-        }, stutter);
+        showAndRateUpTo(msg, pokedex.fusion.getMax());
     });
     robot.respond(/fusion me( ([\S]+)( ?(\+|and|&&?) ?([\S]+))?)?/i, function(msg) {
         var faceId, bodyId,

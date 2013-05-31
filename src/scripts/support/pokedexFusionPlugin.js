@@ -2,7 +2,7 @@
 var fusion = {},
     _ = require('underscore'),
     pokemonFusionList = require('./pokemonFusionList'),
-    max = _.max(_.keys(pokemonFusionList));
+    max = _.chain(pokemonFusionList).keys().map(parseInt).max().value();
 
 function makeName (firstId, secondId) {
     var first = pokemonFusionList[firstId].prefix,

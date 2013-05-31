@@ -3,7 +3,7 @@ var _ = require('underscore'),
     pokemonData = require('./pokemonData'),
     pokemonFusionList = require('./pokemonFusionList'),
     evaluations = require('./pokedexEvaluations'),
-    max = _.max(_.keys(pokemonData)),
+    max = _.chain(pokemonData).keys().map(parseInt).max().value(),
     nameToIdLookup,
     evaluationIntro,
     pokedex = {};
@@ -29,17 +29,14 @@ function sizeToSrcName (size) {
 pokedex.evaluate = function (num) {
     var i;
     num = parseInt(num, 10);
-    msg = '';
     for (i in evaluations) {
         if (evaluations.hasOwnProperty(i)) {
             if (num < parseInt(i, 10)) {
-                msg = evaluations[i];
-            } else {
-                return msg;
+                return evaluations[i];
             }
         }
     }
-    return msg;
+    return '...';
 };
 
 pokedex.random = function (nots, upperBound) {

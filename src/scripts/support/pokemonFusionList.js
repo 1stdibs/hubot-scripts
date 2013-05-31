@@ -604,5 +604,25 @@ module.exports = {
         "name": "Starmie",
         "prefix": "Star",
         "suffix": "mie"
+    },
+    "122": {
+        "name": "Mr. Mime",
+        "prefix": "Mr.",
+        "suffix": "mime"
+    },
+    "123": {
+        "name": "Scyther",
+        "prefix": "Scy",
+        "suffix": "ther"
+    },
+    "124": {
+        "name": "Jinx",
+        "prefix": "Jin",
+        "suffix": "nx"
+    },
+    "125": {
+        "name": "Electabuzz",
+        "prefix": "Electa",
+        "suffix": "buzz"
     }
 };

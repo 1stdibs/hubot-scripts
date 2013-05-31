@@ -1,9 +1,14 @@
 
 var _ = require('underscore'),
+    pokemonData = require('./pokemonData'),
     pokemonFusionList = require('./pokemonFusionList'),
-    max = _.max(_.keys(pokemonFusionList)),
+    evaluations = require('./pokedexEvaluations'),
+    max = _.max(_.keys(pokemonData)),
     nameToIdLookup,
+    evaluationIntro,
     pokedex = {};
+
+evaluationIntro = "Good to see you! How is your POKÉDEX coming? Here, let me take a look!";
 
 nameToIdLookup = {};
 _.each(pokemonFusionList, function (data, id) {
@@ -11,34 +16,49 @@ _.each(pokemonFusionList, function (data, id) {
 });
 
 function idToName (id) {
-    if (!pokemonFusionList.hasOwnProperty(id)) {
+    if (!pokemonData.hasOwnProperty(id)) {
         return null;
     }
-    return pokemonFusionList[id].name;
+    return pokemonData[id].name;
 }
 
-function makeName (firstId, secondId) {
-    var first = pokemonFusionList[firstId].prefix,
-        second = pokemonFusionList[secondId].suffix;
-    return first.slice(-2)===second.slice(0,2)?first.slice(0,first.length-2)+second:first.slice(-1)===second.slice(0,1)?first.slice(0,first.length-1)+second:first+second;
+function sizeToSrcName (size) {
+    return 'tinySrc';
 }
 
-pokedex.random = function (nots) {
+pokedex.evaluate = function (num) {
+    var i;
+    num = parseInt(num, 10);
+    msg = '';
+    for (i in evaluations) {
+        if (evaluations.hasOwnProperty(i)) {
+            if (num < parseInt(i, 10)) {
+                msg = evaluations[i];
+            } else {
+                return msg;
+            }
+        }
+    }
+    return msg;
+};
+
+pokedex.random = function (nots, upperBound) {
     var id;
+    upperBound = Math.min(upperBound || max, max);
     if (!nots) {
         nots = [];
     } else if (!_.isArray(nots)) {
         nots = [nots];
     }
     do {
-        id = Math.ceil(Math.random() * max);
+        id = Math.ceil(Math.random() * upperBound);
     } while (nots.indexOf(id) > -1);
     return id;
 };
 
-pokedex.getId = function (str, randNot) {
+pokedex.getId = function (str) {
     if (str.match(/^\d+$/)) {
-        if (pokemonFusionList.hasOwnProperty(str)) {
+        if (pokemonData.hasOwnProperty(str)) {
             return str;
         }
         return null;
@@ -49,23 +69,15 @@ pokedex.getId = function (str, randNot) {
     return null;
 };
 
-pokedex.image = function (faceId, bodyId) {
-    //If no body, use vanilla pokemon image
-    bodyId = bodyId || faceId;
-    return "http://images.alexonsager.net/pokemon/fused/" + bodyId + "/" + bodyId + "." + faceId + ".png";
+pokedex.image = function (id, size) {
+    return pokemonData[id][sizeToSrcName(size)];
 };
 
-pokedex.name = function (faceId, bodyId, verbose) {
-    var exp;
-    if (!bodyId) {
-        return idToName(faceId);
-    }
-    exp = makeName(faceId, bodyId);
-    if (verbose) {
-        exp += ' [' + idToName(faceId) + ' + ' + idToName(bodyId) + ']';
-    }
-    return exp;
+pokedex.name = function (id) {
+    return idToName(id);
 };
+
+pokedex.fusion = require('./pokedexFusionPlugin')(pokedex);
 
 module.exports = pokedex;
 

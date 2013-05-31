@@ -8,8 +8,8 @@
 //   none
 //
 // Commands:
-//   hubot make me a pokemon
 //   hubot fusion me[ (name|id|*)[ (+|and|&&?) (name|id|*)]]
+//   hubot fusion pokedex
 //   hubot lickitung me
 //   hubot (pokemonName|id) bomb[ X]
 //
@@ -17,24 +17,40 @@
 //   andromedado
 
 var pokedex = require('./support/pokedex'),
+    stutter = 700,
     lickId = pokedex.getId('lickitung'),
-    wildCards = [void 0, '*'],
-    showPokemon;
+    wildCards = [void 0, '*'];
 
-showPokemon = function (msg, faceId, bodyId, verbose) {
-    if (verbose !== false) {
-        msg.send(":small_blue_diamond: " + pokedex.name(faceId, bodyId, verbose));
+function longId (id) {
+    id = String(id);
+    while (id.length < 3) {
+        id = '0' + id;
     }
-    msg.send(pokedex.image(faceId, bodyId));
-};
+    return id;
+}
+
+function showOnsagerPokemon (msg, faceId, bodyId, verbose) {
+    if (verbose !== false) {
+        msg.send(":small_blue_diamond: " + pokedex.fusion.name(faceId, bodyId, verbose));
+    }
+    msg.send(pokedex.fusion.image(faceId, bodyId));
+}
+
+function showPokemon (msg, id, verbose) {
+    if (verbose) {
+        msg.send(":small_blue_diamond: " + pokedex.name(id) + " [#" + longId(id) + "]");
+    }
+    msg.send(pokedex.image(id));
+}
 
 module.exports = function(robot) {
-    robot.respond(/make me a pokemon/i, function(msg) {
-        var faceId = pokedex.random(),
-            bodyId = pokedex.random(faceId);
-        showPokemon(msg, faceId, bodyId, true);
+    robot.respond(/fusion pok[eé]dex\??/i, function (msg) {
+        msg.send(":small_blue_diamond: Currently up to " + pokedex.fusion.getMax() + " (" + pokedex.name(pokedex.fusion.getMax()) + ")");
+        setTimeout(function () {
+            msg.send(":small_blue_diamond: " + pokedex.evaluate(pokedex.fusion.getMax()));
+        }, stutter);
     });
-    robot.respond(/fusion me( ([\S]+)( (\+|and|&&?) ([\S]+))?)?/i, function(msg) {
+    robot.respond(/fusion me( ([\S]+)( ?(\+|and|&&?) ?([\S]+))?)?/i, function(msg) {
         var faceId, bodyId,
             reqFace = msg.match[2],
             reqBody = msg.match[5];
@@ -44,27 +60,30 @@ module.exports = function(robot) {
             reqBody = reqFace;
             reqFace = void 0;
             bodyId = pokedex.getId(reqBody);
-            faceId = pokedex.random(bodyId);
+            faceId = pokedex.fusion.random(bodyId);
         } else {
-            faceId = wildCards.indexOf(reqFace) > -1 ? pokedex.random() : pokedex.getId(reqFace);
-            bodyId = wildCards.indexOf(reqBody) > -1 ? pokedex.random(faceId) : pokedex.getId(reqBody);
+            faceId = wildCards.indexOf(reqFace) > -1 ? pokedex.fusion.random() : pokedex.getId(reqFace);
+            bodyId = wildCards.indexOf(reqBody) > -1 ? pokedex.fusion.random(faceId) : pokedex.getId(reqBody);
         }
         if (!faceId || !bodyId) {
             msg.send(":small_blue_diamond: What's a \"" + (faceId ? reqBody : reqFace) + "\"?");
+        } else if (!pokedex.fusion.fusable(faceId) || !pokedex.fusion.fusable(bodyId)) {
+            msg.send(":small_blue_diamond: Sorry, " + (pokedex.fusion.fusable(faceId) ? reqBody : reqFace) + " isn't fusable yet...");
+            showPokemon(msg, pokedex.fusion.fusable(faceId) ? bodyId : faceId);
         } else {
-            showPokemon(msg, faceId, bodyId, wildCards.indexOf(reqFace) > -1 || wildCards.indexOf(reqBody) > -1 || void 0);
+            showOnsagerPokemon(msg, faceId, bodyId, wildCards.indexOf(reqFace) > -1 || wildCards.indexOf(reqBody) > -1 || void 0);
         }
     });
     robot.respond(/lickitung me/i, function (msg) {
-        showPokemon(msg, lickId, pokedex.random(lickId), true);
+        showOnsagerPokemon(msg, lickId, pokedex.fusion.random(lickId), true);
     });
     robot.respond(/([\S]+)( body)? bomb( (\d+))?/i, function (msg) {
         var num, w = msg.match[1], id, randId, nots, faceId, bodyId;
         if (w == 'fusion') {
-            id = pokedex.random();
+            id = pokedex.fusion.random();
         } else {
             id = pokedex.getId(w);
-            if (!id) {
+            if (!id || !pokedex.fusion.fusable(id)) {
                 //wasn't a bomb for me
                 return;
             }
@@ -77,14 +96,14 @@ module.exports = function(robot) {
             faceId = id;
         }
         while (num--) {
-            randId = pokedex.random(nots);
+            randId = pokedex.fusion.random(nots);
             nots.push(randId);
             if (msg.match[2]) {
                 faceId = randId;
             } else {
                 bodyId = randId;
             }
-            showPokemon(msg, faceId, bodyId, false);
+            showOnsagerPokemon(msg, faceId, bodyId, false);
         }
     });
 };

@@ -624,5 +624,30 @@ module.exports = {
         "name": "Electabuzz",
         "prefix": "Electa",
         "suffix": "buzz"
+    },
+    "126": {
+        "name": "Magmar",
+        "prefix": "Mag",
+        "suffix": "mar"
+    },
+    "127": {
+        "name": "Pinsir",
+        "prefix": "Pin",
+        "suffix": "sir"
+    },
+    "128": {
+        "name": "Tauros",
+        "prefix": "Tau",
+        "suffix": "ros"
+    },
+    "129": {
+        "name": "Magikarp",
+        "prefix": "Magi",
+        "suffix": "karp"
+    },
+    "130": {
+        "name": "Gyarados",
+        "prefix": "Gyara",
+        "suffix": "dos"
     }
 };

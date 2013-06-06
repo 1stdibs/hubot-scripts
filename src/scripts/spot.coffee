@@ -197,7 +197,62 @@ determineLimit = (word) ->
     word = 'default'
   return words[word]
 
+withTrack = (track, robot, message, callback) ->
+  playNum = track.match(/#(\d+)\s*$/)
+  if (playNum)
+    r = getLastResultsRelevantToUser(robot, message.message.user)
+    i = parseInt(playNum[1], 10) - 1
+    if (r && r[i])
+      callback(null, r[i])
+      return
+    callback('out of bounds');
+    return
+  if (track.match(/^that$/i))
+    lastSingle = robot.brain.get('lastSingleQuery')
+    if (lastSingle)
+      callback(null, lastSingle)
+      return
+    lR = robot.brain.get('lastQueryResults')
+    if (lR && lR.length)
+      callback(null, lR[0])
+      return
+    callback('nothing found')
+    return
+  params = {q: track}
+  spotRequest message, '/single-query', 'get', params, (err, res, body) ->
+    if (err)
+      callback(err)
+      return
+    try
+      track = JSON.parse(body)
+      callback(null, track)
+    catch e
+      callback(e);
+
 module.exports = (robot) ->
+
+  Queue = require('./support/spotifyQueue')(robot, URL)
+
+  robot.respond /queue\??\s*$/i, (message) ->
+    Queue.describe(message)
+
+  robot.respond /dequeue #(\d+)/i, (message) ->
+    Queue.dequeue (+message.match[1] - 1), (err, name) ->
+      if (err)
+        message.send(":flushed: " + err)
+        return
+      message.send(":small_blue_diamond: \"" + name + "\" removed from the queue")
+
+  robot.respond /queue (.+)/i, (message) ->
+    withTrack message.match[1], robot, message, (err, track) ->
+      if (err)
+        message.send(":flushed: " + err)
+        return
+      Queue.addTrack track, (err, index) ->
+        if (err)
+          message.send(":flushed: " + err)
+          return
+        message.send(":small_blue_diamond: Ok, \"" + track.name + "\" is now " + index + " in the queue")
 
   robot.respond /play!/i, (message) ->
     message.finish()
@@ -248,25 +303,11 @@ module.exports = (robot) ->
       message.send("Spot volume set to #{body}. :mega:")
 
   robot.respond /play (.*)/i, (message) ->
-    playNum = message.match[1].match(/#(\d+)\s*$/)
-    if (playNum)
-      r = getLastResultsRelevantToUser(robot, message.message.user)
-      i = parseInt(playNum[1], 10) - 1
-      if (r && r[i])
-        playTrack(r[i], message)
+    withTrack message.match[1], robot, message, (err, track) ->
+      if (err)
+        message.send(":flushed: " + err)
         return
-    if (message.match[1].match(/^that$/i))
-      lastSingle = robot.brain.get('lastSingleQuery')
-      if (lastSingle)
-        playTrack(lastSingle, message)
-        return
-      lR = robot.brain.get('lastQueryResults')
-      if (lR && lR.length)
-        playTrack(lR[0], message)
-        return
-    params = {q: message.match[1]}
-    spotRequest message, '/find', 'post', params, (err, res, body) ->
-      message.send(":small_blue_diamond: #{body}")
+      playTrack(track, message)
 
   robot.respond /album .(\d+)/i, (message) ->
     r = getLastResultsRelevantToUser(robot, message.message.user)

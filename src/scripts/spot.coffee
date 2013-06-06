@@ -34,7 +34,7 @@
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.4.0'
+VERSION = '1.4.1'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -232,6 +232,10 @@ withTrack = (track, robot, message, callback) ->
     catch e
       callback(e);
 
+spotNext = (msg) ->
+  spotRequest msg, '/next', 'put', {}, (err, res, body) ->
+    msg.send("#{body} :fast_forward:")
+
 module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
@@ -255,7 +259,7 @@ module.exports = (robot) ->
         if (err)
           message.send(":flushed: " + err)
           return
-        message.send(":small_blue_diamond: Ok, \"" + track.name + "\" is now " + index + " in the queue")
+        message.send(":small_blue_diamond: \"" + track.name + "\" is " + index + " in the queue")
 
   robot.respond /play!/i, (message) ->
     message.finish()
@@ -268,8 +272,16 @@ module.exports = (robot) ->
       message.send("#{body} :cry:")
   
   robot.respond /next/i, (message) ->
-    spotRequest message, '/next', 'put', {}, (err, res, body) ->
-      message.send("#{body} :fast_forward:")
+    q = Queue.get();
+    console.log q.length
+    if (q.length)
+      Queue.playNext (err, track) ->
+        if (err)
+          spotNext message
+          return
+        message.send(":small_blue_diamond: Ok, on to #{track.name}")
+    else
+      spotNext message
   
   robot.respond /back/i, (message) ->
     spotRequest message, '/back', 'put', {}, (err, res, body) ->

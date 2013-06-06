@@ -9,6 +9,7 @@ var Queue = {},
     intervalDuration = 20000,
     timeout,
     tryingToPlay,
+    playNext,
     robot = {};
 
 function spotRequest(path, method, params, callback) {
@@ -16,29 +17,35 @@ function spotRequest(path, method, params, callback) {
 }
 
 function set (queue) {
-    console.log('writing to the queue', queue);
     robot.brain.set(queueName, queue);
 }
 
 get = Queue.get = function () {
     var q = robot.brain.get(queueName);
-    console.log('fetched', q);
     return q || [];
 };
 
-function playNext () {
+playNext = Queue.playNext = function (callback) {
     var q = get(),
         track = q.shift();
-    console.log('Play NEXT!');
+    callback = callback || function () {};
     if (!track) {
+        callback('empty queue');
+        return;
+    }
+    if (tryingToPlay) {
+        callback('already trying');
         return;
     }
     tryingToPlay = true;
     spotRequest('/play-uri', 'post', {'uri' : track.uri}, function (err, res, body) {
         tryingToPlay = false;
         if (!err) {
+            callback(void 0, track);
             Queue.removeTrack(track);
+            return;
         }
+        callback(err);
     });
 }
 
@@ -47,7 +54,6 @@ function checkUp () {
     if (!q.length) {
         clearInterval(interval);
         interval = null;
-        console.log('end interval!');
         return;
     }
     console.log('seconds left?');
@@ -103,7 +109,6 @@ Queue.dequeue = function (index, callback) {
 };
 
 Queue.removeTrack = function (track) {
-    console.log('removing track', track);
     set(_.filter(get(), function (t) {
         return track.uri != t.uri;
     }));
@@ -125,7 +130,6 @@ Queue.addTrack = function (track, callback) {
     });
     if (index === void 0) {
         index = queue.push(track);
-        console.log('adding to the queue', track);
         set(queue);
         Queue.ping();
     }

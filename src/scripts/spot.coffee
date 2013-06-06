@@ -34,7 +34,7 @@
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.4.1'
+VERSION = '1.4.2'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -64,7 +64,7 @@ compareVersions = (base, comparator) ->
   diff = false
   if (bParts && cParts)
     [{k : 1, n : 'major version'}, {k : 3, n : 'minor version'}, {k : 5, n : 'patch', pn : 'patches'}].forEach((obj) ->
-      diff = diff || comparePart(bParts[obj.k], cParts[obj.k], obj.n, obj.pn);
+      diff = diff || comparePart(bParts[obj.k], cParts[obj.k], obj.n, obj.pn)
     )
   if (!diff)
     diff = 'different than the repo version: ' + base
@@ -230,11 +230,11 @@ withTrack = (track, robot, message, callback) ->
       track = JSON.parse(body)
       callback(null, track)
     catch e
-      callback(e);
+      callback(e)
 
 spotNext = (msg) ->
   spotRequest msg, '/next', 'put', {}, (err, res, body) ->
-    msg.send("#{body} :fast_forward:")
+    msg.send(":small_blue_diamond: #{body} :fast_forward:")
 
 module.exports = (robot) ->
 
@@ -272,8 +272,7 @@ module.exports = (robot) ->
       message.send("#{body} :cry:")
   
   robot.respond /next/i, (message) ->
-    q = Queue.get();
-    console.log q.length
+    q = Queue.get()
     if (q.length)
       Queue.playNext (err, track) ->
         if (err)
@@ -384,7 +383,7 @@ module.exports = (robot) ->
       message.send(what)
 
   robot.respond /say me/i, (message) ->
-    message.send('no way ' + message.message.user.name);
+    message.send('no way ' + message.message.user.name)
 
   robot.respond /(.*) says.*turn.*down.*/i, (message) ->
     name = message.match[1]

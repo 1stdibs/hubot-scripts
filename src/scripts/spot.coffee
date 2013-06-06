@@ -2,7 +2,7 @@
 #   Control Spot from campfire. https://github.com/minton/spot
 #
 # Dependencies:
-#   None
+#   underscore
 #
 # Configuration:
 #   HUBOT_SPOT_URL
@@ -27,11 +27,14 @@
 #   hubot play #n - Play the nth track from the last search results
 #   hubot album #n - Pull up album info for the nth track in the last search results
 #   hubot last find - Pulls up the most recent find query
+#   hubot queue? - Pulls up the current queue
+#   hubot queue (track name | track result #) - Adds the given track to the queue
+#   hubot dequeue #(queue number) - removes the given queue line item (by current position in the queue)
 # Authors:
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.3.4'
+VERSION = '1.4.0'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 

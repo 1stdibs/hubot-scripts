@@ -136,6 +136,9 @@ Queue.addTrack = function (track, callback) {
     callback(void 0, index);
 };
 
+Queue.next = function () {
+    return get().shift();
+};
 
 module.exports = function (Robot, URL) {
     robot = Robot;

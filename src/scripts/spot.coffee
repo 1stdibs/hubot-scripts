@@ -34,7 +34,7 @@
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.4.2'
+VERSION = '1.4.3'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -272,8 +272,7 @@ module.exports = (robot) ->
       message.send("#{body} :cry:")
   
   robot.respond /next/i, (message) ->
-    q = Queue.get()
-    if (q.length)
+    if (Queue.next())
       Queue.playNext (err, track) ->
         if (err)
           spotNext message
@@ -290,6 +289,9 @@ module.exports = (robot) ->
     spotRequest message, '/playing', 'get', {}, (err, res, body) ->
       message.send("#{URL}/playing.png")
       message.send(":notes:  #{body}")
+      next = Queue.next()
+      if (next)
+        message.send(":small_blue_diamond: Up next is \"#{next.name}\"")
 
   robot.respond /album art\??/i, (message) ->
     spotRequest message, '/playing', 'get', {}, (err, res, body) ->

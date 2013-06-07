@@ -21,8 +21,8 @@ function set (queue) {
 }
 
 get = Queue.get = function () {
-    var q = Array.prototype.slice.call(robot.brain.get(queueName));
-    return q || [];
+    var q = robot.brain.get(queueName);
+    return Array.prototype.slice.call(q || []);
 };
 
 playNext = Queue.playNext = function (callback) {

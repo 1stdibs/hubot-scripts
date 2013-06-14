@@ -7,6 +7,8 @@ var Queue = {},
     url,
     interval,
     intervalDuration = 20000,
+    lockDuration = 5000,
+    lockTimeout,
     timeout,
     tryingToPlay,
     playNext,
@@ -20,40 +22,22 @@ function set (queue) {
     robot.brain.set(queueName, queue);
 }
 
-get = Queue.get = function () {
-    var q = robot.brain.get(queueName);
-    return Array.prototype.slice.call(q || []);
-};
-
-playNext = Queue.playNext = function (callback) {
-    var q = get(),
-        track = q.shift();
-    callback = callback || function () {};
-    if (!track) {
-        callback('empty queue');
-        return;
+function ping () {
+    var q = get();
+    console.log('ping!');
+    if (q.length && !interval) {
+        console.log('begin interval!');
+        interval = setInterval(checkUp, intervalDuration);
+        checkUp();
+    } else if (!q.length && interval) {
+        Queue.stop();
     }
-    if (tryingToPlay) {
-        callback('already trying');
-        return;
-    }
-    tryingToPlay = true;
-    spotRequest('/play-uri', 'post', {'uri' : track.uri}, function (err, res, body) {
-        tryingToPlay = false;
-        if (!err) {
-            callback(void 0, track);
-            Queue.removeTrack(track);
-            return;
-        }
-        callback(err);
-    });
 }
 
 function checkUp () {
     var q = get();
     if (!q.length) {
-        clearInterval(interval);
-        interval = null;
+        Queue.stop();
         return;
     }
     console.log('seconds left?');
@@ -71,18 +55,57 @@ function checkUp () {
     });
 }
 
-Queue.ping = function () {
-    var q = get();
-    console.log('ping!');
-    if (q.length && !interval) {
-        console.log('begin interval!');
-        interval = setInterval(checkUp, intervalDuration);
-        checkUp();
-    } else if (!q.length && interval) {
+get = Queue.get = function () {
+    var q = robot.brain.get(queueName);
+    return Array.prototype.slice.call(q || []);
+};
+
+Queue.locked = function () {
+    return !!lockTimeout || !!tryingToPlay;
+};
+
+Queue.stop = function () {
+    console.log('stopping the queue');
+    if (interval) {
         clearInterval(interval);
         interval = null;
     }
+    if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+    }
 };
+
+Queue.start = function () {
+    ping();
+};
+
+playNext = Queue.playNext = function (callback) {
+    var q = get(),
+        track = q.shift();
+    callback = callback || function () {};
+    if (!track) {
+        callback('empty queue');
+        return;
+    }
+    if (tryingToPlay) {
+        callback('already trying');
+        return;
+    }
+    tryingToPlay = true;
+    spotRequest('/play-uri', 'post', {'uri' : track.uri}, function (err, res, body) {
+        lockTimeout = setTimeout(function () {
+            lockTimeout = null;
+        }, lockDuration);
+        tryingToPlay = false;
+        if (!err) {
+            callback(void 0, track);
+            Queue.removeTrack(track);
+            return;
+        }
+        callback(err);
+    });
+}
 
 Queue.describe = function (msg) {
     var queue = Queue.get(), str = [];
@@ -112,7 +135,7 @@ Queue.removeTrack = function (track) {
     set(_.filter(get(), function (t) {
         return track.uri != t.uri;
     }));
-    Queue.ping();
+    ping();
 };
 
 Queue.addTrack = function (track, callback) {
@@ -131,7 +154,7 @@ Queue.addTrack = function (track, callback) {
     if (index === void 0) {
         index = queue.push(track);
         set(queue);
-        Queue.ping();
+        ping();
     }
     callback(void 0, index);
 };
@@ -143,6 +166,6 @@ Queue.next = function () {
 module.exports = function (Robot, URL) {
     robot = Robot;
     url = URL;
-    Queue.ping();
+    robot.on('connected', ping);
     return Queue;
 };

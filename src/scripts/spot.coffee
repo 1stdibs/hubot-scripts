@@ -34,7 +34,7 @@
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.4.5'
+VERSION = '1.4.6'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -157,9 +157,15 @@ renderAlbum = (album) ->
   explanations = (explain track for track in album.tracks)
   return pt1 + render(explanations)
 
+nothingFoundMessage = 'I found nothin\''
+
+nothinFound = (message) ->
+  message.send(':small_blue_diamond: ' + nothingFoundMessage)
+
 showResults = (robot, message, results) ->
   if not results or not results.length
-    return message.send(':small_blue_diamond: I found nothin\'')
+    nothinFound(message)
+    return
   explanations = (explain track for track in results)
   message.send(":small_blue_diamond: I found:")
   setTimeout(() ->
@@ -175,12 +181,15 @@ calcLength = (seconds) ->
     rSeconds = '0' + rSeconds
   return Math.floor(iSeconds / 60) + ':' + rSeconds
 
-playTrack = (track, message) ->
+playTrack = (track, message, callback) ->
+  callback = callback || ->
   if not track or not track.uri
+    callback('invalid track')
     message.send(":flushed:")
     return
   message.send(":small_blue_diamond: Switching to: " + track.name)
   spotRequest message, '/play-uri', 'post', {'uri' : track.uri}, (err, res, body) ->
+    callback(err, body)
     if (err)
       message.send(":flushed: " + err)
 
@@ -219,7 +228,7 @@ withTrack = (track, robot, message, callback) ->
     if (lR && lR.length)
       callback(null, lR[0])
       return
-    callback('nothing found')
+    callback(nothingFoundMessage)
     return
   params = {q: track}
   spotRequest message, '/single-query', 'get', params, (err, res, body) ->
@@ -228,7 +237,10 @@ withTrack = (track, robot, message, callback) ->
       return
     try
       track = JSON.parse(body)
-      callback(null, track)
+      if (!track || !track.uri)
+        callback(nothingFoundMessage)
+      else
+        callback(null, track)
     catch e
       callback(e)
 
@@ -319,11 +331,17 @@ module.exports = (robot) ->
       message.send("Spot volume set to #{body}. :mega:")
 
   robot.respond /play (.*)/i, (message) ->
+    if (Queue.locked())
+      withTrack message.match[1], robot, message, ->
+      message.send(":small_blue_diamond: I just put on a track, one sec")
+      return
+    Queue.stop()
     withTrack message.match[1], robot, message, (err, track) ->
       if (err)
         message.send(":flushed: " + err)
+        Queue.start()
         return
-      playTrack(track, message)
+      playTrack(track, message, () -> Queue.start())
 
   robot.respond /album .(\d+)/i, (message) ->
     r = getLastResultsRelevantToUser(robot, message.message.user)

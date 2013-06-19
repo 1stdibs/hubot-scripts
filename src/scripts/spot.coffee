@@ -8,6 +8,7 @@
 #   HUBOT_SPOT_URL
 #
 # Commands:
+#   hubot music status? - Lets you know what's up
 #   hubot play! - Plays current playlist or song.
 #   hubot pause - Pause the music.
 #   hubot play next - Plays the next song.

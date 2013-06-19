@@ -34,11 +34,13 @@
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.4.6'
+VERSION = '1.4.7'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
 CAMPFIRE_CHRONOLOGICAL_DELAY = 700
+
+Queue = {}
 
 getCurrentVersion = (callback) ->
   https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.coffee', (res) ->
@@ -248,9 +250,30 @@ spotNext = (msg) ->
   spotRequest msg, '/next', 'put', {}, (err, res, body) ->
     msg.send(":small_blue_diamond: #{body} :fast_forward:")
 
+volumeRespond = (message) ->
+  spotRequest message, '/volume', 'get', {}, (err, res, body) ->
+    message.send("Spot volume is #{body}. :mega:")
+
+remainingRespond = (message) ->
+  spotRequest message, '/how-much-longer', 'get', {}, (err, res, body) ->
+    message.send(":small_blue_diamond: #{body}")
+
+playingRespond = (message) ->
+  spotRequest message, '/playing', 'get', {}, (err, res, body) ->
+    message.send("#{URL}/playing.png")
+    message.send(":notes:  #{body}")
+    next = Queue.next()
+    if (next)
+      message.send(":small_blue_diamond: Up next is \"#{next.name}\"")
+
 module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
+
+  robot.respond /music status\??/, (message) ->
+    playingRespond(message)
+    volumeRespond(message)
+    remainingRespond(message)
 
   robot.respond /queue\??\s*$/i, (message) ->
     Queue.describe(message)
@@ -297,21 +320,13 @@ module.exports = (robot) ->
     spotRequest message, '/back', 'put', {}, (err, res, body) ->
       message.send("#{body} :rewind:")
 
-  robot.respond /playing\?/i, (message) ->
-    spotRequest message, '/playing', 'get', {}, (err, res, body) ->
-      message.send("#{URL}/playing.png")
-      message.send(":notes:  #{body}")
-      next = Queue.next()
-      if (next)
-        message.send(":small_blue_diamond: Up next is \"#{next.name}\"")
+  robot.respond /playing\?/i, playingRespond
 
   robot.respond /album art\??/i, (message) ->
     spotRequest message, '/playing', 'get', {}, (err, res, body) ->
       message.send("#{URL}/playing.png")
 
-  robot.respond /volume\?/i, (message) ->
-    spotRequest message, '/volume', 'get', {}, (err, res, body) ->
-      message.send("Spot volume is #{body}. :mega:")
+  robot.respond /volume\?/i, volumeRespond
 
   robot.respond /volume\+/i, (message) ->
     spotRequest message, '/bumpup', 'put', {}, (err, res, body) ->
@@ -359,9 +374,7 @@ module.exports = (robot) ->
       robot.brain.set('lastQueryResults', album.tracks)
       message.send(renderAlbum album)
 
-  robot.respond /(how much )?(time )?(remaining|left)\??$/i, (message) ->
-    spotRequest message, '/how-much-longer', 'get', {}, (err, res, body) ->
-      message.send(":small_blue_diamond: #{body}")
+  robot.respond /(how much )?(time )?(remaining|left)\??$/i, remainingRespond
 
   robot.respond /query (.*)/i, (message) ->
     params = {q: message.match[1]}

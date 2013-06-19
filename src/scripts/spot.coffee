@@ -270,7 +270,7 @@ module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
 
-  robot.respond /music status\??/, (message) ->
+  robot.respond /music status\??/i, (message) ->
     playingRespond(message)
     volumeRespond(message)
     remainingRespond(message)

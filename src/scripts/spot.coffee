@@ -271,9 +271,18 @@ module.exports = (robot) ->
   Queue = require('./support/spotifyQueue')(robot, URL)
 
   robot.respond /music status\??/i, (message) ->
+    spotRequest message, '/seconds-left', 'get', {}, (err, res, body) ->
+      seconds = parseInt(String(body).replace(/[^\d\.]+/g, ''), 10) || 1;
+      setTimeout ( ->
+        spotRequest message, '/seconds-left', 'get', {}, (err, res, body) ->
+          seconds2 = parseInt(String(body).replace(/[^\d\.]+/g, ''), 10) || 1;
+          if (seconds == seconds2)
+            message.send ":small_blue_diamond: The music appears to be paused"
+          else
+            remainingRespond(message)
+      ), 2000
     playingRespond(message)
     volumeRespond(message)
-    remainingRespond(message)
 
   robot.respond /queue\??\s*$/i, (message) ->
     Queue.describe(message)

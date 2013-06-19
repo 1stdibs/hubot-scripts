@@ -35,7 +35,7 @@
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.4.7'
+VERSION = '1.4.8'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -284,6 +284,7 @@ module.exports = (robot) ->
       ), 2000
     playingRespond(message)
     volumeRespond(message)
+    Queue.describe(message)
 
   robot.respond /queue\??\s*$/i, (message) ->
     Queue.describe(message)

@@ -60,8 +60,8 @@ module.exports = function(robot) {
     });
     robot.respond(/fusion me( ([^\+&]+)( ?(\+|&&?) ?(.+))?)?/i, function(msg) {
         var faceId, bodyId,
-            reqFace = msg.match[2],
-            reqBody = msg.match[5];
+            reqFace = String(msg.match[2]).replace(/^\s+/, '').replace(/\s+$/, ''),
+            reqBody = String(msg.match[5]).replace(/^\s+/, '').replace(/\s+$/, '');
         if (reqFace && !reqBody && Math.random() >= 0.5) {
             //If only one pokemon was requested,
             //randomize whether it'll be face or body

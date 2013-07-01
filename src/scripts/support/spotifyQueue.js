@@ -166,6 +166,7 @@ Queue.next = function () {
 module.exports = function (Robot, URL) {
     robot = Robot;
     url = URL;
+    ping();
     robot.on('connected', ping);
     return Queue;
 };

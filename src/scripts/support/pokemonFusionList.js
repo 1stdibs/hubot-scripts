@@ -649,5 +649,20 @@ module.exports = {
         "name": "Gyarados",
         "prefix": "Gyara",
         "suffix": "dos"
+    },
+    "131": {
+        "name": "Lapras",
+        "prefix": "Lap",
+        "suffix": "ras"
+    },
+    "132": {
+        "name": "Ditto",
+        "prefix": "Dit",
+        "suffix": "to"
+    },
+    "133": {
+        "name": "Eevee",
+        "prefix": "Ee",
+        "suffix": "vee"
     }
 };

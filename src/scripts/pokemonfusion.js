@@ -58,7 +58,7 @@ module.exports = function(robot) {
     robot.respond(/fusion pok[eé]dex\??/i, function (msg) {
         showAndRateUpTo(msg, pokedex.fusion.getMax());
     });
-    robot.respond(/fusion me( ([\S]+)( ?(\+|and|&&?) ?([\S]+))?)?/i, function(msg) {
+    robot.respond(/fusion me( (.+)( ?(\+|and|&&?) ?(.+))?)?/i, function(msg) {
         var faceId, bodyId,
             reqFace = msg.match[2],
             reqBody = msg.match[5];

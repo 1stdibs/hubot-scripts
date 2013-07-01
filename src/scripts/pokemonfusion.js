@@ -19,7 +19,7 @@
 var pokedex = require('./support/pokedex'),
     stutter = 700,
     lickId = pokedex.getId('lickitung'),
-    wildCards = [void 0, '*'];
+    wildCards = [void 0, '*', ''];
 
 function longId (id) {
     id = String(id);
@@ -62,7 +62,7 @@ module.exports = function(robot) {
         var faceId, bodyId,
             reqFace = String(msg.match[2] || '').replace(/^\s+/, '').replace(/\s+$/, ''),
             reqBody = String(msg.match[5] || '').replace(/^\s+/, '').replace(/\s+$/, '');
-        if (reqFace && !reqBody && Math.random() >= 0.5) {
+        if (reqFace.length && !reqBody.length && Math.random() >= 0.5) {
             //If only one pokemon was requested,
             //randomize whether it'll be face or body
             reqBody = reqFace;

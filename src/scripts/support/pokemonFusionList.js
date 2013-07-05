@@ -664,5 +664,95 @@ module.exports = {
         "name": "Eevee",
         "prefix": "Ee",
         "suffix": "vee"
+    },
+    "134": {
+        "name": "Vaporeon",
+        "prefix": "Vapor",
+        "suffix": "eon"
+    },
+    "135": {
+        "name": "Jolteon",
+        "prefix": "Jolt",
+        "suffix": "eon"
+    },
+    "136": {
+        "name": "Flareon",
+        "prefix": "Flare",
+        "suffix": "eon"
+    },
+    "137": {
+        "name": "Porygon",
+        "prefix": "Pory",
+        "suffix": "gon"
+    },
+    "138": {
+        "name": "Omanyte",
+        "prefix": "Oma",
+        "suffix": "nyte"
+    },
+    "139": {
+        "name": "Omastar",
+        "prefix": "Oma",
+        "suffix": "star"
+    },
+    "140": {
+        "name": "Kabuto",
+        "prefix": "Kabu",
+        "suffix": "to"
+    },
+    "141": {
+        "name": "Kabutops",
+        "prefix": "Kabu",
+        "suffix": "tops"
+    },
+    "142": {
+        "name": "Aerodactyl",
+        "prefix": "Aero",
+        "suffix": "dactyl"
+    },
+    "143": {
+        "name": "Snorlax",
+        "prefix": "Snor",
+        "suffix": "lax"
+    },
+    "144": {
+        "name": "Articuno",
+        "prefix": "Artic",
+        "suffix": "uno"
+    },
+    "145": {
+        "name": "Zapdos",
+        "prefix": "Zap",
+        "suffix": "dos"
+    },
+    "146": {
+        "name": "Moltres",
+        "prefix": "Molt",
+        "suffix": "tres"
+    },
+    "147": {
+        "name": "Dratini",
+        "prefix": "Dra",
+        "suffix": "tini"
+    },
+    "148": {
+        "name": "Dragonair",
+        "prefix": "Dragon",
+        "suffix": "nair"
+    },
+    "149": {
+        "name": "Dragonite",
+        "prefix": "Dragon",
+        "suffix": "nite"
+    },
+    "150": {
+        "name": "Mewtwo",
+        "prefix": "Mew",
+        "suffix": "two"
+    },
+    "151": {
+        "name": "Mew",
+        "prefix": "Mew",
+        "suffix": "ew"
     }
 };

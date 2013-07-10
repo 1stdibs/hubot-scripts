@@ -270,6 +270,8 @@ playingRespond = (message) ->
 module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
+  Support = require('./support/spotifySupport')(robot)
+  debug = Support.debug
 
   robot.respond /music status\??/i, (message) ->
     spotRequest message, '/seconds-left', 'get', {}, (err, res, body) ->
@@ -411,6 +413,9 @@ module.exports = (robot) ->
         showResults(robot, message, data)
       catch error
         message.send(":small_blue_diamond: :flushed: " + error.message)
+
+  robot.respond /debug/i, (message) ->
+    message.send(debug())
 
   robot.respond /last find\??/i, (message) ->
     data = robot.brain.get 'lastQueryResults'

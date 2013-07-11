@@ -21,7 +21,7 @@ Support.getTrackInfo = function (callback) {
 Support.debug = function () {
     Support.getCurrentTrackUri(function (err, uri) {
         if (!err) {
-            MetaData.fetchTrackInfo(uri, function (err, track) {
+            MetaData.fetchTrack(uri, function (err, track) {
                 console.log('track!', track);
             });
         }

@@ -13,7 +13,8 @@ var MetaData = {
     robot;
 
 function persistUriData(uri, prefix, data) {
-    var args = Array.prototype.slice.call(arguments);
+    var args;
+    args = Array.prototype.slice.call(arguments);
     uri = args.shift();
     data = args.pop();
     prefix = args.pop();
@@ -62,7 +63,7 @@ function getUriInfo (uri, params, callback) {
 
 function query (type, queryString, callback) {
     var data, dataUri;
-    if (!MetaData.uri.search[type]) {
+    if (!MetaData.uris.search[type]) {
         callback('Unknown query type ' + type);
         return;
     }
@@ -71,7 +72,7 @@ function query (type, queryString, callback) {
     if (data) {
         callback(void 0, data);
     }
-    robot.http(MetaData.uri.search[type]).query({q : queryString}).get()(function (err, resp, body) {
+    robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(function (err, resp, body) {
         var data = void 0;
         if (!err) {
             try {
@@ -82,6 +83,42 @@ function query (type, queryString, callback) {
             }
         }
         callback(err, data);
+    });
+}
+
+function find(what, queryString, limit, callback) {
+    var args = Array.prototype.slice.call(arguments);
+    what = args.shift();
+    queryString = args.shift();
+    limit = args.shift();
+    query(what, queryString, function (err, data) {
+        var objs = [], key, use;
+        if (err) {
+            callback(err);
+            return;
+        }
+        if (!data || !data.info || !data.info.type) {
+            callback('invalid response, no data->info->type');
+            return;
+        }
+        if (!mapping[data.info.type]) {
+            callback('don\'t know what to do with ' + data.info.type);
+            return;
+        }
+        key = data.info.type + 's';
+        if (!data[key]) {
+            callback('No ' + key + ' index found in response');
+            return;
+        }
+        if (limit) {
+            use = data[key].slice(0, limit);
+        } else {
+            use = data[key];
+        }
+        use.forEach(function (datum) {
+            objs.push(new mapping[data.info.type](datum));
+        });
+        callback(err, objs);
     });
 }
 
@@ -276,27 +313,18 @@ MetaData.fetchArtist = function (artistUri, callback) {
     return MetaData;
 };
 
-MetaData.findAlbums = function (albumQuery, callback) {
-    query('album', albumQuery, function (err, data) {
-        var albums = [], key;
-        if (err) {
-            callback(err);
-            return;
-        }
-        if (!data || !data.info || !data.info.type) {
-            callback('invalid response, no data->info->type');
-            return;
-        }
-        key = data.info.type + 's';
-        if (!data[key]) {
-            callback('No ' + key + ' index found in response');
-            return;
-        }
-        data[key].forEach(function (datum) {
-            albums.push(new MetaData.Album(datum));
-        });
-        callback(err, albums);
-    });
+MetaData.findAlbums = function (query, limit, callback) {
+    find.apply(this, ['album'].concat(Array.prototype.slice.call(arguments)));
+    return MetaData;
+};
+
+MetaData.findArtists = function (query, limit, callback) {
+    find.apply(this, ['artist'].concat(Array.prototype.slice.call(arguments)));
+    return MetaData;
+};
+
+MetaData.findTracks = function (query, limit, callback) {
+    find.apply(this, ['track'].concat(Array.prototype.slice.call(arguments)));
     return MetaData;
 };
 

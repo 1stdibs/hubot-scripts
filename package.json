@@ -20,6 +20,7 @@
         "jsdom" : "0.6.x",
         "underscore.string" : "2.3.x",
         "htmlparser" : "1.7.6",
+        "scoped-http-client" : "0.9.x",
         "soupselect" : "0.2.x"
     },
     "engines" : {

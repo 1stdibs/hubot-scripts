@@ -34,6 +34,18 @@ function parse (track) {
     return data;
 }
 
+function asTitle(str) {
+    return '##' + str + '##';
+}
+
+function asLabel(str) {
+    return '*' + str + '*:';
+}
+
+function asAdditional(str) {
+    return '[' + str + ']';
+}
+
 templates.trackSingleLine = function (track) {
     var str = [], data = parse(track);
     str.push(data.trackName);
@@ -45,6 +57,79 @@ templates.trackSingleLine = function (track) {
     }
     str.push(data.length);
     return str.join(' ');
+};
+
+templates.albumLine = function (album, full) {
+    var str = [asLabel('Album')];
+    str.push(album.name);
+    if (full && album.artists.length) {
+        str.push(asAdditional(templates.artistsLine(album.artists)));
+    }
+    if (full && album.tracks.length) {
+        str.push(asAdditional('Tracks: ' + album.tracks.length));
+    }
+    if (album.released) {
+        if (full) {
+            str.push(asAdditional('Released: ' + album.released));
+        } else {
+            str.push(asAdditional(album.released));
+        }
+    }
+    return str.join(' ');
+};
+
+templates.trackLine = function (track, full) {
+    var str = [asLabel('Track')];
+    str.push(track.name);
+    if (full && track.artists.length) {
+        str.push(asAdditional(templates.artistsLine(track.artists)));
+    }
+    if (full && track.album) {
+        str.push(asAdditional(templates.albumLine(track.album)));
+    }
+    str.push(asAdditional(calcLength(track.length)));
+    return str.join(' ');
+};
+
+templates.tracksLines = function (tracks, full) {
+    var lines = [asTitle('Tracks')];
+    var i = 1;
+    tracks.forEach(function (track) {
+        lines.push('#' + i + ' ' + templates.trackLine(track, full));
+        i++;
+    });
+    return lines.join("\n");
+};
+
+templates.artistsLine = function (artists, full) {
+    var plural = artists.length > 1,
+        ones,
+        str = [asLabel('Artist' + (plural ? 's' : ''))];
+    ones = [];
+    artists.forEach(function (artist) {
+        ones.push(artist.name);
+    });
+    str.push(ones.join(', '));
+    return str.join(' ');
+};
+
+templates.artistLine = function (artist, full) {
+    var str = [asLabel('Artist')];
+    str.push(artist.name);
+    if (full && artist.albums && artist.albums.length) {
+        str.push(asAdditional('Albums: ' + artist.albums.length));
+    }
+    return str.join(' ');
+};
+
+templates.artistsLines = function (artists, full) {
+    var lines = [asTitle('Artists')];
+    var i = 1;
+    artists.forEach(function (artist) {
+        lines.push('#' + i + ' ' + templates.artistLine(artist, full));
+        i++;
+    });
+    return lines.join("\n");
 };
 
 module.exports = templates;

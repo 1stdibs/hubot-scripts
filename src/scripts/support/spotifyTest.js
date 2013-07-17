@@ -12,9 +12,8 @@ function getTrackHandler (message) {
             message.send(':flushed: ' + err);
             return;
         }
-        var index = manager.persist(data, 'tracks', userId),
-            resultName = manager.nameList(index, 'tracks');
-        message.send(['Here\'s the ones I found:', resultName, templates.tracksLines(data, true)].join("\n"));
+        var index = manager.persist(data, 'tracks', userId);
+        message.send(['Here\'s the ones I found:', index, templates.tracksLines(data, true)].join("\n"));
     }
 }
 
@@ -25,8 +24,8 @@ MetaSpotify.findTracks('fun times', 3, getTrackHandler(message));
 
 setTimeout(function () {
 
-    var lResult = manager.getLastResultForUser(1);
-    console.log('last result for user 1', lResult);
+    var lResult = manager.getLastResultMetaDataForUser(1);
+    console.log('last info for user 1', lResult);
 //    if (lResult) {
 //        message.send(['the last result was:', templates.tracksLines(lResult, true)].join("\n"));
 //    } else {

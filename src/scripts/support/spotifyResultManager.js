@@ -1,13 +1,18 @@
 'use strict';
 /**
+ * ++Actual result lists should be stored separately from
+ *   result meta-data; so that we can efficiently search
+ *   through the meta-data without inflating the whole
+ *   result lists.
+ *
  *
  * Notes:
  *  Names are pretty indexes scoped to their type
  */
 
 var Manager = {},
-    Result,
     All,
+    ByType,
     ByUser,
     robot;
 
@@ -15,85 +20,30 @@ function now () {
     return ~~(Date.now() / 1000);
 }
 
-function typeToKey(type) {
-    return type && type + 'rmList' || 'rmList';
-}
+ByType = (function () {
+    var ByType = {};
 
-function get(type) {
-    return robot.brain.get(typeToKey(type)) || [];
-}
-
-function set(list, type) {
-    robot.brain.set(typeToKey(type), list);
-}
-
-function getTypeFromName (name) {
-    return String(name).toLowerCase().replace(/result:(\d+)$/, '');
-}
-
-function getIndexFromName (name) {
-    String(name).toLowerCase().replace(/result:(\d+)$/, '');
-    return +(RegExp.$1) - 1;
-}
-
-Result = (function () {
-    var Result;
-
-    Result = function (name, userId, timestamp) {
-        this.name = name;
-        this.userId = userId;
-        this.timestamp = timestamp;
-        this.type = getTypeFromName(name);
-        this.index = getIndexFromName(name);
-    };
-
-    Result.prototype.getList = function () {
-        return Manager.getListByName(this.name);
-    };
-
-    Result.prototype.serialize = function () {
-        return {name : this.name, userId : this.userId, timestamp : this.timestamp};
-    };
-
-    Result.inflate = function (serialized) {
-        return new Result(serialized.name, serialized.userId, serialized.timestamp);
-    };
-
-    return Result;
-}());
-
-All = (function () {
-    var All = {},
-        allKey = '__AllResultKeys';
-
-    function aGet () {
-        return robot.brain.get(allKey) || [];
+    function typeToKey (type) {
+        return ['__TypeResults', type].join('');
     }
 
-    function set (all) {
-        robot.brain.set(allKey, all);
+    function get (type) {
+        return robot.brain.get(typeToKey(type)) || [];
     }
 
-    All.add = function (result) {
-        var all = aGet(),
-            l = all.push(result.serialize());
-        set(all);
-        if (result.userId) {
-            ByUser.add(result);
-        }
-        return l - 1;
+    function set (list, type) {
+        return robot.brain.set(typeToKey(type), list);
+    }
+
+    ByType.add = function (result) {
+        var spec = get(result.type);
+        spec.push(result);
+        set(spec, result.type);
     };
 
-    All.getLast = function (type) {
-        var list;
-        if (type) {
-            list = get(type);
-            return list.slice(-1)[0];//safe pop
-        }
-        return Result.inflate(aGet().slice(-1)[0]).getList();//safe pop
-    };
+    ByType.get = get;
 
-    return All;
+    return ByType;
 }());
 
 ByUser = (function () {
@@ -120,9 +70,9 @@ ByUser = (function () {
     ByUser.add = function (result) {
         var spec = get(result.userId, result.type),
             gen = get(result.userId);
-        spec.push(result.serialize());
+        spec.push(result);
         set(spec, result.userId, result.type);
-        gen.push(result.serialize());
+        gen.push(result);
         set(gen, result.userId);
     };
 
@@ -133,6 +83,48 @@ ByUser = (function () {
     return ByUser;
 }());
 
+All = (function () {
+    var All = {},
+        allKey = '__AllResultKeys',
+        allMetaData = '__AllMetaData';
+
+    function get () {
+        var all = robot.brain.get(allKey);
+        return all && Array.prototype.slice.call(all) || [];
+    }
+
+    function set (all) {
+        robot.brain.set(allKey, Array.prototype.slice.call(all));
+    }
+
+    function getMetaData() {
+        return robot.brain.get(allMetaData) || [];
+    }
+
+    function setMetaData(data) {
+        robot.brain.set(allMetaData, data);
+    }
+
+    All.add = function (list, metaData) {
+        var all = get(), allMetaData = getMetaData();
+        metaData.index = all.push(list) - 1;
+        allMetaData.push(metaData);
+        set(all);
+        setMetaData(allMetaData);
+        ByType.add(metaData);
+        if (metaData.userId) {
+            ByUser.add(metaData);
+        }
+        return metaData.index;
+    };
+
+    All.get = function (index) {
+        return get()[index];
+    };
+
+    return All;
+}());
+
 /**
  * @param list
  * @param type
@@ -141,42 +133,22 @@ ByUser = (function () {
  * @returns {number} Index of persisted list
  */
 Manager.persist = function (list, type, userId, timestamp) {
-    var typedSilo = get(type) || [],
-        i = typedSilo.push(list) - 1;
-    timestamp = timestamp || now();
-    set(typedSilo, type);
-    All.add(new Result(Manager.nameList(i, type), userId, timestamp));
-    return i;
+    return All.add(list, {
+        type : type,
+        userId : userId,
+        timestamp : timestamp || now()
+    });
 };
 
-/**
- * @param index
- * @param type
- * @returns {*}
- */
-Manager.fetch = function (index, type) {
-    return get(type)[index];
-};
+Manager.getResult = All.get;
 
-Manager.nameList = function (index, type) {
-    type = type && type + 'Result' || 'result';
-    return type.slice(0, 1).toUpperCase() + type.slice(1) + ':' + (index + 1);
+Manager.getLastResultMetaDataForUser = function (userId, type) {
+    return ByUser.get.apply(ByUser, arguments).pop();
 };
-
-Manager.getListByName = function (name) {
-    var type = String(name).toLowerCase().replace(/result:(\d+)$/, ''),
-        i = +(RegExp.$1) - 1;
-    return get(type)[i];
-};
-
-Manager.getLastResult = All.getLast;
 
 Manager.getLastResultForUser = function (userId, type) {
-    var list = ByUser.get.apply(ByUser, arguments);
-    if (!list.length) {
-        return void 0;
-    }
-    return Result.inflate(list.pop());
+    var last = Manager.getLastResultMetaDataForUser(userId, type);
+    return All.get(last && last.index);
 };
 
 module.exports = function (Robot) {

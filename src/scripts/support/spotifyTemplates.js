@@ -35,11 +35,11 @@ function parse (track) {
 }
 
 function asTitle(str) {
-    return '##' + str + '##';
+    return '༺ ' + str + ' ༻';
 }
 
 function asLabel(str) {
-    return '*' + str + '*:';
+    return '༅' + str + ':';
 }
 
 function asAdditional(str) {

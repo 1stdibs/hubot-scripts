@@ -42,6 +42,10 @@ function getDataHandler (userId, type, callback) {
             return rawTemplate(data, true);
         };
     return function handleData (err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
         callback(err, resultToString(data, type, userId, template));
     };
 }
@@ -62,6 +66,10 @@ Support.findTracks = function (query, userId, limit, callback) {
 
 Support.findAlbums = function (query, userId, limit, callback) {
     MetaData.findAlbums(query, limit, getDataHandler(userId, 'albums', callback));
+};
+
+Support.findArtists = function (query, userId, limit, callback) {
+    MetaData.findArtists(query, limit, getDataHandler(userId, 'artists', callback));
 };
 
 module.exports = function (Robot, URL) {

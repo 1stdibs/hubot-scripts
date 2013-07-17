@@ -112,6 +112,10 @@ function find(what, queryString, limit, callback) {
             callback('No ' + key + ' index found in response');
             return;
         }
+        if (!data[key].length) {
+            callback('Nothing Found');
+            return;
+        }
         if (limit) {
             use = data[key].slice(0, limit);
         } else {

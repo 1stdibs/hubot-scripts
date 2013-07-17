@@ -281,6 +281,20 @@ module.exports = (robot) ->
         return
       message.send(str);
 
+  robot.respond /find ((\d+) )?artists (.+)/i, (message) ->
+    Support.findArtists message.match[3], message.message.user.id, message.match[2] || DEFAULT_LIMIT, (err, str) ->
+      if (err)
+        message.send(":flushed: " + err);
+        return
+      message.send(str);
+
+  robot.respond /find ((\d+) )?(music|tracks|songs) (.+)/i, (message) ->
+    Support.findTracks message.match[4], message.message.user.id, message.match[2] || DEFAULT_LIMIT, (err, str) ->
+      if (err)
+        message.send(":flushed: " + err);
+        return
+      message.send(str);
+
   robot.respond /music status\??/i, (message) ->
     spotRequest message, '/seconds-left', 'get', {}, (err, res, body) ->
       seconds = parseInt(String(body).replace(/[^\d\.]+/g, ''), 10) || 1;
@@ -406,21 +420,6 @@ module.exports = (robot) ->
       setTimeout(() ->
         message.send(explain track)
       , CAMPFIRE_CHRONOLOGICAL_DELAY)
-
-  robot.respond /,?\s*find ?(.*) (music|((songs|tracks)( of)?)) (.*)/i, (message) ->
-    limit = determineLimit message.match[1]
-    params = {q: message.match[6]}
-    spotRequest message, '/query', 'get', params, (err, res, body) ->
-      try
-        data = JSON.parse(body)
-        if (data.length > limit)
-          data = data.slice(0, limit)
-        robot.brain.set('lastQueryResults', data)
-        robot.brain.set('lastQueryTime', now())
-        recordUserQueryResults(message, data)
-        showResults(robot, message, data)
-      catch error
-        message.send(":small_blue_diamond: :flushed: " + error.message)
 
   robot.respond /last find\??/i, (message) ->
     data = robot.brain.get 'lastQueryResults'

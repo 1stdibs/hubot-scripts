@@ -78,6 +78,16 @@ templates.albumLine = function (album, full) {
     return str.join(' ');
 };
 
+templates.albumsLines = function (albums, full) {
+    var lines = [asTitle('Albums')];
+    var i = 1;
+    albums.forEach(function (album) {
+        lines.push('#' + i + ' ' + templates.albumLine(album, full));
+        i++;
+    });
+    return lines.join("\n");
+};
+
 templates.trackLine = function (track, full) {
     var str = [asLabel('Track')];
     str.push(track.name);

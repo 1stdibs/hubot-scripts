@@ -41,6 +41,8 @@ URL = "#{process.env.HUBOT_SPOT_URL}"
 
 CAMPFIRE_CHRONOLOGICAL_DELAY = 700
 
+DEFAULT_LIMIT = 3
+
 Queue = {}
 
 getCurrentVersion = (callback) ->
@@ -271,7 +273,13 @@ module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
   Support = require('./support/spotifySupport')(robot)
-  debug = Support.debug
+
+  robot.respond /find ((\d+) )?albums (.+)/i, (message) ->
+    Support.findAlbums message.match[3], message.message.user.id, message.match[2] || DEFAULT_LIMIT, (err, str) ->
+      if (err)
+        message.send(":flushed: " + err);
+        return
+      message.send(str);
 
   robot.respond /music status\??/i, (message) ->
     spotRequest message, '/seconds-left', 'get', {}, (err, res, body) ->
@@ -413,9 +421,6 @@ module.exports = (robot) ->
         showResults(robot, message, data)
       catch error
         message.send(":small_blue_diamond: :flushed: " + error.message)
-
-  robot.respond /debug/i, (message) ->
-    message.send(debug())
 
   robot.respond /last find\??/i, (message) ->
     data = robot.brain.get 'lastQueryResults'

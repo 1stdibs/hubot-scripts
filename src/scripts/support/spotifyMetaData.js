@@ -47,6 +47,7 @@ function getUriInfo (uri, params, callback) {
         callback(void 0, data);
         return;
     }
+    console.log('fetching', MetaData.uris.lookup, params);
     robot.http(MetaData.uris.lookup).query(params).get()(function (err, resp, body) {
         var data = void 0;
         if (!err) {
@@ -72,6 +73,7 @@ function query (type, queryString, callback) {
     if (data) {
         callback(void 0, data);
     }
+    console.log('hitting', MetaData.uris.search[type], queryString);
     robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(function (err, resp, body) {
         var data = void 0;
         if (!err) {

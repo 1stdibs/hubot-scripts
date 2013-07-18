@@ -93,7 +93,7 @@ playNext = Queue.playNext = function (callback) {
         return;
     }
     tryingToPlay = true;
-    spotRequest('/play-uri', 'post', {'uri' : track.uri}, function (err, res, body) {
+    spotRequest('/play-uri', 'post', {'uri' : track.href}, function (err, res, body) {
         lockTimeout = setTimeout(function () {
             lockTimeout = null;
         }, lockDuration);
@@ -133,7 +133,7 @@ Queue.dequeue = function (index, callback) {
 
 Queue.removeTrack = function (track) {
     set(_.filter(get(), function (t) {
-        return track.uri != t.uri;
+        return track.href != t.href;
     }));
     ping();
 };
@@ -141,13 +141,13 @@ Queue.removeTrack = function (track) {
 Queue.addTrack = function (track, callback) {
     var queue, index;
     callback = callback || function () {};
-    if (!track.uri) {
+    if (!track.href) {
         callback('invalid track');
         return Queue;
     }
     queue = Queue.get();
     _.each(queue, function (t, i) {
-        if (track.uri == t.uri) {
+        if (track.href == t.href) {
             index = +i + 1;
         }
     });

@@ -45,6 +45,8 @@ DEFAULT_LIMIT = 3
 
 Queue = {}
 
+templates = require('./support/spotifyTemplates')
+
 getCurrentVersion = (callback) ->
   https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.coffee', (res) ->
     data = ''
@@ -139,6 +141,9 @@ explain = (data) ->
 
 now = () ->
   return ~~(Date.now() / 1000)
+
+trim = (str) ->
+  return String(str).replace(/^\s+/, '').replace(/\s+$/, '')
 
 render = (explanations) ->
   str = ""
@@ -269,31 +274,58 @@ playingRespond = (message) ->
     if (next)
       message.send(":small_blue_diamond: Up next is \"#{next.name}\"")
 
+sayError = (err, message) ->
+  message.send(":flushed: " + err)
+
+getStrHandler = (message) ->
+  return (err, str) ->
+    if (err)
+      sayError(err, message)
+    else
+      message.send(str)
+
 module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
-  Support = require('./support/spotifySupport')(robot)
+  Support = require('./support/spotifySupport')(robot, URL)
 
-  robot.respond /find ((\d+) )?albums (.+)/i, (message) ->
-    Support.findAlbums message.match[3], message.message.user.id, message.match[2] || DEFAULT_LIMIT, (err, str) ->
-      if (err)
-        message.send(":flushed: " + err);
-        return
-      message.send(str);
+  robot.respond /find ((\d+) )?album(s)? (.+)/i, (message) ->
+    if (message.match[3])#PLURAL
+      Support.findAlbums message.match[4], message.message.user.id, message.match[2] || DEFAULT_LIMIT, getStrHandler(message)
+      return
+    Support.translateToAlbum trim(message.match[3]), message.message.user.id, (err, album) ->
+      if (!err)
+        str = templates.albumSummary(album)
+      getStrHandler(message)(err, str)
 
   robot.respond /find ((\d+) )?artists (.+)/i, (message) ->
-    Support.findArtists message.match[3], message.message.user.id, message.match[2] || DEFAULT_LIMIT, (err, str) ->
-      if (err)
-        message.send(":flushed: " + err);
-        return
-      message.send(str);
+    Support.findArtists message.match[3], message.message.user.id, message.match[2] || DEFAULT_LIMIT, getStrHandler(message)
 
   robot.respond /find ((\d+) )?(music|tracks|songs) (.+)/i, (message) ->
-    Support.findTracks message.match[4], message.message.user.id, message.match[2] || DEFAULT_LIMIT, (err, str) ->
+    Support.findTracks message.match[4], message.message.user.id, message.match[2] || DEFAULT_LIMIT, getStrHandler(message)
+
+  robot.respond /purge results!/i, (message) ->
+    Support.purgeLists()
+    message.send(':ok_hand:')
+
+  robot.respond /(play|queue) (.+)/i, (message) ->
+    Support.translateToTrack trim(message.match[2]), message.message.user.id, (err, track) ->
       if (err)
-        message.send(":flushed: " + err);
+        sayError(err, message)
         return
-      message.send(str);
+      if (message.match[1].toLowerCase() == 'play' && !Queue.locked())
+        Queue.stop()
+        message.send(':small_blue_diamond: Switching to ' + templates.trackLine(track, true))
+        Support.playTrack track, (err) ->
+          Queue.start()
+          if (err)
+            sayError(err, message)
+        return
+      Queue.addTrack track, (err, index) ->
+        if (err)
+          sayError(err, message)
+          return
+        message.send(":small_blue_diamond: \"" + track.name + "\" is " + index + " in the queue")
 
   robot.respond /music status\??/i, (message) ->
     spotRequest message, '/seconds-left', 'get', {}, (err, res, body) ->
@@ -320,16 +352,16 @@ module.exports = (robot) ->
         return
       message.send(":small_blue_diamond: \"" + name + "\" removed from the queue")
 
-  robot.respond /queue (.+)/i, (message) ->
-    withTrack message.match[1], robot, message, (err, track) ->
-      if (err)
-        message.send(":flushed: " + err)
-        return
-      Queue.addTrack track, (err, index) ->
-        if (err)
-          message.send(":flushed: " + err)
-          return
-        message.send(":small_blue_diamond: \"" + track.name + "\" is " + index + " in the queue")
+#  robot.respond /queue (.+)/i, (message) ->
+#    withTrack message.match[1], robot, message, (err, track) ->
+#      if (err)
+#        message.send(":flushed: " + err)
+#        return
+#      Queue.addTrack track, (err, index) ->
+#        if (err)
+#          message.send(":flushed: " + err)
+#          return
+#        message.send(":small_blue_diamond: \"" + track.name + "\" is " + index + " in the queue")
 
   robot.respond /play!/i, (message) ->
     message.finish()
@@ -380,18 +412,18 @@ module.exports = (robot) ->
     spotRequest message, '/volume', 'put', params, (err, res, body) ->
       message.send("Spot volume set to #{body}. :mega:")
 
-  robot.respond /play (.*)/i, (message) ->
-    if (Queue.locked())
-      withTrack message.match[1], robot, message, ->
-      message.send(":small_blue_diamond: I just put on a track, one sec")
-      return
-    Queue.stop()
-    withTrack message.match[1], robot, message, (err, track) ->
-      if (err)
-        message.send(":flushed: " + err)
-        Queue.start()
-        return
-      playTrack(track, message, () -> Queue.start())
+#  robot.respond /play (.*)/i, (message) ->
+#    if (Queue.locked())
+#      withTrack message.match[1], robot, message, ->
+#      message.send(":small_blue_diamond: I just put on a track, one sec")
+#      return
+#    Queue.stop()
+#    withTrack message.match[1], robot, message, (err, track) ->
+#      if (err)
+#        message.send(":flushed: " + err)
+#        Queue.start()
+#        return
+#      playTrack(track, message, () -> Queue.start())
 
   robot.respond /album .(\d+)/i, (message) ->
     r = getLastResultsRelevantToUser(robot, message.message.user)

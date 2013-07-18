@@ -78,9 +78,25 @@ templates.albumLine = function (album, full) {
     return str.join(' ');
 };
 
+templates.albumSummary = function (album) {
+    var lines = [asTitle('Album: ' + album.name)];
+    if (album.artists && album.artists.length) {
+        album.artists.forEach(function (artist) {
+            lines.push(templates.artistLine(artist));
+        });
+    }
+    if (album.released) {
+        lines.push(asLabel('Released') + ' ' + album.released);
+    }
+    if (album.tracks && album.tracks.length) {
+        lines.push(templates.tracksLines(album.tracks));
+    }
+    return lines.join("\n");
+};
+
 templates.albumsLines = function (albums, full) {
     var lines = [asTitle('Albums')];
-    var i = 1;
+    var i = 0;
     albums.forEach(function (album) {
         lines.push('#' + i + ' ' + templates.albumLine(album, full));
         i++;
@@ -103,7 +119,7 @@ templates.trackLine = function (track, full) {
 
 templates.tracksLines = function (tracks, full) {
     var lines = [asTitle('Tracks')];
-    var i = 1;
+    var i = 0;
     tracks.forEach(function (track) {
         lines.push('#' + i + ' ' + templates.trackLine(track, full));
         i++;
@@ -134,7 +150,7 @@ templates.artistLine = function (artist, full) {
 
 templates.artistsLines = function (artists, full) {
     var lines = [asTitle('Artists')];
-    var i = 1;
+    var i = 0;
     artists.forEach(function (artist) {
         lines.push('#' + i + ' ' + templates.artistLine(artist, full));
         i++;

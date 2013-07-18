@@ -9,6 +9,7 @@ var MetaData = {
             }
         }
     },
+    _ = require('underscore'),
     mapping = {},
     robot;
 
@@ -72,6 +73,7 @@ function query (type, queryString, callback) {
     data = getPersistedUriData(dataUri);
     if (data) {
         callback(void 0, data);
+        return;
     }
     console.log('hitting', MetaData.uris.search[type], queryString);
     robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(function (err, resp, body) {
@@ -88,13 +90,26 @@ function query (type, queryString, callback) {
     });
 }
 
+function availableInTheUS (item) {
+    if (item) {
+        if (item.availablility && item.availability.territories) {
+            return !!String(item.availability.territories).match(/US/i);
+        }
+        if (item.album && item.album.availability && item.album.availability.territories) {
+            return !!String(item.album.availability.territories).match(/US/i);
+        }
+        return true;
+    }
+    return false;
+}
+
 function find(what, queryString, limit, callback) {
     var args = Array.prototype.slice.call(arguments);
     what = args.shift();
     queryString = args.shift();
     limit = args.shift();
     query(what, queryString, function (err, data) {
-        var objs = [], key, use;
+        var objs = [], key, use, available;
         if (err) {
             callback(err);
             return;
@@ -112,14 +127,15 @@ function find(what, queryString, limit, callback) {
             callback('No ' + key + ' index found in response');
             return;
         }
-        if (!data[key].length) {
+        available = _.filter(data[key], availableInTheUS);
+        if (!available.length) {
             callback('Nothing Found');
             return;
         }
         if (limit) {
-            use = data[key].slice(0, limit);
+            use = available.slice(0, limit);
         } else {
-            use = data[key];
+            use = available;
         }
         use.forEach(function (datum) {
             objs.push(new mapping[data.info.type](datum));
@@ -241,6 +257,22 @@ MetaData.Track = (function () {
             return this;
         }
         return fetchOne(this.album.href, callback);
+    };
+
+    Track.prototype.getInflatedAlbum = function (callback) {
+        this.getAlbum(function (err, album) {
+            if (err) {
+                callback(err);
+                return;
+            }
+            album.inflateTracks(function (err, tracks) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                callback(null, album);
+            });
+        });
     };
 
     Track.uriRegExp = /^spotify:track/;

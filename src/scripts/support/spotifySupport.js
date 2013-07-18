@@ -12,6 +12,7 @@ var Support = {},
     url;
 
 function spotRequest(path, method, params, callback) {
+    console.log('SPOT:' + method, url + path, params);
     robot.http(url + path).query(params)[method]()(callback);
 }
 
@@ -23,9 +24,9 @@ function getCurrentTrackUri (callback) {
 
 function determineTemplate (type) {
     switch (type) {
-        case 'albums':
+        case manager.types.ALBUMS:
             return templates.albumsLines;
-        case 'artists':
+        case manager.types.ARTISTS:
             return templates.artistsLines;
     }
     return templates.tracksLines;
@@ -33,7 +34,7 @@ function determineTemplate (type) {
 
 function resultToString (data, type, userId, template) {
     var index = manager.persist(data, type, userId);
-    return ['Result #' + index, template(data)].join("\n")
+    return ['Result #' + index, template(data)].join("\n");
 }
 
 function getDataHandler (userId, type, callback) {
@@ -50,6 +51,109 @@ function getDataHandler (userId, type, callback) {
     };
 }
 
+Support.purgeLists = function () {
+    manager.purge();
+};
+
+Support.translateToAlbum = function (str, userId, callback) {
+    var resultNum, listItem, results, data, album, metaData, track;
+    if (str.match(/^(#|:)?(\d+)$/)) {
+        listItem = RegExp.$2;
+        metaData = manager.getRelevantMetaData(void 0, userId, listItem);
+        if (!metaData) {
+            callback('Nothing found matching ' + str);
+            return;
+        }
+        if (metaData.type === manager.types.ARTISTS) {
+            callback('That\'s an artist list; use a track or album list');
+            return;
+        }
+        if (metaData.type === manager.types.TRACKS) {
+            track = manager.getResult(metaData.index)[listItem];
+            track.getInflatedAlbum(callback);
+            return;
+        }
+        album = manager.getResult(metaData.index)[listItem];
+        album.inflateTracks(function (err, tracks) {
+            callback(err, album);
+        });
+        return;
+    }
+    if (str.match(/^(\d+)(#|:)(\d+)/)) {
+        resultNum = RegExp.$1;
+        listItem = RegExp.$3;
+        data = manager.getResultMetaData(resultNum);
+        if (data.type === manager.types.ARTISTS) {
+            callback('That\'s an artist list; use a track or album list');
+            return;
+        }
+        results = manager.getResult(resultNum);
+        if (!results || !results[listItem]) {
+            callback('Item ' + listItem + ' not found for Result #' + resultNum);
+            return;
+        }
+        if (data.type === manager.types.TRACKS) {
+            results[listItem].getInflatedAlbum(callback);
+            return;
+        }
+        album = results[listItem];
+        album.inflateTracks(function (err, tracks) {
+            callback(err, album);
+        });
+        return;
+    }
+    MetaData.findAlbums(str, 1, function (err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        album = data[0];
+        album.inflateTracks(function (err, tracks) {
+            if (!err) {
+                manager.persist(tracks, manager.types.TRACKS, userId);
+            }
+            callback(err, album);
+        });
+    });
+};
+
+Support.translateToTrack = function (str, userId, callback) {
+    var resultNum, listItem, results, data;
+    if (str.match(/^(#|:)?(\d+)$/)) {
+        listItem = RegExp.$2;
+        results = manager.getRelevantResult(manager.types.TRACKS, userId, listItem);
+        if (!results || !results.length) {
+            callback('Nothing found matching ' + str);
+            return;
+        }
+        callback(null, results[listItem]);
+        return;
+    }
+    if (str.match(/^(\d+)(#|:)(\d+)/)) {
+        resultNum = RegExp.$1;
+        listItem = RegExp.$3;
+        data = manager.getResultMetaData(resultNum);
+        if (data.type !== manager.types.TRACKS) {
+            callback('Result #' + resultNum + ' is not a track result list');
+            return;
+        }
+        results = manager.getResult(resultNum);
+        if (!results || !results[listItem]) {
+            callback('Item ' + listItem + ' not found for Result #' + resultNum);
+            return;
+        }
+        callback(null, results[listItem]);
+        return;
+    }
+    MetaData.findTracks(str, 1, function (err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, data[0]);
+    });
+};
+
 Support.debug = function () {
     return 'debug';
 };
@@ -60,16 +164,20 @@ Support.playUri = function (uri, callback) {
     });
 };
 
+Support.playTrack = function (track, callback) {
+    return Support.playUri(track.href, callback);
+};
+
 Support.findTracks = function (query, userId, limit, callback) {
-    MetaData.findTracks(query, limit, getDataHandler(userId, 'tracks', callback));
+    MetaData.findTracks(query, limit, getDataHandler(userId, manager.types.TRACKS, callback));
 };
 
 Support.findAlbums = function (query, userId, limit, callback) {
-    MetaData.findAlbums(query, limit, getDataHandler(userId, 'albums', callback));
+    MetaData.findAlbums(query, limit, getDataHandler(userId, manager.types.ALBUMS, callback));
 };
 
 Support.findArtists = function (query, userId, limit, callback) {
-    MetaData.findArtists(query, limit, getDataHandler(userId, 'artists', callback));
+    MetaData.findArtists(query, limit, getDataHandler(userId, manager.types.ARTISTS, callback));
 };
 
 module.exports = function (Robot, URL) {

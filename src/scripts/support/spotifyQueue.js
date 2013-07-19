@@ -108,16 +108,8 @@ playNext = Queue.playNext = function (callback) {
 }
 
 Queue.describe = function (msg) {
-    var queue = Queue.get(), str = [];
-    if (!queue.length) {
-        msg.send(":small_blue_diamond: The queue is empty");
-        return;
-    }
-    str.push('::QUEUE::');
-    str.push.apply(str, _.map(queue, function (track, i) {
-        return '#' + (+i + 1) + ' ' + templates.trackSingleLine(track);
-    }));
-    msg.send(str.join("\n"));
+    var queue = Queue.get();
+    msg.send(templates.summarizeQueue(queue));
 };
 
 Queue.dequeue = function (index, callback) {
@@ -152,7 +144,7 @@ Queue.addTrack = function (track, callback) {
         }
     });
     if (index === void 0) {
-        index = queue.push(track);
+        index = queue.push(track) - 1;
         set(queue);
         ping();
     }

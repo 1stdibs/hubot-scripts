@@ -35,17 +35,18 @@
 #   mcminton, andromedado
 https = require 'https'
 
-VERSION = '1.4.8'
+VERSION = '2.0.0'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
 CAMPFIRE_CHRONOLOGICAL_DELAY = 700
 
-DEFAULT_LIMIT = 3
+DEFAULT_LIMIT = 6
 
 Queue = {}
 
 templates = require('./support/spotifyTemplates')
+
 
 getCurrentVersion = (callback) ->
   https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.coffee', (res) ->
@@ -98,110 +99,11 @@ spotRequest = (message, path, action, options, callback) ->
     .query(options)[action]() (err, res, body) ->
       callback(err,res,body)
 
-recordUserQueryResults = (message, results) ->
-  uQ = message.robot.brain.get('userQueries') || {}
-  uD = uQ[message.message.user.id] = uQ[message.message.user.id] || {}
-  uD.queries = uD.queries || []
-  uD.queries.push(
-    text: message.message.text
-    time: now()
-    results: results
-  )
-  message.robot.brain.set('userQueries', uQ)
-
-getLastResultsRelevantToUser = (robot, user) ->
-  uQ = robot.brain.get('userQueries') || {}
-  uD = uQ[user.id] = uQ[user.id] || {}
-  uD.queries = uD.queries || []
-  lastUQTime = 0
-  if (uD.queries.length)
-    lastUQTime = uD.queries[uD.queries.length - 1].time
-  lqT = robot.brain.get('lastQueryTime')
-  if (lqT && lqT > lastUQTime && lqT - lastUQTime > 60)
-    return robot.brain.get('lastQueryResults')
-  if (uD.queries.length)
-    return uD.queries[uD.queries.length - 1].results
-  return null
-
-explain = (data) ->
-  if not data.artists
-    return 'nothin\''
-  artists = []
-  artists.push(a.name) for a in data.artists
-  A = []
-  if data.album
-    album = data.album.name
-    if data.album.released
-      album += ' [' + data.album.released + ']'
-    A = ['Album: ' + album]
-  return ['Track: ' + data.name].concat(A).concat([
-    'Artist: ' + artists.join(', '),
-    'Length: ' + calcLength(data.length)
-    ]).join("\n")
-
 now = () ->
   return ~~(Date.now() / 1000)
 
 trim = (str) ->
   return String(str).replace(/^\s+/, '').replace(/\s+$/, '')
-
-render = (explanations) ->
-  str = ""
-  for exp, i in explanations
-    str += '#' + (i + 1) + "\n" + exp + "\n"
-  return str
-
-renderAlbum = (album) ->
-  artists = []
-  if not album.artists
-    artists.push('No one...?')
-  else
-    artists.push(a.name) for a in album.artists
-  pt1 = [
-    '#ALBUM#',
-    'Name: ' + album.name,
-    'Artist: ' + artists.join(', '),
-    'Released: ' + album.released,
-    'Tracks:'
-    ].join("\n") + "\n"
-  explanations = (explain track for track in album.tracks)
-  return pt1 + render(explanations)
-
-nothingFoundMessage = 'I found nothin\''
-
-nothinFound = (message) ->
-  message.send(':small_blue_diamond: ' + nothingFoundMessage)
-
-showResults = (robot, message, results) ->
-  if not results or not results.length
-    nothinFound(message)
-    return
-  explanations = (explain track for track in results)
-  message.send(":small_blue_diamond: I found:")
-  setTimeout(() ->
-    message.send(render(explanations))
-  , CAMPFIRE_CHRONOLOGICAL_DELAY)
-
-calcLength = (seconds) ->
-  iSeconds = parseInt(seconds, 10)
-  if (iSeconds < 60)
-    return (Math.round(iSeconds * 10) / 10) + ' seconds'
-  rSeconds = iSeconds % 60
-  if (rSeconds < 10)
-    rSeconds = '0' + rSeconds
-  return Math.floor(iSeconds / 60) + ':' + rSeconds
-
-playTrack = (track, message, callback) ->
-  callback = callback || ->
-  if not track or not track.uri
-    callback('invalid track')
-    message.send(":flushed:")
-    return
-  message.send(":small_blue_diamond: Switching to: " + track.name)
-  spotRequest message, '/play-uri', 'post', {'uri' : track.uri}, (err, res, body) ->
-    callback(err, body)
-    if (err)
-      message.send(":flushed: " + err)
 
 words =
   'a couple': 2
@@ -218,41 +120,6 @@ determineLimit = (word) ->
   if (!word || !words.hasOwnProperty(word))
     word = 'default'
   return words[word]
-
-withTrack = (track, robot, message, callback) ->
-  playNum = track.match(/#(\d+)\s*$/)
-  if (playNum)
-    r = getLastResultsRelevantToUser(robot, message.message.user)
-    i = parseInt(playNum[1], 10) - 1
-    if (r && r[i])
-      callback(null, r[i])
-      return
-    callback('out of bounds');
-    return
-  if (track.match(/^that$/i))
-    lastSingle = robot.brain.get('lastSingleQuery')
-    if (lastSingle)
-      callback(null, lastSingle)
-      return
-    lR = robot.brain.get('lastQueryResults')
-    if (lR && lR.length)
-      callback(null, lR[0])
-      return
-    callback(nothingFoundMessage)
-    return
-  params = {q: track}
-  spotRequest message, '/single-query', 'get', params, (err, res, body) ->
-    if (err)
-      callback(err)
-      return
-    try
-      track = JSON.parse(body)
-      if (!track || !track.uri)
-        callback(nothingFoundMessage)
-      else
-        callback(null, track)
-    catch e
-      callback(e)
 
 spotNext = (msg) ->
   spotRequest msg, '/next', 'put', {}, (err, res, body) ->
@@ -287,15 +154,15 @@ getStrHandler = (message) ->
 module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
-  Support = require('./support/spotifySupport')(robot, URL)
+  Support = require('./support/spotifySupport')(robot, URL, Queue)
 
-  robot.respond /find ((\d+) )?album(s)? (.+)/i, (message) ->
-    if (message.match[3])#PLURAL
-      Support.findAlbums message.match[4], message.message.user.id, message.match[2] || DEFAULT_LIMIT, getStrHandler(message)
+  robot.respond /(find )?((\d+) )?album(s)? (.+)/i, (message) ->
+    if (message.match[4])#PLURAL
+      Support.findAlbums message.match[5], message.message.user.id, message.match[3] || DEFAULT_LIMIT, getStrHandler(message)
       return
-    Support.translateToAlbum trim(message.match[3]), message.message.user.id, (err, album) ->
+    Support.translateToAlbum trim(message.match[5]), message.message.user.id, (err, album, resultIndex) ->
       if (!err)
-        str = templates.albumSummary(album)
+        str = templates.albumSummary(album, resultIndex)
       getStrHandler(message)(err, str)
 
   robot.respond /find ((\d+) )?artists (.+)/i, (message) ->
@@ -306,6 +173,10 @@ module.exports = (robot) ->
 
   robot.respond /purge results!/i, (message) ->
     Support.purgeLists()
+    message.send(':ok_hand:')
+
+  robot.respond /purge music cache!/i, (message) ->
+    Support.purgeMusicDataCache();
     message.send(':ok_hand:')
 
   robot.respond /(play|queue) (.+)/i, (message) ->
@@ -325,7 +196,7 @@ module.exports = (robot) ->
         if (err)
           sayError(err, message)
           return
-        message.send(":small_blue_diamond: \"" + track.name + "\" is " + index + " in the queue")
+        message.send(":small_blue_diamond: #" + index + " in the queue is " + templates.trackLine(track))
 
   robot.respond /music status\??/i, (message) ->
     spotRequest message, '/seconds-left', 'get', {}, (err, res, body) ->
@@ -342,26 +213,15 @@ module.exports = (robot) ->
     volumeRespond(message)
     Queue.describe(message)
 
-  robot.respond /queue\??\s*$/i, (message) ->
+  robot.respond /(show (me )?the )?queue\??\s*$/i, (message) ->
     Queue.describe(message)
 
   robot.respond /dequeue #(\d+)/i, (message) ->
-    Queue.dequeue (+message.match[1] - 1), (err, name) ->
+    Queue.dequeue (+message.match[1]), (err, name) ->
       if (err)
         message.send(":flushed: " + err)
         return
       message.send(":small_blue_diamond: \"" + name + "\" removed from the queue")
-
-#  robot.respond /queue (.+)/i, (message) ->
-#    withTrack message.match[1], robot, message, (err, track) ->
-#      if (err)
-#        message.send(":flushed: " + err)
-#        return
-#      Queue.addTrack track, (err, index) ->
-#        if (err)
-#          message.send(":flushed: " + err)
-#          return
-#        message.send(":small_blue_diamond: \"" + track.name + "\" is " + index + " in the queue")
 
   robot.respond /play!/i, (message) ->
     message.finish()
@@ -412,54 +272,7 @@ module.exports = (robot) ->
     spotRequest message, '/volume', 'put', params, (err, res, body) ->
       message.send("Spot volume set to #{body}. :mega:")
 
-#  robot.respond /play (.*)/i, (message) ->
-#    if (Queue.locked())
-#      withTrack message.match[1], robot, message, ->
-#      message.send(":small_blue_diamond: I just put on a track, one sec")
-#      return
-#    Queue.stop()
-#    withTrack message.match[1], robot, message, (err, track) ->
-#      if (err)
-#        message.send(":flushed: " + err)
-#        Queue.start()
-#        return
-#      playTrack(track, message, () -> Queue.start())
-
-  robot.respond /album .(\d+)/i, (message) ->
-    r = getLastResultsRelevantToUser(robot, message.message.user)
-    n = parseInt(message.match[1], 10) - 1
-    if (!r || !r[n])
-      message.send(":small_blue_diamon: out of bounds...")
-      return
-    spotRequest message, '/album-info', 'get', {'uri' : r[n].album.uri}, (err, res, body) ->
-      album = JSON.parse(body)
-      album.tracks.forEach((track) ->
-        track.album = track.album || r[n].album
-        track.album.uri = r[n].album.uri
-      )
-      recordUserQueryResults(message, album.tracks)
-      robot.brain.set('lastQueryResults', album.tracks)
-      message.send(renderAlbum album)
-
   robot.respond /(how much )?(time )?(remaining|left)\??$/i, remainingRespond
-
-  robot.respond /query (.*)/i, (message) ->
-    params = {q: message.match[1]}
-    spotRequest message, '/single-query', 'get', params, (err, res, body) ->
-      track = JSON.parse(body)
-      robot.brain.set('lastSingleQuery', track)
-      message.send(":small_blue_diamond: I found:")
-      setTimeout(() ->
-        message.send(explain track)
-      , CAMPFIRE_CHRONOLOGICAL_DELAY)
-
-  robot.respond /last find\??/i, (message) ->
-    data = robot.brain.get 'lastQueryResults'
-    if (!data || data.length == 0)
-      message.send(":small_blue_diamond: I got nothin'")
-      return
-    recordUserQueryResults(message, data)
-    showResults(robot, message, data)
 
   robot.respond /say (.*)/i, (message) ->
     what = message.match[1]

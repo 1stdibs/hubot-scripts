@@ -10,6 +10,10 @@ var MetaData = {
         }
     },
     _ = require('underscore'),
+    allData,
+    allDataKey = 'spotifyMetaDataAllData',
+    backedUp = false,
+    backupRate = 20000,//Commit data at most every 20 seconds
     mapping = {},
     robot;
 
@@ -22,14 +26,28 @@ function persistUriData(uri, prefix, data) {
     if (prefix) {
         uri = prefix + uri;
     }
-    robot.brain.set(uri, data);
+    allData[uri] = data;
+    backedUp = false;
 }
 
 function getPersistedUriData(uri, prefix) {
     if (prefix) {
         uri = prefix + uri;
     }
-    return uri && robot.brain.get(uri) || void 0;
+    return uri && allData && allData[uri] || void 0;
+}
+
+function queryToKey(query, type) {
+    return '|' + type + '|' + query;
+}
+
+function persistQueryResult(query, type, result) {
+    allData.queries[queryToKey(query, type)] = result;
+    backedUp = false;
+}
+
+function getPersistedQueryResult(query, type) {
+    return allData.queries[queryToKey(query, type)] || void 0;
 }
 
 function getUriInfo (uri, params, callback) {
@@ -45,9 +63,11 @@ function getUriInfo (uri, params, callback) {
     params.uri = uri;
     data = getPersistedUriData(uri, prefix);
     if (data) {
+        console.log('cache HIT ' + uri);
         callback(void 0, data);
         return;
     }
+    console.log('cache MISS ' + uri);
     console.log('fetching', MetaData.uris.lookup, params);
     robot.http(MetaData.uris.lookup).query(params).get()(function (err, resp, body) {
         var data = void 0;
@@ -64,24 +84,24 @@ function getUriInfo (uri, params, callback) {
 }
 
 function query (type, queryString, callback) {
-    var data, dataUri;
+    var data;
     if (!MetaData.uris.search[type]) {
         callback('Unknown query type ' + type);
         return;
     }
-    dataUri = type + queryString;
-    data = getPersistedUriData(dataUri);
+    data = getPersistedQueryResult(queryString, type);
     if (data) {
+        console.log('cache HIT', type, queryString);
         callback(void 0, data);
         return;
     }
-    console.log('hitting', MetaData.uris.search[type], queryString);
+    console.log('cache MISS', type, queryString);
     robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(function (err, resp, body) {
         var data = void 0;
         if (!err) {
             try {
                 data = JSON.parse(body);
-                persistUriData(dataUri, data);
+                persistQueryResult(queryString, type, data);
             } catch (e) {
                 err = e;
             }
@@ -189,7 +209,7 @@ MetaData.Album = (function () {
         if (data.artists) {
             data.artists.forEach(function (artist) {
                 self.artists.push(artist);
-            })
+            });
         }
         this.tracks = [];
         if (data.tracks && data.tracks.length) {
@@ -197,6 +217,33 @@ MetaData.Album = (function () {
                 self.tracks.push(track);
             });
         }
+    };
+
+    Album.prototype.getArtists = function () {
+        var artists = [];
+        this.artists.forEach(function (artist) {
+            artists.push(new MetaData.Artist(artist));
+        });
+        return artists;
+    };
+
+    Album.prototype.getData = function () {
+        return {
+            name : this.name,
+            released : this.released,
+            href : this.href
+        };
+    };
+
+    Album.prototype.getTracks = function () {
+        var tracks = [], self = this;
+        if (this.tracks) {
+            this.tracks.forEach(function (track) {
+                track.album = self.getData();
+                tracks.push(new MetaData.Track(track));
+            })
+        }
+        return tracks;
     };
 
     Album.prototype.inflateTracks = function (callback) {
@@ -219,7 +266,7 @@ MetaData.Album = (function () {
                     err = 'no albums in the response';
                 }
             }
-            callback(err, self.tracks);
+            callback(err, self, self.tracks);
         });
         return this;
     };
@@ -265,7 +312,7 @@ MetaData.Track = (function () {
                 callback(err);
                 return;
             }
-            album.inflateTracks(function (err, tracks) {
+            album.inflateTracks(function (err, album, tracks) {
                 if (err) {
                     callback(err);
                     return;
@@ -366,7 +413,21 @@ MetaData.findTracks = function (query, limit, callback) {
     return MetaData;
 };
 
+MetaData.clearCache = function () {
+    allData = {};
+    backedUp = false;
+};
+
 module.exports = function (Robot) {
     robot = Robot;
+    allData = robot.brain.get(allDataKey) || {};
+    allData.queries = allData.queries || {};
+    setInterval(function () {
+        if (robot && !backedUp) {
+            console.log('commiting metadata to brain');
+            robot.brain.set(allDataKey, allData);
+            backedUp = true;
+        }
+    }, backupRate);
     return MetaData;
 };

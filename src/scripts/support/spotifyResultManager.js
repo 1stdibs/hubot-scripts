@@ -153,12 +153,14 @@ All = (function () {
  * @returns {number} Index of persisted list
  */
 Manager.persist = function (list, type, userId, timestamp) {
-    return All.add(list, {
+    var ts = timestamp || now(),
+        index = All.add(list, {
         type : type,
         numResults : list.length,
         userId : userId,
-        timestamp : timestamp || now()
+        timestamp : ts
     });
+    return index;
 };
 
 Manager.purge = All.purge;

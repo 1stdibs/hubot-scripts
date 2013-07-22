@@ -7,7 +7,6 @@
 var Support = {},
     Queue,
     templates = require('./spotifyTemplates'),
-    resultListeners = [],
     MetaData,
     manager,
     robot,
@@ -254,14 +253,26 @@ Support.playTrack = function (track, callback) {
 };
 
 Support.findTracks = function (query, userId, limit, callback) {
-    MetaData.findTracks(query, limit, getDataHandler(userId, manager.types.TRACKS, callback));
+    var handler = getDataHandler(userId, manager.types.TRACKS, callback),
+        aQuery;
+    if (query.match(/^\s*by\s+(.+)/)) {
+        aQuery = RegExp.$1;
+        Support.translateToArtist(aQuery, userId, function (err, artist) {
+            if (err) {
+                callback(err);
+                return;
+            }
+            MetaData.findTracksByArtist(artist, limit, handler);
+        });
+        return;
+    }
+    MetaData.findTracks(query, limit, handler);
 };
 
 Support.findAlbums = function (query, userId, limit, callback) {
     var handler = getDataHandler(userId, manager.types.ALBUMS, callback);
     if (query.match(/^\s*by\s+(.+)/)) {
         Support.translateToArtist(RegExp.$1, userId, function (err, artist) {
-            console.log('translated to artist', artist);
             if (err) {
                 callback(err);
                 return;

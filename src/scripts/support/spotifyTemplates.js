@@ -81,7 +81,7 @@ function calcLength (seconds) {
 templates.summarizeQueue = function (tracks) {
     var lines = [asTitle('le Queue')];
     if (!tracks || !tracks.length) {
-        lines.push(asLabel('She is empty'));
+        lines.push(asAdditional('is empty'));
     } else {
         var i = listIndexBase;
         tracks.forEach(function (track) {
@@ -113,6 +113,10 @@ templates.albumLine = function (album, full) {
         }
     }
     return str.join(' ');
+};
+
+templates.artistSummary = function (artist, albums, resultIndex) {
+    //todo
 };
 
 templates.albumSummary = function (album, resultIndex) {

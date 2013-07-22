@@ -1,3 +1,4 @@
+'use strict';
 
 var MetaData = {
         uris : {
@@ -126,6 +127,7 @@ function availableInTheUS (item) {
 function find(what, queryString, limit, callback) {
     var args = Array.prototype.slice.call(arguments);
     what = args.shift();
+    callback = args.pop();
     queryString = args.shift();
     limit = args.shift();
     query(what, queryString, function (err, data) {
@@ -306,6 +308,14 @@ MetaData.Track = (function () {
         this.trackNumber = data['track-number'];
     };
 
+    Track.prototype.hasArtist = function (artist) {
+        var hasIt = false;
+        this.artists.forEach(function (art) {
+            hasIt = hasIt || art && art.href && art.href == artist.href;
+        });
+        return hasIt;
+    };
+
     Track.prototype.getArtists = function () {
         var artists = [];
         this.artists.forEach(function (artist) {
@@ -430,6 +440,20 @@ MetaData.findArtists = function (query, limit, callback) {
 MetaData.findTracks = function (query, limit, callback) {
     find.apply(this, ['track'].concat(Array.prototype.slice.call(arguments)));
     return MetaData;
+};
+
+MetaData.findTracksByArtist = function (artist, limit, callback) {
+    find('track', artist.name, function (err, tracks) {
+        if (!err) {
+            tracks = _.filter(tracks, function (track) {
+                return track.hasArtist(artist);
+            });
+            if (limit) {
+                tracks = tracks.slice(0, limit);
+            }
+        }
+        callback(err, tracks);
+    });
 };
 
 MetaData.clearCache = function () {

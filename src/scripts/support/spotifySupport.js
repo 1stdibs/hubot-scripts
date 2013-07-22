@@ -90,14 +90,11 @@ Support.translateToAlbum = function (str, userId, callback) {
             return;
         }
         if (metaData.type === manager.types.TRACKS) {
-            track = manager.getResult(metaData.index)[listItem];
-            if (!track.getInflatedAlbum) {
-                track = new MetaData.Track(track);
-            }
+            track = new MetaData.Track(manager.getResult(metaData.index)[listItem]);
             track.getInflatedAlbum(inflatedAlbumHandler);
             return;
         }
-        album = manager.getResult(metaData.index)[listItem];
+        album = new MetaData.Album(manager.getResult(metaData.index)[listItem]);
         album.inflateTracks(inflatedAlbumHandler);
         return;
     }
@@ -115,14 +112,11 @@ Support.translateToAlbum = function (str, userId, callback) {
             return;
         }
         if (data.type === manager.types.TRACKS) {
-            track = results[listItem];
-            if (!track.getInflatedAlbum) {
-                track = new MetaData.Track(track);
-            }
+            track = new MetaData.Track(results[listItem]);
             track.getInflatedAlbum(inflatedAlbumHandler);
             return;
         }
-        album = results[listItem];
+        album = new MetaData.Album(results[listItem]);
         album.inflateTracks(inflatedAlbumHandler);
         return;
     }
@@ -131,7 +125,7 @@ Support.translateToAlbum = function (str, userId, callback) {
             callback(err);
             return;
         }
-        album = data[0];
+        album = new MetaData.Album(data[0]);
         album.inflateTracks(inflatedAlbumHandler);
     });
 };
@@ -145,7 +139,7 @@ Support.translateToTrack = function (str, userId, callback) {
             callback('Nothing found matching ' + str);
             return;
         }
-        callback(null, results[listItem]);
+        callback(null, new MetaData.Track(results[listItem]));
         return;
     }
     if (str.match(/^(\d+)(#|:)(\d+)/)) {
@@ -161,7 +155,7 @@ Support.translateToTrack = function (str, userId, callback) {
             callback('Item ' + listItem + ' not found for ' + templates.resultNumber(resultNum));
             return;
         }
-        callback(null, results[listItem]);
+        callback(null, new MetaData.Track(results[listItem]));
         return;
     }
     MetaData.findTracks(str, 1, function (err, data) {
@@ -169,20 +163,34 @@ Support.translateToTrack = function (str, userId, callback) {
             callback(err);
             return;
         }
-        callback(null, data[0]);
+        callback(null, new MetaData.Track(data[0]));
     });
 };
 
 Support.translateToArtist = function (str, userId, callback) {
-    var resultNum, listItem, results, data, datum, artists;
+    var resultNum, listItem, results, data, datum, artists, metaData, track;
     if (str.match(/^(#|:)?(\d+)$/)) {
         listItem = RegExp.$2;
-        results = manager.getRelevantResult(manager.types.ARTISTS, userId, listItem);
-        if (!results || !results.length) {
+        metaData = manager.getRelevantMetaData(void 0, userId, listItem);
+        if (!metaData) {
             callback('Nothing found matching ' + str);
             return;
         }
-        callback(null, results[listItem]);
+        if (metaData.type === manager.types.ARTISTS) {
+            callback(null, new MetaData.Artist(manager.getResult(metaData.index)[listItem]));
+            return;
+        }
+        if (metaData.type === manager.types.TRACKS) {
+            datum = new MetaData.Track(manager.getResult(metaData.index)[listItem]);
+        } else {
+            datum = new MetaData.Album(manager.getResult(metaData.index)[listItem]);
+        }
+        artists = datum.getArtists();
+        if (!artists.length) {
+            callback('It doesn\'t have an artist... :S');
+            return;
+        }
+        callback(null, new MetaData.Artist(artists[0]));
         return;
     }
     if (str.match(/^(\d+)(#|:)(\d+)/)) {
@@ -196,20 +204,30 @@ Support.translateToArtist = function (str, userId, callback) {
         }
         datum = results[listItem];
         if (data.type === manager.types.ALBUMS) {
+            if (!datum.getArtists) {
+                datum = new MetaData.Album(datum);
+            }
             artists = datum.getArtists();
             if (!artists.length) {
                 callback('Album has no artists :S');
                 return;
             }
-            callback(null, artists[0]);
+            callback(null, new MetaData.Artist(artists[0]));
             return;
         }
         if (data.type === manager.types.TRACKS) {
-            //TRANSLATE TRACK TO ARTIST
-            //WORK HERE
+            if (!datum.getArtists) {
+                datum = new MetaData.Track(datum);
+            }
+            artists = datum.getArtists();
+            if (!artists.length) {
+                callback('Track has no artists :S');
+                return;
+            }
+            callback(null, artists[0]);
             return;
         }
-        callback(null, results[listItem]);
+        callback(null, new MetaData.Artist(results[listItem]));
         return;
     }
     MetaData.findArtists(str, 1, function (err, data) {
@@ -217,7 +235,7 @@ Support.translateToArtist = function (str, userId, callback) {
             callback(err);
             return;
         }
-        callback(null, data[0]);
+        callback(null, new MetaData.Artist(data[0]));
     });
 };
 
@@ -242,9 +260,11 @@ Support.findTracks = function (query, userId, limit, callback) {
 Support.findAlbums = function (query, userId, limit, callback) {
     var handler = getDataHandler(userId, manager.types.ALBUMS, callback);
     if (query.match(/^\s*by\s+(.+)/)) {
-        MetaData.translateToArtist(RegExp.$1, userId, function (err, artist) {
+        Support.translateToArtist(RegExp.$1, userId, function (err, artist) {
+            console.log('translated to artist', artist);
             if (err) {
                 callback(err);
+                return;
             }
             artist.inflateAlbums(function (err, albums) {
                 if (!err) {

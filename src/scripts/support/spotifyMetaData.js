@@ -195,8 +195,12 @@ function fetchOne(uri, params, callback) {
 MetaData.Album = (function () {
     var Album;
 
-    Album = function (data) {
-        var self = this;
+    Album = function album (data) {
+        var self;
+        if (data instanceof album) {
+            return data;
+        }
+        self = this;
         data = data || {};
         this.popularity = data.popularity;
         this.name = data.name;
@@ -281,8 +285,12 @@ MetaData.Album = (function () {
 MetaData.Track = (function () {
     var Track;
 
-    Track = function (data) {
-        var self = this;
+    Track = function track (data) {
+        var self;
+        if (data instanceof track) {
+            return data;
+        }
+        self = this;
         data = data || {};
         this.album = data.album || {};
         this.name = data.name;
@@ -296,6 +304,14 @@ MetaData.Track = (function () {
             });
         }
         this.trackNumber = data['track-number'];
+    };
+
+    Track.prototype.getArtists = function () {
+        var artists = [];
+        this.artists.forEach(function (artist) {
+            artists.push(new MetaData.Artist(artist));
+        });
+        return artists;
     };
 
     Track.prototype.getAlbum = function (callback) {
@@ -332,7 +348,10 @@ MetaData.Track = (function () {
 MetaData.Artist = (function (){
     var Artist;
 
-    Artist = function (data) {
+    Artist = function artist (data) {
+        if (data instanceof artist) {
+            return data;
+        }
         data = data || {};
         this.name = data.name;
         this.href = data.href;

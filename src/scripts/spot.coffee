@@ -151,10 +151,17 @@ getStrHandler = (message) ->
     else
       message.send(str)
 
+
 module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
   Support = require('./support/spotifySupport')(robot, URL, Queue)
+
+  robot.respond /show (me )?album (.+)/i, (message) ->
+    Support.translateToAlbum message.match[2], message.message.user.id, (err, album, resultIndex) ->
+      if (!err)
+        str = templates.albumSummary(album, resultIndex)
+      getStrHandler(message)(err, str)
 
   robot.respond /(find )?((\d+) )?album(s)? (.+)/i, (message) ->
     if (message.match[4])#PLURAL

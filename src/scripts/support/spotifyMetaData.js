@@ -264,6 +264,7 @@ MetaData.Album = (function () {
                 if (data[data.info.type].tracks) {
                     data[data.info.type].tracks.forEach(function (track) {
                         if (track.href) {
+                            track.album = self.getData();
                             persistUriData(track.href, {info : {type : 'track'}, track : track});
                         }
                         self.tracks.push(track);

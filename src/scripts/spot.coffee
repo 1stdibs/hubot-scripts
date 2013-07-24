@@ -28,6 +28,8 @@
 #   hubot find x albums <album-query> - Searches for x (or 6) most popular albums matching query
 #   hubot find x albums by <artist-query> - Searches for x (or 6) most popular albums by artist-query
 #   hubot show me album <album-query> - Pulls up the album for the given search, or if (x:y) format, the album associated with given result
+#   hubot show me this album - Pulls up the album for the currently playing track
+#   hubot show me music by this artist - Pulls up tracks by the current artist
 #   hubot play n - Play the nth track from the last search results
 #   hubot play x:y - Play the y-th track from x-th result set
 #   hubot how much longer? - Hubot tells you how much is left on the current track
@@ -38,7 +40,7 @@
 #   andromedado
 https = require 'https'
 
-VERSION = '2.0.0'
+VERSION = '2.1.0'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -144,42 +146,52 @@ playingRespond = (message) ->
     if (next)
       message.send(":small_blue_diamond: Up next is \"#{next.name}\"")
 
-sayError = (err, message) ->
-  message.send(":flushed: " + err)
-
 getStrHandler = (message) ->
   return (err, str) ->
     if (err)
-      sayError(err, message)
+      sayMyError(err, message)
     else
       message.send(str)
 
+sayMyError = (err, message) ->
+  message.send(":flushed: " + err)
+
+sayYourError = (message) ->
+  message.send(":no_good: Syntax Error [" + Math.floor(Math.random() * Math.pow(10, 4)) + "]")
 
 module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
   Support = require('./support/spotifySupport')(robot, URL, Queue)
 
-  robot.respond /show (me )?album (.+)/i, (message) ->
-    Support.translateToAlbum message.match[2], message.message.user.id, (err, album, resultIndex) ->
-      if (!err)
-        str = templates.albumSummary(album, resultIndex)
-      getStrHandler(message)(err, str)
+  robot.respond /show (me )?(this )?album( (.+))?$/i, (message) ->
+    if (message.match[2])#THIS [currently playing]
+      Support.getCurrentAlbum (err, album, resultIndex) ->
+        if (!err)
+          str = templates.albumSummary(album, resultIndex)
+        getStrHandler(message)(err, str)
+    else if message.match[4]#Search Query
+      Support.translateToAlbum message.match[4], message.message.user.id, (err, album, resultIndex) ->
+        if (!err)
+          str = templates.albumSummary(album, resultIndex)
+        getStrHandler(message)(err, str)
+    else#invalid syntax
+      sayYourError(message)
 
-  robot.respond /(find )?((\d+) )?album(s)? (.+)/i, (message) ->
-    if (message.match[4])#PLURAL
-      Support.findAlbums message.match[5], message.message.user.id, message.match[3] || DEFAULT_LIMIT, getStrHandler(message)
-      return
-    Support.translateToAlbum trim(message.match[5]), message.message.user.id, (err, album, resultIndex) ->
-      if (!err)
-        str = templates.albumSummary(album, resultIndex)
-      getStrHandler(message)(err, str)
+  robot.respond /((find|show) )?(me )?((\d+) )?album(s)? (.+)/i, (message) ->
+    if (message.match[6])#PLURAL
+      Support.findAlbums message.match[7], message.message.user.id, message.match[5] || DEFAULT_LIMIT, getStrHandler(message)
+    else
+      Support.translateToAlbum trim(message.match[7]), message.message.user.id, (err, album, resultIndex) ->
+        if (!err)
+          str = templates.albumSummary(album, resultIndex)
+        getStrHandler(message)(err, str)
 
   robot.respond /find ((\d+) )?artists (.+)/i, (message) ->
     Support.findArtists message.match[3], message.message.user.id, message.match[2] || DEFAULT_LIMIT, getStrHandler(message)
 
-  robot.respond /find ((\d+) )?(music|tracks|songs) (.+)/i, (message) ->
-    Support.findTracks message.match[4], message.message.user.id, message.match[2] || DEFAULT_LIMIT, getStrHandler(message)
+  robot.respond /(show|find) (me )?((\d+) )?(music|tracks|songs) (.+)/i, (message) ->
+    Support.findTracks message.match[6], message.message.user.id, message.match[4] || DEFAULT_LIMIT, getStrHandler(message)
 
   robot.respond /purge results!/i, (message) ->
     Support.purgeLists()
@@ -192,7 +204,7 @@ module.exports = (robot) ->
   robot.respond /(play|queue) (.+)/i, (message) ->
     Support.translateToTrack trim(message.match[2]), message.message.user.id, (err, track) ->
       if (err)
-        sayError(err, message)
+        sayMyError(err, message)
         return
       if (message.match[1].toLowerCase() == 'play' && !Queue.locked())
         Queue.stop()
@@ -200,11 +212,11 @@ module.exports = (robot) ->
         Support.playTrack track, (err) ->
           Queue.start()
           if (err)
-            sayError(err, message)
+            sayMyError(err, message)
         return
       Queue.addTrack track, (err, index) ->
         if (err)
-          sayError(err, message)
+          sayMyError(err, message)
           return
         message.send(":small_blue_diamond: #" + index + " in the queue is " + templates.trackLine(track))
 

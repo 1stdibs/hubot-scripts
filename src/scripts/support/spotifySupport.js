@@ -19,7 +19,11 @@ function spotRequest(path, method, params, callback) {
 
 function getCurrentTrackUri (callback) {
     spotRequest('/currently-playing', 'get', {}, function (err, res, body) {
-        callback(err, body);
+        var uri;
+        if (!err) {
+            uri = String(body).replace(/^\s+/, '').replace(/\s+$/, '');
+        }
+        callback(err, uri);
     });
 }
 
@@ -229,12 +233,53 @@ Support.translateToArtist = function (str, userId, callback) {
         callback(null, new MetaData.Artist(results[listItem]));
         return;
     }
+    if (str.match(/\s*this artist\s*$/)) {
+        Support.getCurrentArtist(callback);
+        return;
+    }
     MetaData.findArtists(str, 1, function (err, data) {
         if (err) {
             callback(err);
             return;
         }
         callback(null, new MetaData.Artist(data[0]));
+    });
+};
+
+Support.getCurrentTrack = function (callback) {
+    getCurrentTrackUri(function (err, uri) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        MetaData.fetchTrack(uri, callback);
+    });
+};
+
+Support.getCurrentArtist = function (callback) {
+    Support.getCurrentTrack(function (err, track) {
+        var artists;
+        if (err) {
+            callback(err);
+            return;
+        }
+        artists = track.getArtists();
+        if (artists && artists.length) {
+            callback(null, artists[0]);
+            return;
+        }
+        callback('This track doesn\'t have artists...');
+    });
+};
+
+Support.getCurrentAlbum = function (callback) {
+    Support.getCurrentTrack(function (err, track) {
+        var album;
+        if (err) {
+            callback(err);
+            return;
+        }
+        track.getInflatedAlbum(callback);
     });
 };
 

@@ -256,6 +256,9 @@ module.exports = (robot) ->
       message.send("#{body} :cry:")
   
   robot.respond /next/i, (message) ->
+    if (Queue.locked())
+      message.send(":raised_hand: Not yet, this was queued")
+      return
     if (Queue.next())
       Queue.playNext (err, track) ->
         if (err)

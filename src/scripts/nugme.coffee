@@ -13,7 +13,7 @@
 
 module.exports = (robot) ->
 
-  robot.respond /nug me/i, (msg) ->
+  robot.respond /nug (me|him|her)/i, (msg) ->
     msg.http("http://nugme.herokuapp.com/random")
       .get() (err, res, body) ->
         msg.send JSON.parse(body).nug

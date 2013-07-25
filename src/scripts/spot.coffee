@@ -40,7 +40,7 @@
 #   andromedado
 https = require 'https'
 
-VERSION = '2.1.1'
+VERSION = '2.1.2'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -164,19 +164,11 @@ module.exports = (robot) ->
   Queue = require('./support/spotifyQueue')(robot, URL)
   Support = require('./support/spotifySupport')(robot, URL, Queue)
 
-  robot.respond /show (me )?(this )?album( (.+))?$/i, (message) ->
-    if (message.match[2])#THIS [currently playing]
-      Support.getCurrentAlbum (err, album, resultIndex) ->
-        if (!err)
-          str = templates.albumSummary(album, resultIndex)
-        getStrHandler(message)(err, str)
-    else if message.match[4]#Search Query
-      Support.translateToAlbum message.match[4], message.message.user.id, (err, album, resultIndex) ->
-        if (!err)
-          str = templates.albumSummary(album, resultIndex)
-        getStrHandler(message)(err, str)
-    else#invalid syntax
-      sayYourError(message)
+  robot.respond /show (me )?this album/i, (message) ->
+    Support.getCurrentAlbum (err, album, resultIndex) ->
+      if (!err)
+        str = templates.albumSummary(album, resultIndex)
+      getStrHandler(message)(err, str)
 
   robot.respond /((find|show) )?(me )?((\d+) )?album(s)? (.+)/i, (message) ->
     if (message.match[6])#PLURAL

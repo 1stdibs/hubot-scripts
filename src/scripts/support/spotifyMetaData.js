@@ -51,6 +51,24 @@ function getPersistedQueryResult(query, type) {
     return allData.queries[queryToKey(query, type)] || void 0;
 }
 
+function getJSONResponseParser (callback) {
+    return function (err, resp, body) {
+        var data = void 0;
+        if (!err) {
+            if (resp && resp.statusCode && resp.statusCode >= 400) {
+                callback('Spotfy Meta Data API returned a ' + resp.statusCode);
+                return;
+            }
+            try {
+                data = JSON.parse(body);
+            } catch (e) {
+                err = e;
+            }
+        }
+        callback(err, data);
+    };
+}
+
 function getUriInfo (uri, params, callback) {
     var data,
         prefix,
@@ -70,18 +88,12 @@ function getUriInfo (uri, params, callback) {
     }
     console.log('cache MISS ' + uri);
     console.log('fetching', MetaData.uris.lookup, params);
-    robot.http(MetaData.uris.lookup).query(params).get()(function (err, resp, body) {
-        var data = void 0;
+    robot.http(MetaData.uris.lookup).query(params).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
-            try {
-                data = JSON.parse(body);
-                persistUriData(uri, prefix, data);
-            } catch (e) {
-                err = e;
-            }
+            persistUriData(uri, prefix, data);
         }
-        callback(err, data);
-    });
+        callback(err, jsonData);
+    }));
 }
 
 function query (type, queryString, callback) {
@@ -97,18 +109,12 @@ function query (type, queryString, callback) {
         return;
     }
     console.log('cache MISS', type, queryString);
-    robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(function (err, resp, body) {
-        var data = void 0;
+    robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
-            try {
-                data = JSON.parse(body);
-                persistQueryResult(queryString, type, data);
-            } catch (e) {
-                err = e;
-            }
+            persistQueryResult(queryString, type, data);
         }
-        callback(err, data);
-    });
+        callback(err, jsonData);
+    }));
 }
 
 function availableInTheUS (item) {

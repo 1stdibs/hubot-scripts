@@ -40,7 +40,7 @@
 #   andromedado
 https = require 'https'
 
-VERSION = '2.1.3'
+VERSION = '2.1.4'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -110,6 +110,8 @@ now = () ->
 trim = (str) ->
   return String(str).replace(/^\s+/, '').replace(/\s+$/, '')
 
+volumeLockDuration = 60000
+
 words =
   'a couple': 2
   'default': 3
@@ -155,6 +157,8 @@ getStrHandler = (message) ->
 
 sayMyError = (err, message) ->
   message.send(":flushed: " + err)
+
+volumeLocked = false
 
 sayYourError = (message) ->
   message.send(":no_good: Syntax Error [" + Math.floor(Math.random() * Math.pow(10, 4)) + "]")
@@ -270,21 +274,51 @@ module.exports = (robot) ->
     spotRequest message, '/playing', 'get', {}, (err, res, body) ->
       message.send("#{URL}/playing.png")
 
+  robot.respond /lock volume at (\d+)/i, (message) ->
+    if (volumeLocked)
+      message.send(':no_good: Volume is currently locked')
+      return
+    volume = parseInt(message.match[1]) || 0
+    spotRequest message, '/volume', 'put', {volume: volume}, (err, res, body) ->
+      message.send("Spot volume set to #{body}. :mega:")
+    if (volume < 45)
+      message.send(':no_good: I won\'t lock the volume that low')
+      return
+    if (volume > 65)
+      message.send(':no_good: I won\'t lock the volume that high')
+      return
+    volumeLocked = true
+    setTimeout(() ->
+      volumeLocked = false
+    , volumeLockDuration)
+
   robot.respond /volume\?/i, volumeRespond
 
   robot.respond /volume\+/i, (message) ->
+    if (volumeLocked)
+      message.send(':no_good: Volume is currently locked')
+      return
     spotRequest message, '/bumpup', 'put', {}, (err, res, body) ->
       message.send("Spot volume bumped to #{body}. :mega:")
 
   robot.respond /volume\-/i, (message) ->
+    if (volumeLocked)
+      message.send(':no_good: Volume is currently locked')
+      return
     spotRequest message, '/bumpdown', 'put', {}, (err, res, body) ->
       message.send("Spot volume bumped down to #{body}. :mega:")
 
   robot.respond /mute/i, (message) ->
+    if (volumeLocked)
+      message.send(':no_good: Volume is currently locked')
+      return
     spotRequest message, '/mute', 'put', {}, (err, res, body) ->
       message.send("#{body} :mute:")
 
   robot.respond /volume (.*)/i, (message) ->
+    if (volumeLocked)
+      message.send(':no_good: Volume is currently locked')
+      return
     params = {volume: message.match[1]}
     spotRequest message, '/volume', 'put', params, (err, res, body) ->
       message.send("Spot volume set to #{body}. :mega:")

@@ -28,6 +28,7 @@ function persistUriData(uri, prefix, data) {
         uri = prefix + uri;
     }
     allData[uri] = data;
+    console.log('allData now has a [%s] entry for %s', !!data, uri);
     backedUp = false;
 }
 
@@ -82,15 +83,15 @@ function getUriInfo (uri, params, callback) {
     params.uri = uri;
     data = getPersistedUriData(uri, prefix);
     if (data) {
-        console.log('cache HIT ' + uri);
+        console.log('cache HIT [uri: %s] [prefix: %s]', uri, prefix);
         callback(void 0, data);
         return;
     }
-    console.log('cache MISS ' + uri);
+    console.log('cache MISS [uri: %s] [prefix: %s]', uri, prefix);
     console.log('fetching', MetaData.uris.lookup, params);
     robot.http(MetaData.uris.lookup).query(params).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
-            persistUriData(uri, prefix, data);
+            persistUriData(uri, prefix, jsonData);
         }
         callback(err, jsonData);
     }));

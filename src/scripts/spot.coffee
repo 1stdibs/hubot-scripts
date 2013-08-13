@@ -40,7 +40,7 @@
 #   andromedado
 https = require 'https'
 
-VERSION = '2.1.4'
+VERSION = '2.1.5'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 

@@ -7,6 +7,7 @@
 var Support = {},
     Queue,
     templates = require('./spotifyTemplates'),
+    trackUriRE = /^spotify:track:[a-z\d]+$/i,
     MetaData,
     manager,
     robot,
@@ -159,6 +160,15 @@ Support.translateToTrack = function (str, userId, callback) {
             return;
         }
         callback(null, new MetaData.Track(results[listItem]));
+        return;
+    }
+    if (str.match(trackUriRE)) {
+        MetaData.fetchTrack(str, function (err, Track) {
+            if (err) {
+                Track = new MetaData.Track({href : str});
+            }
+            callback(null, Track);
+        });
         return;
     }
     MetaData.findTracks(str, 1, function (err, data) {

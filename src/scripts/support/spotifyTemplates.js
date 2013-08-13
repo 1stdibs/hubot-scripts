@@ -1,5 +1,6 @@
 
 var templates = {},
+    _ = require('underscore'),
     listIndexBase = 0,
     characters;
 
@@ -150,14 +151,16 @@ templates.albumsLines = function (albums, full) {
 
 templates.trackLine = function (track, full) {
     var str = [asLabel('Track')];
-    str.push(track.name);
+    str.push(track.name || track.href);//fall back to href
     if (full && track.artists.length) {
         str.push(asAdditional(templates.artistsLine(track.artists)));
     }
-    if (full && track.album) {
+    if (full && track.album && !_.isEmpty(track.album)) {
         str.push(asAdditional(templates.albumLine(track.album)));
     }
-    str.push(asDuration(calcLength(track.length)));
+    if (track.length) {
+        str.push(asDuration(calcLength(track.length)));
+    }
     return str.join(' ');
 };
 

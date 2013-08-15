@@ -5,7 +5,7 @@ var fs = require('fs'),
 
 scripts = [
     'pokemonfusion.js',
-    'thecatapi.js',
+    'catoverflow.js',
     'nugme.coffee',
     'mta.coffee',
     'spot.coffee'

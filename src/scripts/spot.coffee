@@ -40,7 +40,7 @@
 #   andromedado
 https = require 'https'
 
-VERSION = '2.1.5'
+VERSION = '2.1.6'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -177,7 +177,7 @@ module.exports = (robot) ->
   robot.respond /((find|show) )?(me )?((\d+) )?album(s)? (.+)/i, (message) ->
     if (message.match[6])#PLURAL
       Support.findAlbums message.match[7], message.message.user.id, message.match[5] || DEFAULT_LIMIT, getStrHandler(message)
-    else
+    else if (!message.match[7] || trim(message.match[7]) != 'art')#Ignore `album art` query
       Support.translateToAlbum trim(message.match[7]), message.message.user.id, (err, album, resultIndex) ->
         if (!err)
           str = templates.albumSummary(album, resultIndex)

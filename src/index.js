@@ -8,7 +8,8 @@ scripts = [
     'catoverflow.js',
     'nugme.coffee',
     'mta.coffee',
-    'spot.coffee'
+    'spot.coffee',
+    'hr.js'
 ];
 
 module.exports = function (robot) {

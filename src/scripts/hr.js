@@ -20,11 +20,13 @@ var imageSrcs = [
     'http://www.hrclassroom.com/trainings/Trainings/LegacyImages/bco_037l.jpg',
     'http://www.hrclassroom.com/trainings/Trainings/LegacyImages/fac079ml.jpg',
     'http://www.hrclassroom.com/trainings/Trainings/LegacyImages/e005624l.jpg',
-    'http://www.hrclassroom.com/trainings/Trainings/LegacyImages/35281l-b.jpg'
+    'http://www.hrclassroom.com/trainings/Trainings/LegacyImages/35281l-b.jpg',
+    'http://www.hrclassroom.com/trainings/Trainings/LegacyImages/cas078mh.jpg'
 ];
 
 var getOverIt = [
-    'You should run a mile and get over it.'
+    'You should run a mile and get over it.',
+    'You should write down your thoughts and keep quiet.'
 ];
 
 var interventions = [
@@ -32,7 +34,8 @@ var interventions = [
 ];
 
 var justDonts = [
-    'Just don\'t go rubbing up against them.'
+    'Just don\'t go rubbing up against them.',
+    'Just don\'t pass out racist pictures.'
 ];
 
 function rand(arr) {

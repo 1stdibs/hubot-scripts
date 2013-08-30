@@ -24,13 +24,29 @@ var imageSrcs = [
     'http://www.hrclassroom.com/trainings/Trainings/LegacyImages/cas078mh.jpg'
 ];
 
+var faces = {
+    noneOfIt : [
+        ':confused:', ':weary:',
+        ':unamused:', ':angry:'
+    ],
+    smiles : [
+        ':grinning:', ':blush:',
+        ':relaxed:', ':smirk:',
+        ':grin:', ':wink:'
+    ],
+    neutral : [
+        ':grimacing:', ':expressionless:',
+        ':neutral_face:', ':no_mouth:'
+    ],
+    concerned : [
+        ':frowning:', ':worried:',
+        ':anguished:', ':fearful:'
+    ]
+};
+
 var getOverIt = [
     'You should run a mile and get over it.',
     'You should write down your thoughts and keep quiet.'
-];
-
-var interventions = [
-    'Go take a cold shower.'
 ];
 
 var justDonts = [
@@ -38,20 +54,42 @@ var justDonts = [
     'Just don\'t pass out racist pictures.'
 ];
 
-function rand(arr) {
-    return arr && arr.length && arr[Math.floor(Math.random() * arr.length)]
+var interventions = [
+    'Go take a cold shower.'
+];
+
+function randEl (array) {
+    return array && array.length && array[Math.floor(Math.random() * array.length)];
+}
+
+function concatRandFromEach(/* arr,... */) {
+    var say = [];
+    Array.prototype.forEach.call(arguments, function (arr) {
+        say.push(randEl(arr));
+    });
+    return say.join(' ');
 }
 
 module.exports = function(robot) {
 
     robot.respond(/what should i do\?/i, function (msg) {
-        msg.send(rand(imageSrcs));
-        msg.send(rand(rand([getOverIt, justDonts])));
+        msg.send(randEl(imageSrcs));
+        msg.send(
+            concatRandFromEach(
+                randEl([getOverIt, justDonts])
+//                randEl([faces.smiles, faces.noneOfIt, faces.neutral])
+            )
+        );
     });
 
     robot.hear(/you're cute/i, function (msg) {
-        msg.send(rand(imageSrcs));
-        msg.reply(rand(interventions));
+        msg.send(randEl(imageSrcs));
+        msg.reply(
+            concatRandFromEach(
+                randEl([faces.concerned, faces.noneOfIt])
+//                randEl([interventions])
+            )
+        );
     });
 
 };

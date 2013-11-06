@@ -8,6 +8,8 @@ var Support = {},
     Queue,
     templates = require('./spotifyTemplates'),
     trackUriRE = /^spotify:track:[a-z\d]+$/i,
+    currentResultReferenceRE = /^\[?(#|:)?(\d+)\]?$/,
+    specificResultReferenceRE = /^\[?(\d+)\]?\[?(#|:)(\d+)\]?/,
     MetaData,
     manager,
     robot,
@@ -82,7 +84,7 @@ Support.translateToAlbum = function (str, userId, callback) {
     var resultNum, listItem, results,
         data, album, metaData, track,
         inflatedAlbumHandler = getInflatedAlbumHandler(callback, userId);
-    if (str.match(/^(#|:)?(\d+)$/)) {
+    if (str.match(currentResultReferenceRE)) {
         listItem = RegExp.$2;
         metaData = manager.getRelevantMetaData(void 0, userId, listItem);
         if (!metaData) {
@@ -102,7 +104,7 @@ Support.translateToAlbum = function (str, userId, callback) {
         album.inflateTracks(inflatedAlbumHandler);
         return;
     }
-    if (str.match(/^(\d+)(#|:)(\d+)/)) {
+    if (str.match(specificResultReferenceRE)) {
         resultNum = RegExp.$1;
         listItem = RegExp.$3;
         data = manager.getResultMetaData(resultNum);
@@ -136,7 +138,7 @@ Support.translateToAlbum = function (str, userId, callback) {
 
 Support.translateToTrack = function (str, userId, callback) {
     var resultNum, listItem, results, data;
-    if (str.match(/^(#|:)?(\d+)$/)) {
+    if (str.match(currentResultReferenceRE)) {
         listItem = RegExp.$2;
         results = manager.getRelevantResult(manager.types.TRACKS, userId, listItem);
         if (!results || !results.length) {
@@ -146,7 +148,7 @@ Support.translateToTrack = function (str, userId, callback) {
         callback(null, new MetaData.Track(results[listItem]));
         return;
     }
-    if (str.match(/^(\d+)(#|:)(\d+)/)) {
+    if (str.match(specificResultReferenceRE)) {
         resultNum = RegExp.$1;
         listItem = RegExp.$3;
         data = manager.getResultMetaData(resultNum);
@@ -182,7 +184,7 @@ Support.translateToTrack = function (str, userId, callback) {
 
 Support.translateToArtist = function (str, userId, callback) {
     var resultNum, listItem, results, data, datum, artists, metaData, track;
-    if (str.match(/^(#|:)?(\d+)$/)) {
+    if (str.match(currentResultReferenceRE)) {
         listItem = RegExp.$2;
         metaData = manager.getRelevantMetaData(void 0, userId, listItem);
         if (!metaData) {
@@ -206,7 +208,7 @@ Support.translateToArtist = function (str, userId, callback) {
         callback(null, new MetaData.Artist(artists[0]));
         return;
     }
-    if (str.match(/^(\d+)(#|:)(\d+)/)) {
+    if (str.match(specificResultReferenceRE)) {
         resultNum = RegExp.$1;
         listItem = RegExp.$3;
         data = manager.getResultMetaData(resultNum);

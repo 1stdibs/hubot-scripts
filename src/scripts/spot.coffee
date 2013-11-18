@@ -40,7 +40,7 @@
 #   andromedado
 https = require 'https'
 
-VERSION = '2.2.0'
+VERSION = '2.3.0'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -188,6 +188,7 @@ module.exports = (robot) ->
 
   Queue = require('./support/spotifyQueue')(robot, URL)
   Support = require('./support/spotifySupport')(robot, URL, Queue)
+  Assoc = require('./support/spotifyAssoc')(robot)
 
   robot.respond /show (me )?this album/i, (message) ->
     Support.getCurrentAlbum (err, album, resultIndex) ->
@@ -218,11 +219,34 @@ module.exports = (robot) ->
     Support.purgeMusicDataCache();
     message.send(':ok_hand:')
 
+  robot.respond /blame\s*$/i, (message) ->
+    Support.translateToTrack 'this', message.message.user.id, (err, track) ->
+      if (err)
+        sayMyError(err, message)
+        return
+      user = Assoc.get(track.uri)
+      if (user)
+        message.send(':small_blue_diamond: ' + user + ' requested this')
+      else
+        message.send(':small_blue_diamond: Spotify Playlist')
+
+  robot.respond /who asked for (.+)\??/i, (message) ->
+    Support.translateToTrack trim(message.match[1]), message.message.user.id, (err, track) ->
+      if (err)
+        sayMyError(err, message)
+        return
+      user = Assoc.get(track.uri)
+      if (user)
+        message.send(':small_blue_diamond: ' + user + ' did')
+      else
+        message.send(':small_blue_diamond: Spotify Playlist')
+
   robot.respond /(play|queue) (.+)/i, (message) ->
     Support.translateToTrack trim(message.match[2]), message.message.user.id, (err, track) ->
       if (err)
         sayMyError(err, message)
         return
+      Assoc.set(track.uri, message.message.user.name)
       if (message.match[1].toLowerCase() == 'play' && !Queue.locked())
         Queue.stop()
         message.send(':small_blue_diamond: Switching to ' + templates.trackLine(track, true))

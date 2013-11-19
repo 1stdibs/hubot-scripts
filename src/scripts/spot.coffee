@@ -40,7 +40,7 @@
 #   andromedado
 https = require 'https'
 
-VERSION = '2.3.1'
+VERSION = '2.3.2'
 
 URL = "#{process.env.HUBOT_SPOT_URL}"
 
@@ -316,14 +316,14 @@ module.exports = (robot) ->
   robot.respond /playing\?/i, (message) ->
     playingRespond(message)
     Support.translateToTrack 'this', message.message.user.id, (err, track) ->
-    if (err)
-      sayMyError(err, message)
-      return
-    user = Assoc.get(track.uri)
-    if (user)
-      message.send(':small_blue_diamond: ' + user + ' requested this')
-    else
-      message.send(':small_blue_diamond: Spotify Playlist')
+      if (err)
+        sayMyError(err, message)
+        return
+      user = Assoc.get(track.uri)
+      if (user)
+        message.send(':small_blue_diamond: ' + user + ' requested this')
+      else
+        message.send(':small_blue_diamond: Spotify Playlist')
 
   robot.respond /album art\??/i, (message) ->
     spotRequest message, '/playing', 'get', {}, (err, res, body) ->

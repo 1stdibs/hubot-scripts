@@ -12,6 +12,7 @@ assoc.set = function (uri, userName) {
 };
 
 assoc.get = function (uri) {
+    console.log(dictionary, uri);
     return dictionary[uri];
 };
 

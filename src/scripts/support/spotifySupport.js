@@ -138,6 +138,10 @@ Support.translateToAlbum = function (str, userId, callback) {
 
 Support.translateToTrack = function (str, userId, callback) {
     var resultNum, listItem, results, data;
+    if (str.match(/\s*this\s*(track)?\s*$/)) {
+        Support.getCurrentTrack(callback);
+        return;
+    }
     if (str.match(currentResultReferenceRE)) {
         listItem = RegExp.$2;
         results = manager.getRelevantResult(manager.types.TRACKS, userId, listItem);

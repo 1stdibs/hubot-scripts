@@ -224,7 +224,7 @@ module.exports = (robot) ->
       if (err)
         sayMyError(err, message)
         return
-      user = Assoc.get(track.uri)
+      user = Assoc.get(track.href)
       if (user)
         message.send(':small_blue_diamond: ' + user + ' requested this')
       else
@@ -235,7 +235,7 @@ module.exports = (robot) ->
       if (err)
         sayMyError(err, message)
         return
-      user = Assoc.get(track.uri)
+      user = Assoc.get(track.href)
       if (user)
         message.send(':small_blue_diamond: ' + user + ' did')
       else
@@ -246,7 +246,7 @@ module.exports = (robot) ->
       if (err)
         sayMyError(err, message)
         return
-      Assoc.set(track.uri, message.message.user.name)
+      Assoc.set(track.href, message.message.user.name)
       if (message.match[1].toLowerCase() == 'play' && !Queue.locked())
         Queue.stop()
         message.send(':small_blue_diamond: Switching to ' + templates.trackLine(track, true))
@@ -319,7 +319,7 @@ module.exports = (robot) ->
       if (err)
         sayMyError(err, message)
         return
-      user = Assoc.get(track.uri)
+      user = Assoc.get(track.href)
       if (user)
         message.send(':small_blue_diamond: ' + user + ' requested this')
       else

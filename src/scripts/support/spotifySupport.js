@@ -138,7 +138,9 @@ Support.translateToAlbum = function (str, userId, callback) {
 
 Support.translateToTrack = function (str, userId, callback) {
     var resultNum, listItem, results, data;
+    console.log('translating %s', str);
     if (str.match(/\s*this\s*(track)?\s*$/)) {
+        console.log('this track!');
         Support.getCurrentTrack(callback);
         return;
     }

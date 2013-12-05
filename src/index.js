@@ -8,7 +8,7 @@ scripts = [
     'catoverflow.js',
     'nugme.coffee',
     'mta.coffee',
-    'spot.coffee',
+    'spot.js',
     'hr.js'
 ];
 

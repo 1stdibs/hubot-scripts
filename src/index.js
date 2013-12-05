@@ -9,7 +9,8 @@ scripts = [
     'nugme.coffee',
     'mta.coffee',
     'spot.js',
-    'hr.js'
+    'hr.js',
+    'jenkins-notifier.coffee'
 ];
 
 module.exports = function (robot) {

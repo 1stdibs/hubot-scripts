@@ -12,41 +12,14 @@
 #   None
 #
 # URLS:
-#   POST /hubot/jenkins-notify?room=<room>[&type=<type>][notstrat=<notificationSTrategy>]
+#   POST /hubot/jenkins-notify?room=<room>[&type=<type>]
 #
-# Notification Strategy is [Ff][Ss] which stands for "Failure" and "Success"
-# Capitalized letter means: notify always
-# small letter means: notify only if buildstatus has changed
-# "Fs" is the default
-# 
 # Authors:
 #   spajus
-#   k9ert (notification strategy feature)
 
 url = require('url')
 querystring = require('querystring')
-
-buildStatusChanged = (data, @failing) ->
-  if data.build.status == 'FAILURE' and data.name in @failing
-    return false
-  if data.build.status == 'FAILURE' and not (data.name in @failing)
-    return true
-  if data.build.status == 'SUCCESS' and data.name in @failing
-    return true
-  if data.build.status == 'SUCCESS' and not (data.name in @failing)
-    return false
-  console.log "this should not happen"
-
-shouldNotify = (notstrat, data, @failing) ->
-  if data.build.status == 'FAILURE'
-    if /F/.test(notstrat)
-      return true
-    return buildStatusChanged(data, @failing)
-  if data.build.status == 'SUCCESS'
-    if /S/.test(notstrat)
-      return true
-    return buildStatusChanged(data, @failing)
-      
+http = require 'http'
 
 module.exports = (robot) ->
 
@@ -57,35 +30,36 @@ module.exports = (robot) ->
 
     res.end('')
 
-    envelope = {notstrat:"Fs"}
+    envelope = {}
     envelope.user = {}
     envelope.room = query.room if query.room
     envelope.user.type = query.type if query.type
-    envelope.notstrat = query.notstrat if query.notstrat 
+
     try
       for key of req.body
         data = JSON.parse key
 
       if data.build.phase == 'FINISHED'
-        robot.send envelope, data.name
+        console.log "jenkins-notify: A build has finished! Oooh, the excitement!!"
         if data.build.status == 'FAILURE'
           if data.name in @failing
             build = "is still"
           else
             build = "started"
-          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} failing (#{encodeURI(data.build.full_url)})" if shouldNotify(envelope.notstrat, data, @failing)
+          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} failing (#{encodeURI(data.build.full_url)})"
           @failing.push data.name unless data.name in @failing
         if data.build.status == 'SUCCESS'
           if data.name in @failing
-            build = "was restored"
-            robot.send envelope, "woop2"
+            index = @failing.indexOf data.name
+            @failing.splice index, 1 if index isnt -1
+            robot.send envelope, "#{data.name} build is fixed! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
           else
-            build = "suceeded"
-          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
-          index = @failing.indexOf data.name
-          @failing.splice index, 1 if index isnt -1
+            robot.send envelope, "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
+        if data.name == '1stdibs.com Deploy Production PROD PROD PROD PROD'
+          robot.send envelope, "I hope you know what you're doing..."
+          http.get { host: 'http://wall:5051/shipit' }, (res) ->
+            console.log res.statusCode
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"
       console.log error.stack
-

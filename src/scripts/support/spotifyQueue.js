@@ -186,7 +186,7 @@ module.exports = function (Robot, URL, queueName, forever) {
         }
 
         var unResolvedTracks = 0;
-        unResolvedTracks = queue.length - 1;
+        unResolvedTracks = queue.length;
 
         queue.forEach(function (track, index) {
             if (_.isString(track)) {

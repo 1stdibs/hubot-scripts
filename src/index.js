@@ -8,8 +8,9 @@ scripts = [
     'catoverflow.js',
     'nugme.coffee',
     'mta.coffee',
-    'spot.coffee',
-    'hr.js'
+    'spot.js',
+    'hr.js',
+    'jenkins-notifier.coffee'
 ];
 
 module.exports = function (robot) {

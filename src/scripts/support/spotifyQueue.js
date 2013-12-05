@@ -173,8 +173,16 @@ module.exports = function (Robot, URL, queueName, forever) {
      * @return {undefined}
      */
     Queue.resolveTracks = function (queue, callback) {
+        if (!queue) {
+            return callback(undefined);
+        }
+
         if (!_.isArray(queue)) {
             queue = [queue];
+        } else {
+            if (!queue.length) {
+                return callback(undefined);
+            }
         }
 
         var unResolvedTracks = 0;

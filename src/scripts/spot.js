@@ -77,7 +77,7 @@ _ = require('underscore');
 
 console.log('loaded SPOT');
 
-VERSION = '2.3.3';
+VERSION = '2.3.4';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 

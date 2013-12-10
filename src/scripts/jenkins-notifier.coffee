@@ -56,10 +56,13 @@ module.exports = (robot) ->
           else
             robot.send envelope, "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
         if data.name == '1stdibs.com Deploy Production PROD PROD PROD PROD'
-          robot.send envelope, "I hope you know what you're doing..."
-          http.get { host: 'http://wall:5051/shipit' }, (res) ->
+          console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
+          http.get 'http://wall:5051/shipit', (res) ->
+            console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
             console.log res.statusCode
+          robot.send envelope, "I hope you know what you're doing..."
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"
       console.log error.stack
+

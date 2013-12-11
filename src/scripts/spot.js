@@ -371,7 +371,7 @@ module.exports = function (robot) {
             }
             user = Assoc.get(track.href);
             if (user) {
-                return message.send(':small_blue_diamond: ' + user + ' requested this');
+                return message.send(':small_blue_diamond: ' + user + ' requested ' + templates.trackLine(track));
             }
             return message.send(':small_blue_diamond: Spotify Playlist');
         });

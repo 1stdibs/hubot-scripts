@@ -274,11 +274,15 @@ setVolume = function (level, message) {
     });
 };
 
-function setupDefaultQueue(queue) {
+function setupDefaultQueue(queue, reload, callback) {
     var fs = require('fs');
 
-    if (queue.isEmpty()) {
-        console.log('found no redis stuff for ', queue.getName());
+    if (!queue.isEmpty() || reload) {
+        if (!reload) {
+            console.log('found no redis stuff for ', queue.getName());            
+        } else {
+            console.log('reloading playlist for ', queue.getName());
+        }
         console.log('reading file...', process.env.HUBOT_SPOTIFY_PLAYLIST_FILE);
         fs.readFile(process.env.HUBOT_SPOTIFY_PLAYLIST_FILE, 'utf-8', function (err, data) {
             if (err) { throw err; }
@@ -287,17 +291,23 @@ function setupDefaultQueue(queue) {
                 i = -1,
                 list;
 
-            list = _.shuffle(json);
+            list = json;
             console.log('first in list : ', list[0]);
             //list = _.shuffle(json);
             queue.addTracks(list);
             queue.playNext();
+            if (callback) {
+                callback(queue);
+            }
         });
     } else {
         console.log('found redis playlist named : ', queue.getName());
         setTimeout(function () {
             queue.start();
-            queue.playNext();  
+            queue.playNext();
+            if (callback) {
+                callback(queue);
+            }
         }, 1000)
     }
 }
@@ -566,6 +576,11 @@ module.exports = function (robot) {
         };
         return spotRequest(message, '/volume', 'put', params, function (err, res, body) {
             return message.send("Spot volume set to " + body + ". :mega:");
+        });
+    });
+    robot.respond(/reload default playlist/i, function (message) {
+        setupDefaultQueue(playlistQueue, true, function () {
+            message.send("Reloaded default playlist");
         });
     });
     //TODO: Make a responder to add to defaultQueue

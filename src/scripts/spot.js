@@ -287,7 +287,7 @@ function setupDefaultQueue(queue) {
                 i = -1,
                 list;
 
-            list = json;
+            list = _.shuffle(json);
             console.log('first in list : ', list[0]);
             //list = _.shuffle(json);
             queue.addTracks(list);

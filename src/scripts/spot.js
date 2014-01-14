@@ -277,7 +277,7 @@ setVolume = function (level, message) {
 function setupDefaultQueue(queue) {
     var fs = require('fs');
 
-    if (!queue.isEmpty()) {
+    if (queue.isEmpty()) {
         console.log('found no redis stuff for ', queue.getName());
         console.log('reading file...', process.env.HUBOT_SPOTIFY_PLAYLIST_FILE);
         fs.readFile(process.env.HUBOT_SPOTIFY_PLAYLIST_FILE, 'utf-8', function (err, data) {

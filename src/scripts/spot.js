@@ -75,9 +75,7 @@ https = require('https');
 
 _ = require('underscore');
 
-console.log('loaded SPOT');
-
-VERSION = '2.3.4';
+VERSION = '2.3.3';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -281,6 +279,7 @@ function setupDefaultQueue(queue) {
 
     if (!queue.isEmpty()) {
         console.log('found no redis stuff for ', queue.getName());
+        console.log('reading file...', process.env.HUBOT_SPOTIFY_PLAYLIST_FILE);
         fs.readFile(process.env.HUBOT_SPOTIFY_PLAYLIST_FILE, 'utf-8', function (err, data) {
             if (err) { throw err; }
             var json = JSON.parse(data),
@@ -288,15 +287,18 @@ function setupDefaultQueue(queue) {
                 i = -1,
                 list;
 
-            list = _.shuffle(json);
-            while (++i < len) {
-                queue.addTrack(list[i]);
-            }
+            list = json;
+            console.log('first in list : ', list[0]);
+            //list = _.shuffle(json);
+            queue.addTracks(list);
             queue.playNext();
         });
     } else {
-        queue.start();
-        queue.playNext();
+        console.log('found redis playlist named : ', queue.getName());
+        setTimeout(function () {
+            queue.start();
+            queue.playNext();  
+        }, 1000)
     }
 }
 
@@ -579,3 +581,5 @@ module.exports = function (robot) {
         });
     });
 };
+
+

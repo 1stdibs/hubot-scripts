@@ -18,6 +18,7 @@ module.exports = function (Robot, URL, queueName, forever) {
     var
         metDat,
         Queue = new EE(),
+        _queue = null,
         get,
         getTrackHref,
         url,
@@ -29,6 +30,7 @@ module.exports = function (Robot, URL, queueName, forever) {
         tryingToPlay,
         playNext,
         isSpotTrackUri,
+        isNotDoneAddingTracks,
         robot = {};
 
     function spotRequest(path, method, params, callback) {
@@ -36,7 +38,10 @@ module.exports = function (Robot, URL, queueName, forever) {
     }
 
     function set(queue) {
-        robot.brain.set(queueName, queue);
+        _queue = queue;
+        if (!isNotDoneAddingTracks) {
+            robot.brain.set(queueName, _queue);
+        }
     }
 
     function checkUp() {
@@ -78,7 +83,12 @@ module.exports = function (Robot, URL, queueName, forever) {
     }
 
     get = Queue.get = function () {
-        var q = robot.brain.get(queueName);
+        var q;
+        if (!_queue) {
+            q = robot.brain.get(queueName);
+        } else {
+            q = _queue;
+        }
         return Array.prototype.slice.call(q || []);
     };
 
@@ -254,6 +264,15 @@ module.exports = function (Robot, URL, queueName, forever) {
         }
         Queue.emit('addTrack', track, index);
         callback(undefined, index);
+    };
+
+    Queue.addTracks = function (tracks, callback) {
+        var len = tracks.length,
+            i = -1;
+        while (++i < len) {
+            isNotDoneAddingTracks = ((i + 1) < len);
+            Queue.addTrack(tracks[i], callback);
+        }
     };
 
     Queue.next = function () {

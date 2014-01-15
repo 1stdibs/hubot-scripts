@@ -276,6 +276,7 @@ module.exports = function (Robot, URL, queueName, forever) {
     };
 
     Queue.next = function () {
+        // console.log('queue next for ' + queueName, get());
         return get().shift();
     };
 
@@ -291,7 +292,9 @@ module.exports = function (Robot, URL, queueName, forever) {
     };
 
     Queue.isEmpty = function () {
-        return !!get().length;
+        // console.log('get for '  + queueName, get());
+        var q = get();
+        return q.length === 0;
     };
 
     Queue.getName = function () {

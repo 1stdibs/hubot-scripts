@@ -291,9 +291,8 @@ function setupDefaultQueue(queue, reload, callback) {
                 i = -1,
                 list;
 
-            list = json;
-            console.log('first in list : ', list[0]);
-            //list = _.shuffle(json);
+            //list = json;
+            list = _.shuffle(json);
             queue.addTracks(list);
             queue.playNext();
             if (callback) {
@@ -482,13 +481,14 @@ module.exports = function (robot) {
             message.send(":raised_hand: Not yet, this was queued");
             return;
         }
-        if (Queue.next()) {
-            return Queue.playNext(function (err, track) {
+        var q = (Queue.isEmpty()) ? playlistQueue : Queue;
+        if (q.next()) {
+            return q.playNext(function (err, track) {
                 if (err) {
                   spotNext(message);
                   return;
                 }
-                return message.send(":small_blue_diamond: Ok, on to " + track.name);
+                return q.send(":small_blue_diamond: Ok, on to " + track.name);
             });
         } else {
             return spotNext(message);

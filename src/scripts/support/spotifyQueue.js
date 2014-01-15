@@ -38,8 +38,11 @@ module.exports = function (Robot, URL, queueName, forever) {
     }
 
     function set(queue) {
+        // console.log('setting queue', queue);
         _queue = queue;
         if (!isNotDoneAddingTracks) {
+            var stack = new Error().stack
+            // console.log('setting queue in robot braing', stack);
             robot.brain.set(queueName, _queue);
         }
     }
@@ -269,6 +272,7 @@ module.exports = function (Robot, URL, queueName, forever) {
     Queue.addTracks = function (tracks, callback) {
         var len = tracks.length,
             i = -1;
+        // console.log('add tracks', tracks);
         while (++i < len) {
             isNotDoneAddingTracks = ((i + 1) < len);
             Queue.addTrack(tracks[i], callback);
@@ -282,6 +286,10 @@ module.exports = function (Robot, URL, queueName, forever) {
 
     Queue.set = function (q) {
         set(q);
+    };
+
+    Queue.clear = function () {
+        set([]);
     };
 
     Queue.playNext = function () {

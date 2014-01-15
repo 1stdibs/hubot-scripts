@@ -293,8 +293,9 @@ function setupDefaultQueue(queue, reload, callback) {
 
             //list = json;
             list = _.shuffle(json);
-            queue.addTracks(list);
-            queue.playNext();
+            queue.clear(); // Empty the existing playlist, new songs wont be added otherwise
+            queue.addTracks(list); // Add the shuffled list to the empty playlist
+            queue.playNext(); // Start playling
             if (callback) {
                 callback(queue);
             }

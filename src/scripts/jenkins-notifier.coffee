@@ -61,6 +61,18 @@ module.exports = (robot) ->
             console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
             console.log res.statusCode
           robot.send envelope, "I hope you know what you're doing..."
+        if data.name == 'Admin-v2 Deploy (PROD) (RACKSPACE)'
+          console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
+          http.get 'http://wall:5051/shipit-v2', (res) ->
+            console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
+            console.log res.statusCode
+          robot.send envelope, "I hope you know what you're doing..."
+        if data.name == 'Admin-v1 Deploy (PROD) (RACKSPACE)'
+          console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
+          http.get 'http://wall:5051/shipit-v1', (res) ->
+            console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
+            console.log res.statusCode
+          robot.send envelope, "I hope you know what you're doing..."
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"

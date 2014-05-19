@@ -21,7 +21,8 @@
         "underscore.string" : "2.3.x",
         "htmlparser" : "1.7.6",
         "scoped-http-client" : "0.9.x",
-        "soupselect" : "0.2.x"
+        "soupselect" : "0.2.x",
+        "gitio2" : "2.0.0"
     },
     "engines" : {
         "node" : ">=0.10"

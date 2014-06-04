@@ -74,7 +74,7 @@ https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.4';
+VERSION = '2.3.5';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -157,11 +157,7 @@ comparePart = function (b, c, partName, partNamePlural) {
     return stem + ' by ' + diff + ' ' + whats + suffix;
 };
 
-spotRequest = function (message, path, action, options, callback) {
-    return message.http("" + URL + path).query(options)[action]()(function (err, res, body) {
-        return callback(err, res, body);
-    });
-};
+spotRequest = require('./support/spotRequest');
 
 now = function () {
     return ~~(Date.now() / 1000);
@@ -302,6 +298,9 @@ module.exports = function (robot) {
         Support,
         playlistQueue = require('./support/spotifyQueue')(robot, URL, 'playlistQueue', true),
         queueMaster = require('./support/spotifyQueueMaster')();
+    var say = require('./support/say');
+
+    say.attachToRobot(robot);
 
     Queue = require('./support/spotifyQueue')(robot, URL);
     Support = require('./support/spotifySupport')(robot, URL, Queue);
@@ -539,16 +538,6 @@ module.exports = function (robot) {
         return setVolume(adi, message);
     });
     robot.respond(/(how much )?(time )?(remaining|left)\??$/i, remainingRespond);
-    robot.respond(/say (.*)/i, function (message) {
-        var params, what;
-        what = message.match[1];
-        params = {
-            what: what
-        };
-        return spotRequest(message, '/say', 'put', params, function (err, res, body) {
-            return message.send(what);
-        });
-    });
     robot.respond(/say me/i, function (message) {
         return message.send('no way ' + message.message.user.name);
     });

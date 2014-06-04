@@ -24,12 +24,12 @@ say.attachToRobot = function (robot) {
     robot.respond(/say (.*)/i, function (message) {
         return sayIt(message.match[1], message);
     });
-    robot.respond(/be quiet/i, function (message) {
+    robot.respond(/(please )?be quiet/i, function (message) {
         if (say.canSay()) {
             canSay = false;
             setTimeout(function () {
                 canSay = true;
-            }, 60000);
+            }, message.match[1] ? 120000 : 60000);
         }
     });
 };

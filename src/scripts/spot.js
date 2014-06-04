@@ -1,50 +1,49 @@
-/*
-# Description:
-#   Control Spot from campfire. https://github.com/1stdibs/Spot
-#
-# Dependencies:
-#   underscore
-#
-# Configuration:
-#   HUBOT_SPOT_URL
-#
-# Commands:
-#   hubot music status? - Lets you know what's up
-#   hubot play! - Plays current playlist or song.
-#   hubot pause - Pause the music.
-#   hubot play next - Plays the next song.
-#   hubot play back - Plays the previous song.
-#   hubot playing? - Returns the currently-played song.
-#   hubot volume? - Returns the current volume level.
-#   hubot volume [0-100] - Sets the volume.
-#   hubot volume + - Bumps the volume.
-#   hubot volume - - Bumps the volume down.
-#   hubot mute - Sets the volume to 0.
-#   hubot [name here] says turn it down - Sets the volume to 15 and blames [name here].
-#   hubot say <message> - Tells hubot to read a message aloud.
-#   hubot play <song> - Play a particular song. This plays the first most popular result.
-#   hubot find x artist <artist-query> - Searches for x (or 6) most popular artist matching query
-#   hubot find x music <track-query> - Searches for x (or 6) most popular tracks matching query
-#   hubot find x music by <artist-query> - Searches for x (or 6) most popular tracks by artist-query
-#   hubot find x albums <album-query> - Searches for x (or 6) most popular albums matching query
-#   hubot find x albums by <artist-query> - Searches for x (or 6) most popular albums by artist-query
-#   hubot show me album <album-query> - Pulls up the album for the given search, or if (x:y) format, the album associated with given result
-#   hubot show me this album - Pulls up the album for the currently playing track
-#   hubot show me music by this artist - Pulls up tracks by the current artist
-#   hubot play n - Play the nth track from the last search results
-#   hubot play x:y - Play the y-th track from x-th result set
-#   hubot how much longer? - Hubot tells you how much is left on the current track
-#   hubot queue? - Pulls up the current queue
-#   hubot queue (track name | track result #) - Adds the given track to the queue
-#   hubot dequeue #(queue number) - removes the given queue line item (by current position in the queue)
-# Authors:
-#   andromedado, jballant
-*/
+//
+// Description:
+//   Control Spot from campfire. https://github.com/1stdibs/Spot
+//
+// Dependencies:
+//   underscore
+//
+// Configuration:
+//   HUBOT_SPOT_URL
+//
+// Commands:
+//   hubot music status? - Lets you know what's up
+//   hubot play! - Plays current playlist or song.
+//   hubot pause - Pause the music.
+//   hubot play next - Plays the next song.
+//   hubot play back - Plays the previous song.
+//   hubot playing? - Returns the currently-played song.
+//   hubot volume? - Returns the current volume level.
+//   hubot volume [0-100] - Sets the volume.
+//   hubot volume + - Bumps the volume.
+//   hubot volume - - Bumps the volume down.
+//   hubot mute - Sets the volume to 0.
+//   hubot [name here] says turn it down - Sets the volume to 15 and blames [name here].
+//   hubot say <message> - Tells hubot to read a message aloud.
+//   hubot play <song> - Play a particular song. This plays the first most popular result.
+//   hubot find x artist <artist-query> - Searches for x (or 6) most popular artist matching query
+//   hubot find x music <track-query> - Searches for x (or 6) most popular tracks matching query
+//   hubot find x music by <artist-query> - Searches for x (or 6) most popular tracks by artist-query
+//   hubot find x albums <album-query> - Searches for x (or 6) most popular albums matching query
+//   hubot find x albums by <artist-query> - Searches for x (or 6) most popular albums by artist-query
+//   hubot show me album <album-query> - Pulls up the album for the given search, or if (x:y) format, the album associated with given result
+//   hubot show me this album - Pulls up the album for the currently playing track
+//   hubot show me music by this artist - Pulls up tracks by the current artist
+//   hubot play n - Play the nth track from the last search results
+//   hubot play x:y - Play the y-th track from x-th result set
+//   hubot how much longer? - Hubot tells you how much is left on the current track
+//   hubot queue? - Pulls up the current queue
+//   hubot queue (track name | track result #) - Adds the given track to the queue
+//   hubot dequeue #(queue number) - removes the given queue line item (by current position in the queue)
+// Authors:
+//   andromedado, jballant
+//
 /*jslint node: true */
 "use strict";
 
-var
-    CAMPFIRE_CHRONOLOGICAL_DELAY,
+var CAMPFIRE_CHRONOLOGICAL_DELAY,
     DEFAULT_LIMIT,
     Queue,
     URL,
@@ -74,8 +73,6 @@ var
 https = require('https');
 
 _ = require('underscore');
-
-console.log('loaded SPOT');
 
 VERSION = '2.3.4';
 

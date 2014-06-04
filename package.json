@@ -1,7 +1,7 @@
 {
   "name": "hubot-1stdibs",
   "description": "1stdibs Custom Hubot Scripts",
-  "version": "0.1.52",
+  "version": "0.1.53",
   "author": "1stdibs.com",
   "main": "./src/index.js",
   "repository": {
@@ -12,8 +12,8 @@
     "hubot"
   ],
   "dependencies": {
-    "optimist" : "0.6.x",
-    "colors" : "0.6.x",
+    "optimist": "0.6.x",
+    "colors": "0.6.x",
     "underscore": "1.4.x",
     "redis": "0.8.2",
     "date-utils": "1.2.x",

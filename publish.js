@@ -29,7 +29,8 @@ command = [
     'git reset -q HEAD',
     'git add --all .',
     util.format('git commit -m %s', JSON.stringify(baseMessage)),
-    util.format('npm version %s -m %s', commitType, JSON.stringify(commitMessage))
+    util.format('npm version %s -m %s', commitType, JSON.stringify(commitMessage)),
+    util.format('npm publish %s', __dirname)
 ].join(' && ');
 
 exec(command, function (err, stdout, stderr) {

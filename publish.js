@@ -29,8 +29,9 @@ command = [
     'git reset -q HEAD',
     'git add --all .',
     util.format('git commit -m %s', JSON.stringify(baseMessage)),
-    '(git pull --rebase origin master && git push origin master) || (echo "Ok fine, I\'ll stash" >&2 && git stash -u -q && git push origin master && git stash pop -q)',
+    'git pull --rebase origin master && git push origin master',
     util.format('npm version %s -m %s', commitType, JSON.stringify(commitMessage)),
+    'git pull --rebase origin master && git push origin master',
     'npm publish .'
 ].join(' && ');
 

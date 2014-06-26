@@ -73,6 +73,12 @@ module.exports = (robot) ->
             console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
             console.log res.statusCode
           robot.send envelope, "I hope you know what you're doing..."
+        if data.name == 'JAVA-InventoryService (Prod)'
+          console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
+          http.get 'http://wall:5051/shipit-inventory', (res) ->
+            console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
+            console.log res.statusCode
+          robot.send envelope, "I hope you know what you're doing..."
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"

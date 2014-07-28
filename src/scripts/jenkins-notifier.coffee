@@ -36,10 +36,9 @@ module.exports = (robot) ->
     envelope.user.type = query.type if query.type
 
     try
-      for key of req.body
-        data = JSON.parse key
+      data = req.body
 
-      if data.build.phase == 'FINISHED'
+      if data.build.phase == 'COMPLETED'
         console.log "jenkins-notify: A build has finished! Oooh, the excitement!!"
         if data.build.status == 'FAILURE'
           if data.name in @failing
@@ -61,15 +60,15 @@ module.exports = (robot) ->
             console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
             console.log res.statusCode
           robot.send envelope, "I hope you know what you're doing..."
-        if data.name == 'Admin-v2 Deploy (PROD) (RACKSPACE)'
+        if data.name == 'Admin-v2 Deploy (PROD)'
           console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
-          http.get 'http://wall:5051/shipit-v2', (res) ->
+          http.get 'http://wall:5051/shipit-adminv2', (res) ->
             console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
             console.log res.statusCode
           robot.send envelope, "I hope you know what you're doing..."
         if data.name == 'Admin-v1 Deploy (PROD) (RACKSPACE)'
           console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
-          http.get 'http://wall:5051/shipit-v1', (res) ->
+          http.get 'http://wall:5051/shipit-adminv1', (res) ->
             console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
             console.log res.statusCode
           robot.send envelope, "I hope you know what you're doing..."
@@ -79,8 +78,19 @@ module.exports = (robot) ->
             console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
             console.log res.statusCode
           robot.send envelope, "I hope you know what you're doing..."
+        if data.name == 'JAVA-InventoryService-Logistics (PROD)'
+          console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
+          http.get 'http://wall:5051/shipit-inventory', (res) ->
+            console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
+            console.log res.statusCode
+          robot.send envelope, "I hope you know what you're doing..."
+        if data.name == 'JAVA-IdentityService (Prod)'
+          console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
+          http.get 'http://wall:5051/shipit-identity', (res) ->
+            console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
+            console.log res.statusCode
+          robot.send envelope, "I hope you know what you're doing..."
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"
       console.log error.stack
-

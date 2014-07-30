@@ -74,7 +74,7 @@ https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.8';
+VERSION = '2.3.9';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -169,6 +169,10 @@ trim = function (str) {
 
 volumeLockDuration = 60000;
 
+function showAlbumArt(message) {
+    return message.send("" + URL + "/now/playing/" + Math.ceil(Math.random() * 10000000000) + '/album.png');
+}
+
 words = {
     'a couple': 2,
     'default': 3,
@@ -209,7 +213,7 @@ remainingRespond = function (message) {
 playingRespond = function (message) {
     return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
         var next;
-        message.send("" + URL + "/playing.png?cacheBust=" + (Math.random() * Math.random()));
+        showAlbumArt(message);
         message.send(":notes:  " + body);
         next = Queue.next();
         if (next) {
@@ -502,8 +506,7 @@ module.exports = function (robot) {
     });
     robot.respond(/album art\??/i, function (message) {
         return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
-            message.send('I am sending a cache-busted url');
-            return message.send("" + URL + "/playing.png?cacheBust=" + (Math.random() * Math.random()));
+            return showAlbumArt(message);
         });
     });
     robot.respond(/lock volume at (\d+)/i, function (message) {

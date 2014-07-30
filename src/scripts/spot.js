@@ -74,7 +74,7 @@ https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.6';
+VERSION = '2.3.7';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -209,7 +209,7 @@ remainingRespond = function (message) {
 playingRespond = function (message) {
     return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
         var next;
-        message.send("" + URL + "/playing.png");
+        message.send("" + URL + "/playing.png?cacheBust=" + (Math.random() * Math.random()));
         message.send(":notes:  " + body);
         next = Queue.next();
         if (next) {
@@ -502,7 +502,7 @@ module.exports = function (robot) {
     });
     robot.respond(/album art\??/i, function (message) {
         return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
-            return message.send("" + URL + "/playing.png");
+            return message.send("" + URL + "/playing.png?cacheBust=" + (Math.random() * Math.random()));
         });
     });
     robot.respond(/lock volume at (\d+)/i, function (message) {

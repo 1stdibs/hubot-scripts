@@ -76,7 +76,7 @@ https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.10';
+VERSION = '2.3.11';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -91,6 +91,10 @@ templates = require('./support/spotifyTemplates');
 function randEl (arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
+
+function getVersionString () {
+    return randEl(emoji.things) + ':sparkles::sparkles:Dibsy [v' + VERSION + ']:sparkles::sparkles:' + randEl(emoji.things);
+};
 
 getCurrentVersion = function (callback) {
     return https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.js', function (res) {
@@ -565,14 +569,14 @@ module.exports = function (robot) {
     });
     //TODO: Make a responder to add to defaultQueue
 
-    robot.enter(function (message) {
-        message.send(randEl(emoji.things) + ':sparkles::sparkles:Dibsy [v' + VERSION + ']:sparkles::sparkles:' + randEl(emoji.things));
+    (process.env.HUBOT_CAMPFIRE_ROOMS || '').split(',').forEach(function (room) {
+        robot.messageRoom(room, getVersionString());
     });
 
     return robot.respond(/spot version\??/i, function (message) {
         return getCurrentVersion(function (e, repoVersion) {
             var msg;
-            msg = ':small_blue_diamond: Well, ' + message.message.user.name + ', my Spot version is presently ' + VERSION;
+            msg = getVersionString();
             if (!e) {
                 msg += '; I am ' + compareVersions(repoVersion, VERSION);
             }

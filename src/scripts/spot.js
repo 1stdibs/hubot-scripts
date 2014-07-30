@@ -70,11 +70,13 @@ var CAMPFIRE_CHRONOLOGICAL_DELAY,
     words,
     _;
 
+var emoji = require('./support/emoji');
+
 https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.9';
+VERSION = '2.3.10';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -85,6 +87,10 @@ DEFAULT_LIMIT = 6;
 Queue = {};
 
 templates = require('./support/spotifyTemplates');
+
+function randEl (arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 
 getCurrentVersion = function (callback) {
     return https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.js', function (res) {
@@ -578,6 +584,10 @@ module.exports = function (robot) {
         });
     });
     //TODO: Make a responder to add to defaultQueue
+
+    robot.enter(function (message) {
+        message.send(randEl(emoji.things) + ':sparkles::sparkles:Dibsy [v' + VERSION + ']:sparkles::sparkles:' + randEl(emoji.things));
+    });
 
     return robot.respond(/spot version\??/i, function (message) {
         return getCurrentVersion(function (e, repoVersion) {

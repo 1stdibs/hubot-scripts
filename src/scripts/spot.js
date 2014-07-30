@@ -74,7 +74,7 @@ https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.7';
+VERSION = '2.3.8';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -517,6 +517,7 @@ module.exports = function (robot) {
     });
     robot.respond(/album art\??/i, function (message) {
         return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
+            message.send('I am sending a cache-busted url');
             return message.send("" + URL + "/playing.png?cacheBust=" + (Math.random() * Math.random()));
         });
     });

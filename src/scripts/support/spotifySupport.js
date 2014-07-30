@@ -14,6 +14,7 @@ var Support = {},
     manager,
     robot,
     url;
+var $ = require('jquery');
 
 function spotRequest(path, method, params, callback) {
     console.log('SPOT:' + method, url + path, params);
@@ -58,6 +59,10 @@ function getDataHandler (userId, type, callback) {
         callback(err, resultToString(data, type, userId, template));
     };
 }
+
+Support.isPlaying = function () {
+    return Queue.somethingIsPlaying();
+};
 
 Support.purgeLists = function () {
     manager.purge();

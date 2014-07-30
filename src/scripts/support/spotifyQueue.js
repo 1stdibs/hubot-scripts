@@ -53,7 +53,38 @@ module.exports = function (Robot, URL, queueName, forever) {
             Queue.stop();
             return;
         }
-        //console.log('seconds left?');
+        Queue.doThisNext(playNext);
+    }
+
+    Queue.somethingIsPlaying = function () {
+        var def = $.Deferred();
+        spotRequest('/seconds-left', 'get', {}, function (err, res, body) {
+            var seconds;
+            if (err) {
+                def.reject();
+                return;
+            }
+            seconds = parseInt(String(body).replace(/[^\d\.]+/g, ''), 10) || 1;
+            setTimeout(function () {
+                return spotRequest('/seconds-left', 'get', {}, function (err, res, body) {
+                    var seconds2;
+                    if (err) {
+                        def.reject();
+                        return;
+                    }
+                    seconds2 = parseInt(String(body).replace(/[^\d\.]+/g, ''), 10) || 1;
+                    if (seconds === seconds2) {
+                        def.reject();
+                    }
+                    def.resolve();
+                });
+            }, 2000);
+        });
+        return def.promise();
+    };
+
+    Queue.doThisNext = function(fn, playingCheck) {
+        var seconds;
         /*jslint unparam: true */
         spotRequest('/seconds-left', 'get', {}, function (err, res, body) {
             if (!err) {
@@ -65,13 +96,21 @@ module.exports = function (Robot, URL, queueName, forever) {
                 //console.log('trying to play??', tryingToPlay);
                 if (!tryingToPlay) {
                     //console.log('***SETTING TIME OUT', queueName);
-                    timeout = setTimeout(playNext, seconds * 1000);
+                    timeout = setTimeout(fn, seconds * 1000);
                     Queue.emit('playNext:beginTimeout', timeout);
                 }
             }
         });
         /*jslint unparam: false */
-    }
+        if (playingCheck) {
+            Queue.somethingIsPlaying().fail(function () {
+                if (timeout) {
+                    clearTimeout(timeout);
+                }
+                (fn)();
+            });
+        }
+    };
 
     function ping() {
         var q = get();

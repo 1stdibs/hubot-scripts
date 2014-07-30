@@ -76,7 +76,7 @@ https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.11';
+VERSION = '2.3.12';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -93,8 +93,8 @@ function randEl (arr) {
 }
 
 function getVersionString () {
-    return randEl(emoji.things) + ':sparkles::sparkles:Dibsy [v' + VERSION + ']:sparkles::sparkles:' + randEl(emoji.things);
-};
+    return ':' + randEl(emoji.things) + '::sparkles::sparkles:Dibsy [v' + VERSION + ']:sparkles::sparkles::' + randEl(emoji.things) + ':';
+}
 
 getCurrentVersion = function (callback) {
     return https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.js', function (res) {

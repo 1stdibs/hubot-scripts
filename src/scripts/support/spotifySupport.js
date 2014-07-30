@@ -14,6 +14,7 @@ var Support = {},
     manager,
     robot,
     url;
+var $ = require('jquery');
 
 function spotRequest(path, method, params, callback) {
     console.log('SPOT:' + method, url + path, params);

@@ -74,7 +74,7 @@ https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.5';
+VERSION = '2.3.6';
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -87,7 +87,7 @@ Queue = {};
 templates = require('./support/spotifyTemplates');
 
 getCurrentVersion = function (callback) {
-    return https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.coffee', function (res) {
+    return https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.js', function (res) {
         var data;
         data = '';
         res.on('data', function (d) {
@@ -358,6 +358,7 @@ module.exports = function (robot) {
         Support.purgeMusicDataCache();
         return message.send(':ok_hand:');
     });
+
     robot.respond(/blame\s*$/i, function (message) {
         return Support.translateToTrack('this', message.message.user.id, function (err, track) {
             var user;
@@ -437,7 +438,7 @@ module.exports = function (robot) {
     robot.respond(/(show (me )?the )?queue\??\s*$/i, function (message) {
         return Queue.describe(message);
     });
-    robot.respond(/dequeue #(\d+)/i, function (message) {
+    robot.respond(/dequeue #?(\d+)/i, function (message) {
         return Queue.dequeue(+message.match[1], function (err, name) {
             if (err) {
                 message.send(":flushed: " + err);

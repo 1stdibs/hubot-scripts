@@ -34,6 +34,7 @@ minorChanges = [
 ];
 
 patches = [
+    'figuring out npm version problem',
     'try again'
 ];
 

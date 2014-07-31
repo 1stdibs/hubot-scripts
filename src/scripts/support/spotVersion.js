@@ -35,6 +35,7 @@ minorChanges = [
 ];
 
 patches = [
+    'on start, don\'t squash the queue!'
 ];
 
 module.exports = {

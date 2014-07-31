@@ -30,13 +30,11 @@ majorChanges = [
 ];
 
 minorChanges = [
+    'finishing up the messy versioning (i hope)',
     'auto-squash npm commit message'
 ];
 
 patches = [
-    'let\'s try pushing package in front of repo version',
-    'figuring out npm version problem',
-    'try again'
 ];
 
 module.exports = {

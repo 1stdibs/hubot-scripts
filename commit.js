@@ -1,4 +1,5 @@
 
+var child;
 var exec = require('child_process').exec;
 var colors = require('colors');
 var util = require('util');
@@ -26,21 +27,37 @@ command = [].concat(commands.preCommit, [
     'git reset -q HEAD',
     'git add --all .',
     util.format('git commit -m %s', JSON.stringify(commitMessage)),
-    util.format('npm version %s -m "[hubot-1stdibs %%s] %s"', whatChanged, theChange)
+    util.format('npm version %s', whatChanged),
+    'git reset HEAD~1',
+    'git commit -a --amend --no-edit'
 ], commands.postCommit).join(' && ');
 
-exec(command, function (err, stdout, stderr) {
-    if (err) {
-        console.log('ERROR:'.red.bold);
-        console.log(err);
-    }
-    if (stdout) {
-        console.log('STDOUT:'.green.bold);
-        console.log(stdout);
-    }
-    if (stderr) {
-        console.log('STDERR:'.yellow.bold);
-        console.log(stderr);
+child = exec(command);
+//child = exec(command, function (err, stdout, stderr) {
+//    if (err) {
+//        console.log('ERROR:'.red.bold);
+//        console.log(err);
+//    }
+//    if (stdout) {
+//        console.log('STDOUT:'.green.bold);
+//        console.log(stdout);
+//    }
+//    if (stderr) {
+//        console.log('STDERR:'.yellow.bold);
+//        console.log(stderr);
+//    }
+//});
+
+child.stdout.pipe(process.stdout);
+child.stderr.on('data', function (data) {
+    console.log('%s'.red, data);
+});
+child.on('error', function (err) {
+    console.log('ERROR'.red);
+    console.log(err);
+    if (err.stack) {
+        console.log(err.stack);
     }
 });
+
 

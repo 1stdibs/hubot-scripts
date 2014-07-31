@@ -33,24 +33,10 @@ command = [].concat(commands.preCommit, [
 ], commands.postCommit).join(' && ');
 
 child = exec(command);
-//child = exec(command, function (err, stdout, stderr) {
-//    if (err) {
-//        console.log('ERROR:'.red.bold);
-//        console.log(err);
-//    }
-//    if (stdout) {
-//        console.log('STDOUT:'.green.bold);
-//        console.log(stdout);
-//    }
-//    if (stderr) {
-//        console.log('STDERR:'.yellow.bold);
-//        console.log(stderr);
-//    }
-//});
 
 child.stdout.pipe(process.stdout);
 child.stderr.on('data', function (data) {
-    console.log('%s'.red, data);
+    console.log(' - - - %s', data);
 });
 child.on('error', function (err) {
     console.log('ERROR'.red);

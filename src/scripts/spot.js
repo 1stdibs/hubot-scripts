@@ -71,12 +71,14 @@ var CAMPFIRE_CHRONOLOGICAL_DELAY,
     _;
 
 var emoji = require('./support/emoji');
+var versioning = require('./support/spotVersion');
+var util = require('util');
 
 https = require('https');
 
 _ = require('underscore');
 
-VERSION = '2.3.12';
+VERSION = versioning.version;
 
 URL = "" + process.env.HUBOT_SPOT_URL;
 
@@ -93,26 +95,26 @@ function randEl (arr) {
 }
 
 function getVersionString () {
-    return ':' + randEl(emoji.things) + '::sparkles::sparkles:Dibsy [v' + VERSION + ']:sparkles::sparkles::' + randEl(emoji.things) + ':';
+    return util.format(':sparkles::%s::sparkles:Dibsy [v%s]:sparkles::%s::sparkles:', randEl(emoji.things), versioning.version, randEl(emoji.things));
 }
 
-getCurrentVersion = function (callback) {
-    return https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.js', function (res) {
-        var data;
-        data = '';
-        res.on('data', function (d) {
-            return data += d;
-        });
-        return res.on('end', function () {
-            var bits, version;
-            bits = data.match(/VERSION = '([\d\.]+)'/);
-            version = bits && bits[1];
-            return callback(!version, version);
-        });
-    }).on('error', function (e) {
-        return callback(e);
-    });
-};
+//getCurrentVersion = function (callback) {
+//    return https.get('https://raw.github.com/1stdibs/hubot-scripts/master/src/scripts/spot.js', function (res) {
+//        var data;
+//        data = '';
+//        res.on('data', function (d) {
+//            return data += d;
+//        });
+//        return res.on('end', function () {
+//            var bits, version;
+//            bits = data.match(/VERSION = '([\d\.]+)'/);
+//            version = bits && bits[1];
+//            return callback(!version, version);
+//        });
+//    }).on('error', function (e) {
+//        return callback(e);
+//    });
+//};
 
 compareVersions = function (base, comparator) {
     var bParts, cParts, diff, re;
@@ -594,14 +596,15 @@ module.exports = function (robot) {
     });
 
     return robot.respond(/spot version\??/i, function (message) {
-        return getCurrentVersion(function (e, repoVersion) {
-            var msg;
-            msg = getVersionString();
-            if (!e) {
-                msg += '; I am ' + compareVersions(repoVersion, VERSION);
-            }
-            return message.send(msg);
-        });
+        return message.send(getVersionString());
+//        return getCurrentVersion(function (e, repoVersion) {
+//            var msg;
+//            msg = getVersionString();
+//            if (!e) {
+//                msg += '; I am ' + compareVersions(repoVersion, VERSION);
+//            }
+//            return message.send(msg);
+//        });
     });
 };
 

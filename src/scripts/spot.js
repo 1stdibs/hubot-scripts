@@ -307,19 +307,11 @@ function setupDefaultQueue(queue, reload, callback) {
             queue.clear(); // Empty the existing playlist, new songs wont be added otherwise
             queue.addTracks(list); // Add the shuffled list to the empty playlist
             queue.playNext(); // Start playling
+            queue.start();
             if (callback) {
                 callback(queue);
             }
         });
-    } else {
-        console.log('found redis playlist named : ', queue.getName());
-        queue.doThisNext(function () {
-            queue.start();
-            queue.playNext();
-            if (callback) {
-                callback(queue);
-            }
-        }, true);
     }
 }
 
@@ -350,6 +342,8 @@ module.exports = function (robot) {
         // play if user queue is empty)
         queueMaster.conduct();
     }
+
+    Queue.start();
 
     robot.respond(/show (me )?this album/i, function (message) {
         return Support.getCurrentAlbum(function (err, album, resultIndex) {

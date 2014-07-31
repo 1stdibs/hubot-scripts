@@ -35,6 +35,9 @@ minorChanges = [
 ];
 
 patches = [
+    'ok, this should work',
+    'hrm, maybe this is more consistent with QueueMaster',
+    'on start, don\'t squash the queue!'
 ];
 
 module.exports = {

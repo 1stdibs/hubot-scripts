@@ -30,10 +30,10 @@ majorChanges = [
 ];
 
 minorChanges = [
+    'auto-squash npm commit message'
 ];
 
 patches = [
-    'npm commmit message'
 ];
 
 module.exports = {

@@ -39,7 +39,7 @@ child.stderr.on('data', function (data) {
     (data + '').split('\n').forEach(function (dataLine) {
         dataLine = dataLine.replace(/^\s+|\s+$/, '');
         if (dataLine) {
-            console.log(util.foramt('%s --- %s', 'stderr'.yellow, dataLine));
+            console.log(util.format('%s --- %s', 'stderr'.yellow, dataLine));
         }
     });
 });

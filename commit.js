@@ -26,7 +26,7 @@ command = [].concat(commands.preCommit, [
     'git reset -q HEAD',
     'git add --all .',
     util.format('git commit -m %s', JSON.stringify(commitMessage)),
-    util.format('npm version %s', whatChanged)
+    util.format('npm version %s -m "[hubot-1stdibs %%s] %s"', whatChanged, theChange)
 ], commands.postCommit).join(' && ');
 
 exec(command, function (err, stdout, stderr) {

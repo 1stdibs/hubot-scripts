@@ -33,6 +33,7 @@ minorChanges = [
 ];
 
 patches = [
+    'npm commmit message'
 ];
 
 module.exports = {

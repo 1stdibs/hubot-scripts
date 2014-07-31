@@ -25,20 +25,14 @@ var minorChanges;
 var patches;
 
 majorChanges = [
+    'removing `publish.js`',
     2, 1
 ];
 
 minorChanges = [
-    'proper versioning and better sparkles',
-    3, 2, 1
 ];
 
 patches = [
-    'versioning bugfix attempt 2',
-    'versioning for package.json too',
-    12, 11, 10,
-    9, 8, 7, 6,
-    5, 4, 3, 2, 1
 ];
 
 module.exports = {

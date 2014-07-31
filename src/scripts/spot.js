@@ -312,9 +312,6 @@ function setupDefaultQueue(queue, reload, callback) {
                 callback(queue);
             }
         });
-    } else {
-        console.log('found redis playlist named : ', queue.getName());
-        queue.start();
     }
 }
 
@@ -345,6 +342,7 @@ module.exports = function (robot) {
         // play if user queue is empty)
         queueMaster.conduct();
     }
+    Queue.start();
 
     robot.respond(/show (me )?this album/i, function (message) {
         return Support.getCurrentAlbum(function (err, album, resultIndex) {

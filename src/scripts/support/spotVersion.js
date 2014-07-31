@@ -35,6 +35,7 @@ minorChanges = [
 ];
 
 patches = [
+    'hrm, maybe this is more consistent with QueueMaster',
     'on start, don\'t squash the queue!'
 ];
 

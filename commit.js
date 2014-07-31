@@ -37,7 +37,10 @@ child = exec(command);
 child.stdout.pipe(process.stdout);
 child.stderr.on('data', function (data) {
     (data + '').split('\n').forEach(function (dataLine) {
-        console.log('stderr --- %s', dataLine);
+        dataLine = dataLine.replace(/^\s+|\s+$/, '');
+        if (dataLine) {
+            console.log(util.foramt('%s --- %s', 'stderr'.yellow, dataLine));
+        }
     });
 });
 child.on('error', function (err) {

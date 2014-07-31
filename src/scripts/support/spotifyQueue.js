@@ -119,6 +119,7 @@ module.exports = function (Robot, URL, queueName, forever) {
             //console.log('begin interval!', queueName);
             interval = setInterval(checkUp, intervalDuration);
             checkUp();
+            Queue.emit('playNext:requested');//In order to turn off the default Queue
         } else if (!q.length && interval) {
             Queue.stop();
         }

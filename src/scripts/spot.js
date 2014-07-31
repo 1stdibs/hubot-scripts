@@ -342,6 +342,7 @@ module.exports = function (robot) {
         // play if user queue is empty)
         queueMaster.conduct();
     }
+
     Queue.start();
 
     robot.respond(/show (me )?this album/i, function (message) {

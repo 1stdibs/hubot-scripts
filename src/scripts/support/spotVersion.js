@@ -29,6 +29,7 @@ majorChanges = [
 ];
 
 minorChanges = [
+    'proper versioning and better sparkles',
     3, 2, 1
 ];
 

@@ -34,6 +34,7 @@ minorChanges = [
 ];
 
 patches = [
+    'let\'s try pushing package in front of repo version',
     'figuring out npm version problem',
     'try again'
 ];

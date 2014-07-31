@@ -14,18 +14,19 @@ if (version.patches[0]) {
     whatChanged = 'patch';
 } else if (version.minorChanges[0]) {
     theChange  = version.minorChanges[0];
-    whatChanged = 'minor change';
+    whatChanged = 'minor';
 } else if (version.majorChanges[0]) {
     theChange = version.majorChanges[0];
-    whatChanged = 'major change';
+    whatChanged = 'major';
 }
 
-commitMessage = util.format('[%s %s] %s: %s', version.appName, version.version, whatChanged, theChange);
+commitMessage = util.format('[%s %s] %s update: %s', version.appName, version.version, whatChanged, theChange);
 
 command = [].concat(commands.preCommit, [
     'git reset -q HEAD',
     'git add --all .',
-    util.format('git commit -m %s', JSON.stringify(commitMessage))
+    util.format('git commit -m %s', JSON.stringify(commitMessage)),
+    util.format('npm version %s', whatChanged)
 ], commands.postCommit).join(' && ');
 
 exec(command, function (err, stdout, stderr) {

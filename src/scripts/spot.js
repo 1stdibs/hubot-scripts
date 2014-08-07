@@ -206,18 +206,27 @@ determineLimit = function (word) {
 
 spotNext = function (msg) {
     return spotRequest(msg, '/next', 'put', {}, function (err, res, body) {
+        if (err) {
+            return sayMyError(err, msg);
+        }
         return msg.send(":small_blue_diamond: " + body + " :fast_forward:");
     });
 };
 
 volumeRespond = function (message) {
     return spotRequest(message, '/volume', 'get', {}, function (err, res, body) {
+        if (err) {
+            return sayMyError(err, message);
+        }
         return message.send("Spot volume is " + body + ". :mega:");
     });
 };
 
 remainingRespond = function (message) {
     return spotRequest(message, '/how-much-longer', 'get', {}, function (err, res, body) {
+        if (err) {
+            return sayMyError(err, message);
+        }
         return message.send(":small_blue_diamond: " + body);
     });
 };
@@ -225,6 +234,9 @@ remainingRespond = function (message) {
 playingRespond = function (message) {
     return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
         var next;
+        if (err) {
+            return sayMyError(err, message);
+        }
         showAlbumArt(message);
         message.send(":notes:  " + body);
         next = Queue.next();
@@ -263,12 +275,18 @@ setVolume = function (level, message) {
     }
     if (level.match(/^\++$/)) {
         spotRequest(message, '/bumpup', 'put', {}, function (err, res, body) {
+            if (err) {
+                return sayMyError(err, message);
+            }
             return message.send("Spot volume bumped to " + body + ". :mega:");
         });
         return;
     }
     if (level.match(/^-+$/)) {
         spotRequest(message, '/bumpdown', 'put', {}, function (err, res, body) {
+            if (err) {
+                return sayMyError(err, message);
+            }
             return message.send("Spot volume bumped down to " + body + ". :mega:");
         });
         return;
@@ -281,6 +299,9 @@ setVolume = function (level, message) {
         volume: level
     };
     return spotRequest(message, '/volume', 'put', params, function (err, res, body) {
+        if (err) {
+            return sayMyError(err, message);
+        }
         return message.send("Spot volume set to " + body + ". :mega:");
     });
 };
@@ -432,12 +453,16 @@ module.exports = function (robot) {
     });
     robot.respond(/music status\??/i, function (message) {
         spotRequest(message, '/seconds-left', 'get', {}, function (err, res, body) {
-            if (err) { return; }
+            if (err) {
+                return sayMyError(err, message);
+            }
             var seconds;
             seconds = parseInt(String(body).replace(/[^\d\.]+/g, ''), 10) || 1;
             return setTimeout(function () {
                 return spotRequest(message, '/seconds-left', 'get', {}, function (err, res, body) {
-                    if (err) { return; }
+                    if (err) {
+                        return sayMyError(err, message);
+                    }
                     var seconds2;
                     seconds2 = parseInt(String(body).replace(/[^\d\.]+/g, ''), 10) || 1;
                     if (seconds === seconds2) {
@@ -466,6 +491,9 @@ module.exports = function (robot) {
     robot.respond(/play!/i, function (message) {
         message.finish();
         return spotRequest(message, '/play', 'put', {}, function (err, res, body) {
+            if (err) {
+                return sayMyError(err, message);
+            }
             return message.send(":notes:  " + body);
         });
     });
@@ -475,6 +503,9 @@ module.exports = function (robot) {
             volume: 0
         };
         return spotRequest(message, '/pause', 'put', params, function (err, res, body) {
+            if (err) {
+                return sayMyError(err, message);
+            }
             return message.send("" + body + " :cry:");
         });
     });
@@ -497,6 +528,9 @@ module.exports = function (robot) {
     });
     robot.respond(/back/i, function (message) {
         return spotRequest(message, '/back', 'put', {}, function (err, res, body) {
+            if (err) {
+                return sayMyError(err, message);
+            }
             return message.send("" + body + " :rewind:");
         });
     });
@@ -518,6 +552,9 @@ module.exports = function (robot) {
     });
     robot.respond(/album art\??/i, function (message) {
         return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
+            if (err) {
+                sayMyError(err, message);
+            }
             return showAlbumArt(message);
         });
     });
@@ -566,6 +603,9 @@ module.exports = function (robot) {
             volume: 15
         };
         return spotRequest(message, '/volume', 'put', params, function (err, res, body) {
+            if (err) {
+                return sayMyError(err, message);
+            }
             return message.send("Spot volume set to " + body + ". :mega:");
         });
     });
@@ -573,6 +613,7 @@ module.exports = function (robot) {
 
     (process.env.HUBOT_CAMPFIRE_ROOMS || '').split(',').forEach(function (room) {
         robot.messageRoom(room, getVersionString());
+        //
     });
 
     return robot.respond(/spot version\??/i, function (message) {

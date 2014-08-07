@@ -30,6 +30,7 @@ majorChanges = [
 ];
 
 minorChanges = [
+    'added a timeout advisory',
     'finishing up the messy versioning (i hope)',
     'auto-squash npm commit message'
 ];

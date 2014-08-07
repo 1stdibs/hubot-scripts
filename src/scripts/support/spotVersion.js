@@ -30,14 +30,12 @@ majorChanges = [
 ];
 
 minorChanges = [
+    'added a timeout advisory',
     'finishing up the messy versioning (i hope)',
     'auto-squash npm commit message'
 ];
 
 patches = [
-    'ok, this should work',
-    'hrm, maybe this is more consistent with QueueMaster',
-    'on start, don\'t squash the queue!'
 ];
 
 module.exports = {

@@ -20,6 +20,7 @@ Vagrant.configure("2") do |config|
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   config.vm.provider :virtualbox do |vb|
+  config.vm.network :public_network, :adapter => 3
 
     # By default, vagrant starts virualbox in "headless" mode, with no gui
     # If you WANT the virtualbox ui, set vb.gui to true

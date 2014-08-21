@@ -36,6 +36,7 @@ minorChanges = [
 ];
 
 patches = [
+    'bumped timeout for timeout advisory'
 ];
 
 module.exports = {

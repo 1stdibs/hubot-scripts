@@ -1,7 +1,7 @@
 
 var URL = "" + process.env.HUBOT_SPOT_URL;
 var util = require('util');
-var timeout = 5000;
+var timeout = 10000;
 
 module.exports = function (message, path, action, options, callback) {
     var resolved = false;

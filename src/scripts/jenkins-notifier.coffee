@@ -40,10 +40,10 @@ module.exports = (robot) ->
 
       if data.build.phase == 'STARTED'
         console.log "jenkins-notify: A build has started! Oooh, the excitement!!"
-          if data.name == 'Mothra (QA)'
-            http.get 'http://xserve:5051/mothra-qa', (res) ->
-              console.log "MOTHRA!!"
-              console.log res.statusCode
+        if data.name == 'Mothra (QA)'
+          http.get 'http://xserve:5051/mothra-qa', (res) ->
+            console.log "MOTHRA!!"
+            console.log res.statusCode
       if data.build.phase == 'COMPLETED'
         console.log "jenkins-notify: A build has finished! Oooh, the excitement!!"
         if data.build.status == 'FAILURE'

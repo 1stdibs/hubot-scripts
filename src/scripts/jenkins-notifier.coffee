@@ -38,6 +38,12 @@ module.exports = (robot) ->
     try
       data = req.body
 
+      if data.build.phase == 'STARTED'
+        console.log "jenkins-notify: A build has started! Oooh, the excitement!!"
+          if data.name == 'Mothra (QA)'
+            http.get 'http://xserve:5051/mothra-qa', (res) ->
+            console.log "MOTHRA!!"
+            console.log res.statusCode
       if data.build.phase == 'COMPLETED'
         console.log "jenkins-notify: A build has finished! Oooh, the excitement!!"
         if data.build.status == 'FAILURE'
@@ -49,7 +55,6 @@ module.exports = (robot) ->
           robot.messageRoom "#dev", "#{data.name} build ##{data.build.number} #{build} failing (#{encodeURI(data.build.full_url)})"
           @failing.push data.name unless data.name in @failing
           if data.name == 'Mothra (QA)'
-            http.get 'http://xserve:5051/mothra-qa', (res) ->
             console.log "MOTHRA!!"
             console.log res.statusCode
             robot.messageRoom "#dev", "Mothra has the upper hand!"

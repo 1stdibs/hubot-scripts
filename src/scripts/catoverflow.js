@@ -11,7 +11,7 @@
 // Author:
 //   andromedado
 
-var max = 210;
+var max = 320;
 
 module.exports = function(robot) {
 

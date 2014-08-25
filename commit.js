@@ -33,6 +33,7 @@ command = [
     util.format('npm version %s', whatChanged),
     'git reset HEAD~1',
     'git commit -a --amend --no-edit',
+    'git pull --rebase origin master',
     'git push origin master',
     'npm publish .',
     "ssh root@dibsy 'updateDibsy'"

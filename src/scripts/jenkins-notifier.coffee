@@ -35,6 +35,8 @@ module.exports = (robot) ->
     envelope.room = query.room if query.room
     envelope.user.type = query.type if query.type
 
+    room = '#general'
+
     try
       data = req.body
 
@@ -52,23 +54,23 @@ module.exports = (robot) ->
             build = "is still"
           else
             build = "started"
-          robot.messageRoom "#dev", "#{data.name} build ##{data.build.number} #{build} failing (#{encodeURI(data.build.full_url)})"
+          robot.messageRoom room, "#{data.name} build ##{data.build.number} #{build} failing (#{encodeURI(data.build.full_url)})"
           @failing.push data.name unless data.name in @failing
           if data.name == 'Mothra (QA)'
             console.log "MOTHRA!!"
             console.log res.statusCode
-            robot.messageRoom "#dev", "Mothra has the upper hand!"
-            robot.messageRoom "#dev", "http://i.imgur.com/CoqJxBx.gif"
+            robot.messageRoom room, "Mothra has the upper hand!"
+            robot.messageRoom room, "http://i.imgur.com/CoqJxBx.gif"
         if data.build.status == 'SUCCESS'
           console.log "Success"
           if data.name in @failing
             index = @failing.indexOf data.name
             @failing.splice index, 1 if index isnt -1
-            robot.messageRoom "#dev", "#{data.name} build is fixed! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
+            robot.messageRoom room, "#{data.name} build is fixed! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
           else
             console.log "Sending success"
-            robot.messageRoom "#dibsy-dev", "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
-            robot.messageRoom "#dev", "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
+#            robot.messageRoom "#dibsy-dev", "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
+            robot.messageRoom room, "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
           if data.name == '1stdibs.com Deploy Production PROD PROD PROD PROD'
             console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
             http.get 'http://xserve:5051/shipit', (res) ->

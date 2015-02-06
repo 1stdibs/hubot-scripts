@@ -35,7 +35,7 @@ module.exports = (robot) ->
     envelope.room = query.room if query.room
     envelope.user.type = query.type if query.type
 
-    room = '#general'
+    room = 'general'
 
     try
       data = req.body

@@ -16,7 +16,7 @@
 //   andromedado
 //
 
-var q = require('Q');
+var Q = require('q');
 var fs = require('fs');
 var util = require('util');
 
@@ -24,7 +24,7 @@ var versionDef;
 
 function getVersion () {
     if (!versionDef) {
-        versionDef = q.defer();
+        versionDef = Q.defer();
         fs.readFile(__dirname + '/../../package.json', function (err, data) {
             if (err) {
                 versionDef.reject(err);

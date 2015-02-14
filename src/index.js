@@ -10,6 +10,7 @@ scripts = [
     'mta.coffee',
     'spot.js',
     'hr.js',
+    'announceVersion.js',
     'jenkins-notifier.coffee'
 ];
 

@@ -26,6 +26,9 @@ module.exports = function(robot) {
                 return;
             }
             var urls = (body + '').replace(/^\s*|\s*$/, '').split('\n');
+            urls = _.filter(urls, function (url) {
+                return url && url.length && url.length > 0 && /\S/.test(url);
+            });
             var urlsToUse = _.map(urls, function (url) {
                 return url + '#.png';
             });

@@ -25,7 +25,7 @@ module.exports = function(robot) {
                 callback(err);
                 return;
             }
-            var urls = (body + '').replace(/^\s*|\s$/, '').split('\n');
+            var urls = (body + '').replace(/^\s*|\s*$/, '').split('\n');
             var urlsToUse = _.map(urls, function (url) {
                 return url + '#.png';
             });

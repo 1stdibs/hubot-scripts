@@ -366,6 +366,23 @@ module.exports = function (robot) {
 
     Queue.start();
 
+
+    function blame (message) {
+        return Support.translateToTrack('this', message.message.user.id, function (err, track) {
+            var user;
+            if (err) {
+                sayMyError(err, message);
+                return;
+            }
+            user = Assoc.get(track.href);
+            if (user) {
+                return message.send(':small_blue_diamond: ' + user + ' requested ' + templates.trackLine(track));
+            }
+            return message.send(':small_blue_diamond: Spotify Playlist');
+        });
+    }
+
+
     robot.respond(/show (me )?this album/i, function (message) {
         return Support.getCurrentAlbum(function (err, album, resultIndex) {
             var str;
@@ -404,34 +421,9 @@ module.exports = function (robot) {
         return message.send(':ok_hand:');
     });
 
-    robot.respond(/blame\s*$/i, function (message) {
-        return Support.translateToTrack('this', message.message.user.id, function (err, track) {
-            var user;
-            if (err) {
-                sayMyError(err, message);
-                return;
-            }
-            user = Assoc.get(track.href);
-            if (user) {
-                return message.send(':small_blue_diamond: ' + user + ' requested ' + templates.trackLine(track));
-            }
-            return message.send(':small_blue_diamond: Spotify Playlist');
-        });
-    });
-    robot.respond(/who asked for (.+)\??/i, function (message) {
-        return Support.translateToTrack(trim(message.match[1]), message.message.user.id, function (err, track) {
-            var user;
-            if (err) {
-                sayMyError(err, message);
-                return;
-            }
-            user = Assoc.get(track.href);
-            if (user) {
-                return message.send(':small_blue_diamond: ' + user + ' did');
-            }
-            return message.send(':small_blue_diamond: Spotify Playlist');
-        });
-    });
+    robot.respond(/blame\s*$/i, blame);
+    robot.respond(/who asked for (.+)\??/i, blame);
+
     robot.respond(/(play|queue) (.+)/i, function (message) {
         return Support.translateToTrack(trim(message.match[2]), message.message.user.id, function (err, track) {
             if (err) {
@@ -459,6 +451,7 @@ module.exports = function (robot) {
             });
         });
     });
+
     robot.respond(/music status\??/i, function (message) {
         spotRequest(message, '/seconds-left', 'get', {}, function (err, res, body) {
             if (err) {
@@ -480,6 +473,7 @@ module.exports = function (robot) {
                 });
             }, 2000);
         });
+        blame(message);
         playingRespond(message);
         volumeRespond(message);
         return Queue.describe(message);
@@ -543,22 +537,12 @@ module.exports = function (robot) {
             return message.send("" + body + " :rewind:");
         });
     });
+
     robot.respond(/playing\?/i, function (message) {
         playingRespond(message);
-        return Support.translateToTrack('this', message.message.user.id, function (err, track) {
-            var user;
-            if (err) {
-                sayMyError(err, message);
-                return;
-            }
-            user = Assoc.get(track.href);
-            if (user) {
-                return message.send(':small_blue_diamond: ' + user + ' requested this');
-            } else {
-                return message.send(':small_blue_diamond: Spotify Playlist');
-            }
-        });
+        return blame(message);
     });
+
     robot.respond(/album art\??/i, function (message) {
         return spotRequest(message, '/playing', 'get', {}, function (err, res, body) {
             if (err) {

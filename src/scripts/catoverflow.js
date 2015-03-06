@@ -57,7 +57,7 @@ module.exports = function(robot) {
         fetchAndSend(1, msg);
     });
 
-    robot.hear(/nsfw/i, function (msg) {
+    robot.hear(/^nsfw/i, function (msg) {
         fetchAndSend(6, msg);
     });
 

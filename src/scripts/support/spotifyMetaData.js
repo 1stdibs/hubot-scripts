@@ -189,7 +189,7 @@ function fetchOne(uri, params, callback) {
     params = args.pop();
     One = uriToClass(uri);
     if (!One) {
-        callback('invalid uri');
+        callback('invalid uri: ' + uri);
         return;
     }
     getUriInfo(uri, params, function (err, data) {
@@ -410,7 +410,7 @@ MetaData.Artist = (function (){
 
 MetaData.fetchAlbum = function (albumUri, callback) {
     if (!String(albumUri).match(MetaData.Album.uriRegExp)) {
-        callback('invalid uri');
+        callback('invalid uri: ' + albumUri);
     } else {
         fetchOne(albumUri, {extras : 'trackdetail'}, callback);
     }
@@ -419,7 +419,7 @@ MetaData.fetchAlbum = function (albumUri, callback) {
 
 MetaData.fetchTrack = function (trackUri, callback) {
     if (!String(trackUri).match(MetaData.Track.uriRegExp)) {
-        callback('invalid uri');
+        callback('invalid uri: ' + trackUri);
     } else {
         fetchOne(trackUri, callback);
     }
@@ -428,7 +428,7 @@ MetaData.fetchTrack = function (trackUri, callback) {
 
 MetaData.fetchArtist = function (artistUri, callback) {
     if (!String(artistUri).match(MetaData.Artist.uriRegExp)) {
-        callback('invalid uri');
+        callback('invalid uri: ' + artistUri);
     } else {
         fetchOne(artistUri, callback);
     }

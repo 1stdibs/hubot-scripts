@@ -63,50 +63,42 @@ module.exports = (robot) ->
             robot.messageRoom room, "http://i.imgur.com/CoqJxBx.gif"
         if data.build.status == 'SUCCESS'
           console.log "Success"
-          if data.name in @failing
-            index = @failing.indexOf data.name
-            @failing.splice index, 1 if index isnt -1
-            robot.messageRoom room, "#{data.name} build is fixed! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
-          else
-            console.log "Sending success"
-#            robot.messageRoom "#dibsy-dev", "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
-            robot.messageRoom room, "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
+          #if data.name in @failing
+          #  index = @failing.indexOf data.name
+          #  @failing.splice index, 1 if index isnt -1
+          #  robot.messageRoom room, "#{data.name} build is fixed! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
+          #else
+          #  console.log "Sending success"
+          #  robot.messageRoom room, "#{data.name} build succeeded! ##{data.build.number} (#{encodeURI(data.build.full_url)})"
           if data.name == '1stdibs.com Deploy Production PROD PROD PROD PROD'
-            console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
             http.get 'http://xserve:5051/shipit', (res) ->
-              console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
               console.log res.statusCode
+            robot.messageRoom "#release", "1stdibs.com hotfix has been release!"
             robot.messageRoom "#release", "I hope you know what you're doing..."
           if data.name == 'Admin-v2 Deploy (PROD)'
-            console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
             http.get 'http://xserve:5051/shipit-adminv2', (res) ->
-              console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
               console.log res.statusCode
+            robot.messageRoom "#release", "Admin v2 hotfix has been release!"
             robot.messageRoom "#release", "I hope you know what you're doing..."
           if data.name == 'Admin-v1 Deploy (PROD) (RACKSPACE)'
-            console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
             http.get 'http://xserve:5051/shipit-adminv1', (res) ->
-              console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
               console.log res.statusCode
+            robot.messageRoom "#release", "Admin v1 hotfix has been release!"
             robot.messageRoom "#release", "I hope you know what you're doing..."
           if data.name == 'JAVA-InventoryService (Prod)'
-            console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
             http.get 'http://xserve:5051/shipit-inventory', (res) ->
-              console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
               console.log res.statusCode
-            robot.messageRoom "#release", "I hope you know what you're doing..."
-          if data.name == 'JAVA-InventoryService-Logistics (PROD)'
-            console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
-            http.get 'http://xserve:5051/shipit-inventory', (res) ->
-              console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
-              console.log res.statusCode
+            robot.messageRoom "#release", "Inventory service hotfix has been release!"
             robot.messageRoom "#release", "I hope you know what you're doing..."
           if data.name == 'JAVA-IdentityService (Prod)'
-            console.log "LEEEEEEEEEEEROOOOOOOOOOOOOY"
             http.get 'http://xserve:5051/shipit-identity', (res) ->
-              console.log "JEEEEEEEEEEEEEENKIIIIIIIIINS"
               console.log res.statusCode
+            robot.messageRoom "#release", "Identity service hotfix has been release!"
             robot.messageRoom "#release", "I hope you know what you're doing..."
+          if data.build.parameters.SERVER_HOSTNAME == 'deathstar.1stdibs.com'
+            http.get 'http://xserve:5051/deathstar', (res) ->
+              console.log res.statusCode
+            robot.messageRoom "#general", "The Death Star is now fully armed and operational"
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"

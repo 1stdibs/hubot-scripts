@@ -98,7 +98,7 @@ module.exports = (robot) ->
           if data.build.parameters.SERVER_HOSTNAME == 'deathstar.1stdibs.com'
             http.get 'http://xserve:5051/deathstar', (res) ->
               console.log res.statusCode
-            robot.messageRoom "#general", "The Death Star is now fully armed and operational"
+            robot.messageRoom "#dev", "The Death Star is now fully armed and operational"
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"

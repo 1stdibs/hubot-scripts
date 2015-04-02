@@ -42,7 +42,7 @@ module.exports = (robot) ->
 
       if data.build.phase == 'STARTED'
         console.log "jenkins-notify: A build has started! Oooh, the excitement!!"
-        if data.name == 'Mothra (QA)'
+        if data.name.match(/mothra.*qa/i)
           http.get 'http://xserve:5051/mothra-qa', (res) ->
             console.log "MOTHRA!!"
             console.log res.statusCode
@@ -56,11 +56,11 @@ module.exports = (robot) ->
             build = "started"
           robot.messageRoom room, "#{data.name} build ##{data.build.number} #{build} failing (#{encodeURI(data.build.full_url)})"
           @failing.push data.name unless data.name in @failing
-          if data.name == 'Mothra (QA)'
+          if data.name.match(/mothra.*qa/i)
             console.log "MOTHRA!!"
             console.log res.statusCode
-            robot.messageRoom room, "Mothra has the upper hand!"
-            robot.messageRoom room, "http://i.imgur.com/CoqJxBx.gif"
+            robot.messageRoom '#dev', "Mothra has the upper hand!"
+            robot.messageRoom '#dev', "http://i.imgur.com/CoqJxBx.gif"
         if data.build.status == 'SUCCESS'
           console.log "Success"
           #if data.name in @failing
@@ -99,6 +99,7 @@ module.exports = (robot) ->
             http.get 'http://xserve:5051/deathstar', (res) ->
               console.log res.statusCode
             robot.messageRoom "#dev", "The Death Star is now fully armed and operational"
+
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"

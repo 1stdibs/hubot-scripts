@@ -13,7 +13,7 @@
 
 var _ = require('underscore');
 var util = require('util');
-var max = 338;
+var max = 342;
 
 module.exports = function(robot) {
 
@@ -30,6 +30,9 @@ module.exports = function(robot) {
                 return url && url.length && url.length > 0 && /\S/.test(url);
             });
             var urlsToUse = _.map(urls, function (url) {
+                if (/\.gif$/i.test(url)) {
+                    return url;
+                }
                 return url + '#.png';
             });
             callback(null, urlsToUse);
@@ -37,7 +40,8 @@ module.exports = function(robot) {
     }
 
     function fetchAndSend (num, msg) {
-        getSrcs(num, function (err, srcs) {
+        var i;
+        var cb = function (err, srcs) {
             if (err) {
                 msg.send(':flushed: ' + err);
             } else {
@@ -45,7 +49,10 @@ module.exports = function(robot) {
                     msg.send(src);
                 });
             }
-        })
+        };
+        for (i = 0; i < Math.abs(num); i++) {
+            getSrcs(1, cb);
+        }
     }
 
     robot.respond(/cat bomb( (\d+))?/i, function (msg) {

@@ -95,7 +95,7 @@ module.exports = (robot) ->
               console.log res.statusCode
             robot.messageRoom "#release", "Identity service hotfix has been release!"
             robot.messageRoom "#release", "I hope you know what you're doing..."
-          if data.build.parameters.SERVER_HOSTNAME == 'deathstar.1stdibs.com'
+          if data.build and data.build.parameters and data.build.parameters.SERVER_HOSTNAME == 'deathstar.1stdibs.com'
             http.get 'http://xserve:5051/deathstar', (res) ->
               console.log res.statusCode
             robot.messageRoom "#dev", "The Death Star is now fully armed and operational"

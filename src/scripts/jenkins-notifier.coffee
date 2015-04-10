@@ -61,6 +61,12 @@ module.exports = (robot) ->
             console.log res.statusCode
             robot.messageRoom '#dev', "Mothra has the upper hand!"
             robot.messageRoom '#dev', "http://i.imgur.com/CoqJxBx.gif"
+          if data.name == 'MechaGodzilla .com (Prod)'
+            console.log "MECHA GODZILLA!!!!"
+            console.log res.statusCode
+            robot.messageRoom '#qa-chat', "Mecha Godzilla is winning!"
+            robot.messageRoom '#qa-chat', "http://media.giphy.com/media/LkziC7bd1yLUk/giphy.gif"
+            http.get 'http://xserve:5051/mechawins'
         if data.build.status == 'SUCCESS'
           console.log "Success"
           #if data.name in @failing
@@ -99,8 +105,14 @@ module.exports = (robot) ->
             http.get 'http://xserve:5051/deathstar', (res) ->
               console.log res.statusCode
             robot.messageRoom "#dev", "The Death Star is now fully armed and operational"
-
-
+           if data.name == 'MechaGodzilla .com (Prod)'
+            console.log "MECHA GODZILLA!!!!"
+            console.log res.statusCode
+            robot.messageRoom '#qa-chat', "Mecha Godzilla has been defeated!"
+            robot.messageRoom '#qa-chat', "http://media.giphy.com/media/33T28J1KEkRq0/giphy.gif"
+            robot.messageRoom '#qa-chat', "http://media.giphy.com/media/yygLBxnwBVynu/giphy.gif"
+            robot.messageRoom '#qa-chat', "http://media.giphy.com/media/tEgJl9nSsfTGM/giphy.gif"
+            http.get 'http://xserve:5051/mechaloses'
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"
       console.log error.stack

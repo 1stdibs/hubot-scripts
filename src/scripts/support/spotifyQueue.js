@@ -41,7 +41,7 @@ module.exports = function (Robot, URL, queueName, forever) {
         // console.log('setting queue', queue);
         _queue = queue;
         if (!isNotDoneAddingTracks) {
-            var stack = new Error().stack
+            //var stack = new Error().stack
             // console.log('setting queue in robot braing', stack);
             robot.brain.set(queueName, _queue);
         }

@@ -11,7 +11,7 @@ scripts = [
     'spot.js',
     'hr.js',
     'announceVersion.js',
-    'jenkins-notifier.coffee'
+    'new-jenkins-notifier.js'
 ];
 
 module.exports = function (robot) {

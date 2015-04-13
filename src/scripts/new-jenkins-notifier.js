@@ -27,8 +27,8 @@ url = require('url');
 querystring = require('querystring');
 http = require('http');
 
-var IntervalMinutes = 10;
-var MaxSoundsPerInterval = 1;
+var IntervalMinutes = 30;
+var MaxSoundsPerInterval = 2;//For any given interval, there will be no more than this number of jenkins sounds
 //10 - 1 = One Sound per ten minutes
 
 
@@ -97,6 +97,13 @@ module.exports = function(robot) {
                         robot.messageRoom('#dev', "Mothra has the upper hand!");
                         robot.messageRoom('#dev', "http://i.imgur.com/CoqJxBx.gif");
                     }
+                    if (data.name === 'MechaGodzilla .com (Prod)') {
+                        console.log("MECHA GODZILLA!!!!");
+                        console.log(res.statusCode);
+                        robot.messageRoom('#qa-chat', "Mecha Godzilla is winning!");
+                        robot.messageRoom('#qa-chat', "http://media.giphy.com/media/LkziC7bd1yLUk/giphy.gif");
+                        makeSound('mechawins');
+                    }
                 }
                 if (data.build.status === 'SUCCESS') {
                     console.log("Success");
@@ -128,6 +135,15 @@ module.exports = function(robot) {
                     if (data.build && data.build.parameters && data.build.parameters.SERVER_HOSTNAME === 'deathstar.1stdibs.com') {
                         makeSound('deathstar');
                         return robot.messageRoom("#dev", "The Death Star is now fully armed and operational");
+                    }
+                    if (data.name === 'MechaGodzilla .com (Prod)') {
+                        console.log("MECHA GODZILLA!!!!");
+                        console.log(res.statusCode);
+                        makeSound('mechaloses');
+                        robot.messageRoom('#qa-chat', "Mecha Godzilla has been defeated!");
+                        robot.messageRoom('#qa-chat', "http://media.giphy.com/media/33T28J1KEkRq0/giphy.gif");
+                        robot.messageRoom('#qa-chat', "http://media.giphy.com/media/yygLBxnwBVynu/giphy.gif");
+                        return robot.messageRoom('#qa-chat', "http://media.giphy.com/media/tEgJl9nSsfTGM/giphy.gif");
                     }
                 }
             }

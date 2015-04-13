@@ -80,6 +80,9 @@ module.exports = function(robot) {
             }
             if (data.build.phase === 'COMPLETED') {
                 console.log("jenkins-notify: A build has finished! Oooh, the excitement!!");
+                if (data.name.match(/^(?!selenium).*qa/i)) {
+                 robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " " + build + ": " + data.build.status);
+                }
                 if (data.build.status === 'FAILURE') {
                     console.log("Failure");
                     if (this.failing.indexOf(data.name) >= 0) {

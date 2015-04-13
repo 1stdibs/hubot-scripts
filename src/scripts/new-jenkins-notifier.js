@@ -56,9 +56,11 @@ function makeSound (urlOfSound) {
 
 module.exports = function(robot) {
 
+    var foo = {};
+
     return robot.router.post("/hubot/jenkins-notify", function(req, res) {
         var build, data, envelope, query, room;
-        this.failing = this.failing || [];
+        foo.failing = foo.failing || [];
         query = querystring.parse(url.parse(req.url).query);
         res.end('');
         envelope = {};
@@ -81,18 +83,18 @@ module.exports = function(robot) {
             if (data.build.phase === 'COMPLETED') {
                 console.log("jenkins-notify: A build has finished! Oooh, the excitement!!");
                 if (data.name.match(/^(?!selenium).*qa/i)) {
-                 robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " " + build + ": " + data.build.status);
+                 robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " : " + data.build.status);
                 }
                 if (data.build.status === 'FAILURE') {
                     console.log("Failure");
-                    if (this.failing.indexOf(data.name) >= 0) {
+                    if (foo.failing.indexOf(data.name) >= 0) {
                         build = "is still";
                     } else {
                         build = "started";
                     }
                     robot.messageRoom(room, "" + data.name + " build #" + data.build.number + " " + build + " failing (" + (encodeURI(data.build.full_url)) + ")");
-                    if (this.failing.indexOf(data.name) < 0) {
-                        this.failing.push(data.name);
+                    if (foo.failing.indexOf(data.name) < 0) {
+                        foo.failing.push(data.name);
                     }
                     if (data.name.match(/mothra.*qa/i)) {
                         console.log("MOTHRA!!");

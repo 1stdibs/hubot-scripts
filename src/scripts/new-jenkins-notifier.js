@@ -74,16 +74,16 @@ module.exports = function(robot) {
         room = 'dev';
         try {
             data = req.body;
+            console.log("BUILD: " + data.name + " - #" + data.build.number + ": " + data.build.status);
             if (data.build.phase === 'STARTED') {
-                console.log("jenkins-notify: A build has started! Oooh, the excitement!!");
                 if (data.name.match(/mothra.*qa/i)) {
                     makeSound('mothra-qa');
                 }
             }
             if (data.build.phase === 'COMPLETED') {
-                console.log("jenkins-notify: A build has finished! Oooh, the excitement!!");
                 if (data.name.match(/.*qa.*/i) && !data.name.match(/.*selenium.*/i)) {
-                 robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " : " + data.build.status);
+                   console.log("Notifying QA");
+                   robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " : " + data.build.status);
                 }
                 if (data.build.status === 'FAILURE') {
                     console.log("Failure");

@@ -106,9 +106,9 @@ module.exports = function(robot) {
                     if (data.name === 'MechaGodzilla .com (Prod)') {
                         console.log("MECHA GODZILLA!!!!");
                         console.log(res.statusCode);
-                        robot.messageRoom('#dev', "Mecha Godzilla is winning!");
-                        robot.messageRoom('#dev', "http://media.giphy.com/media/LkziC7bd1yLUk/giphy.gif");
                         makeSound('mechawins');
+                        robot.messageRoom('qa-chat', "Mecha Godzilla is winning!");
+                        robot.messageRoom('qa-chat', "http://media.giphy.com/media/LkziC7bd1yLUk/giphy.gif");
                     }
                 }
                 if (data.build.status === 'SUCCESS') {
@@ -146,10 +146,10 @@ module.exports = function(robot) {
                         console.log("MECHA GODZILLA!!!!");
                         console.log(res.statusCode);
                         makeSound('mechaloses');
-                        robot.messageRoom('#dev', "Mecha Godzilla has been defeated!");
-                        robot.messageRoom('#dev', "http://media.giphy.com/media/33T28J1KEkRq0/giphy.gif");
-                        robot.messageRoom('#dev', "http://media.giphy.com/media/yygLBxnwBVynu/giphy.gif");
-                        robot.messageRoom('#dev', "http://media.giphy.com/media/tEgJl9nSsfTGM/giphy.gif");
+                        robot.messageRoom('qa-chat', "Mecha Godzilla has been defeated!");
+                        robot.messageRoom('qa-chat', "http://media.giphy.com/media/33T28J1KEkRq0/giphy.gif");
+                        robot.messageRoom('qa-chat', "http://media.giphy.com/media/yygLBxnwBVynu/giphy.gif");
+                        robot.messageRoom('qa-chat', "http://media.giphy.com/media/tEgJl9nSsfTGM/giphy.gif");
                     }
                 }
             }

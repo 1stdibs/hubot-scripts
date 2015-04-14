@@ -83,8 +83,7 @@ module.exports = function(robot) {
             if (data.build.phase === 'COMPLETED') {
                 if (data.name.match(/.*qa.*/i) && !data.name.match(/.*selenium.*/i)) {
                    console.log("Notifying QA");
-                   robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " : " + data.build.status);
-                   robot.messageRoom('#qa', "" + data.build.full_url);
+                   robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url);
                 }
                 if (data.build.status === 'FAILURE') {
                     console.log("Failure");

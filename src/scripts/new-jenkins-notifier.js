@@ -107,7 +107,7 @@ module.exports = function(robot) {
                         console.log(res.statusCode);
                         makeSound('mechawins');
                         robot.messageRoom('qa-chat', "Mecha Godzilla is winning!:poop::poop::poop:");
-                        robot.messageRoom('qa-chat', "http://media.giphy.com/media/LkziC7bd1yLUk/giphy.gif");
+                        robot.messageRoom('qa-chat', "http://i.imgur.com/AoeZXir.gif");
                     }
                 }
                 if (data.build.status === 'SUCCESS') {

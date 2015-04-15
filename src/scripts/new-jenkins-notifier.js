@@ -147,8 +147,8 @@ module.exports = function(robot) {
                         makeSound('mechaloses');
                         robot.messageRoom('qa-chat', "Mecha Godzilla has been defeated!:excited_tomato::excited_tomato::excited_tomato:");
                         robot.messageRoom('qa-chat', "http://media.giphy.com/media/33T28J1KEkRq0/giphy.gif");
-                        robot.messageRoom('qa-chat', "http://media.giphy.com/media/yygLBxnwBVynu/giphy.gif");
-                        robot.messageRoom('qa-chat', "http://media.giphy.com/media/tEgJl9nSsfTGM/giphy.gif");
+                        robot.messageRoom('qa-chat', "http://i.imgur.com/XhKzx1I.gif");
+                        robot.messageRoom('qa-chat', "http://i.imgur.com/CQu0ArZ.gif);
                     }
                 }
             }

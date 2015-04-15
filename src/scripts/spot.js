@@ -181,10 +181,6 @@ trim = function (str) {
 
 volumeLockDuration = 60000;
 
-function showAlbumArt(message) {
-    return message.send("" + URL + "/now/playing/" + Math.ceil(Math.random() * 10000000000) + '/album.png');
-}
-
 words = {
     'a couple': 2,
     'default': 3,
@@ -365,6 +361,18 @@ module.exports = function (robot) {
     //}
 
     Queue.start();
+
+    function showAlbumArt(message) {
+        //No Longer Works =(
+        //message.send("" + URL + "/now/playing/" + Math.ceil(Math.random() * 10000000000) + '/album.png');
+        return Support.getCurrentTrackURL(function (err, url) {
+            if (err) {
+                sayMyError(err, message);
+            } else {
+                message.send(url);
+            }
+        });
+    }
 
 
     function blame (message) {

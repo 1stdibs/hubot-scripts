@@ -61,6 +61,10 @@ function getDataHandler (userId, type, callback) {
     };
 }
 
+Support.translateURItoURL = function (uri) {
+    return (uri + '').replace(/spotify:([a-z]+):(.*)$/i, 'https://open.spotify.com/$1/$2');
+};
+
 Support.isPlaying = function () {
     return Queue.somethingIsPlaying();
 };
@@ -269,6 +273,16 @@ Support.translateToArtist = function (str, userId, callback) {
             return;
         }
         callback(null, new MetaData.Artist(data[0]));
+    });
+};
+
+Support.getCurrentTrackURL = function (callback) {
+    getCurrentTrackUri(function (err, uri) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(null, Support.translateURItoURL(uri));
+        }
     });
 };
 

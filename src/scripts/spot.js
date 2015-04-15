@@ -70,6 +70,8 @@ var CAMPFIRE_CHRONOLOGICAL_DELAY,
     words,
     _;
 
+var showAlbumArt;
+
 var emoji = require('./support/emoji');
 var versioning = require('./support/spotVersion');
 var util = require('util');
@@ -362,7 +364,7 @@ module.exports = function (robot) {
 
     Queue.start();
 
-    function showAlbumArt(message) {
+    showAlbumArt = function showAlbumArt(message) {
         //No Longer Works =(
         //message.send("" + URL + "/now/playing/" + Math.ceil(Math.random() * 10000000000) + '/album.png');
         return Support.getCurrentTrackURL(function (err, url) {
@@ -372,7 +374,7 @@ module.exports = function (robot) {
                 message.send(url);
             }
         });
-    }
+    };
 
 
     function blame (message) {

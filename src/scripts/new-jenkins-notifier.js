@@ -41,16 +41,18 @@ function makeSound (urlOfSound) {
     }
 
     if (soundsSoFar >= MaxSoundsPerInterval) {
-        console.log('Declining to make a sound: %s', urlOfSound);
+        console.log('[%d/%d Build Sounds] : No available slots for %s', soundsSoFar, MaxSoundsPerInterval, urlOfSound);
         return;
     }
     soundsSoFar += 1;
+    console.log('[%d/%d Build Sounds] : Slot taken by %s', soundsSoFar, MaxSoundsPerInterval, urlOfSound);
     setTimeout(function () {
         soundsSoFar -= 1;
+        console.log('[%d/%d Build Sounds] : Slot opened up!', soundsSoFar, MaxSoundsPerInterval);
     }, IntervalMinutes * 60 * 1000);
 
     http.get(urlOfSound, function(res) {
-        return console.log(res.statusCode);
+        return console.log('[%s] GET %s', res.statusCode, urlOfSound);
     });
 }
 

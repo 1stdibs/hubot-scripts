@@ -1,35 +1,30 @@
-'use strict';
+// Notifies about Jenkins build errors via Jenkins Notification Plugin
+//
+// Dependencies:
+//   "url": ""
+//   "querystring": ""
+//
+// Configuration:
+//   Just put this url <HUBOT_URL>:<PORT>/hubot/jenkins-notify?room=<room> to your Jenkins
+//   Notification config. See here: https://wiki.jenkins-ci.org/display/JENKINS/Notification+Plugin
+//
+// Commands:
+//   None
+//
+// URLS:
+//   POST /hubot/jenkins-notify?room=<room>[&type=<type>]
+//
+// Authors:
+//   spajus, cmckendry, andromedado, JasonSmiley
 
-
-/*
- # Notifies about Jenkins build errors via Jenkins Notification Plugin
- #
- # Dependencies:
- #   "url": ""
- #   "querystring": ""
- #
- # Configuration:
- #   Just put this url <HUBOT_URL>:<PORT>/hubot/jenkins-notify?room=<room> to your Jenkins
- #   Notification config. See here: https://wiki.jenkins-ci.org/display/JENKINS/Notification+Plugin
- #
- # Commands:
- #   None
- #
- # URLS:
- #   POST /hubot/jenkins-notify?room=<room>[&type=<type>]
- #
- # Authors:
- #   spajus
- */
-
-var http, querystring, url;
-url = require('url');
-querystring = require('querystring');
-http = require('http');
+var url = require('url');
+var querystring = require('querystring');
+var http = require('http');
 
 var IntervalMinutes = 30;
 var MaxSoundsPerInterval = 2;//For any given interval, there will be no more than this number of jenkins sounds
 //10 - 1 = One Sound per ten minutes
+//30 - 2 = For any given half hour, at most two sounds will play
 
 
 
@@ -84,11 +79,11 @@ module.exports = function(robot) {
             }
             if (data.build.phase === 'COMPLETED') {
                 if (data.name.match(/.*qa.*/i) && !data.name.match(/.*selenium.*/i)) {
-                   console.log("Notifying QA");
-                   robot.messageRoom('#qa', "" + data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url);
+                    var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
+                    console.log("Notifying QA: %s", qaMsg);
+                    robot.messageRoom('#qa', qaMsg);
                 }
                 if (data.build.status === 'FAILURE') {
-                    console.log("Failure");
                     if (foo.failing.indexOf(data.name) >= 0) {
                         build = "is still";
                     } else {
@@ -113,7 +108,6 @@ module.exports = function(robot) {
                     }
                 }
                 if (data.build.status === 'SUCCESS') {
-                    console.log("Success");
                     if (data.name === '1stdibs.com Deploy Production PROD PROD PROD PROD') {
                         makeSound('shipit');
                         robot.messageRoom("#release", "1stdibs.com hotfix has been release!");

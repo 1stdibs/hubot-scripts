@@ -3,6 +3,7 @@
 // Dependencies:
 //   "url": ""
 //   "querystring": ""
+//   "colors" : ""
 //
 // Configuration:
 //   Just put this url <HUBOT_URL>:<PORT>/hubot/jenkins-notify?room=<room> to your Jenkins
@@ -20,15 +21,77 @@
 var url = require('url');
 var querystring = require('querystring');
 var http = require('http');
+var colors = require('colors');
+var util = require('util');
 
+var DeDupeSounds = true;//If True, then, for example, mothra may only place once per "IntervalMinutes"
 var IntervalMinutes = 30;
 var MaxSoundsPerInterval = 2;//For any given interval, there will be no more than this number of jenkins sounds
 //10 - 1 = One Sound per ten minutes
 //30 - 2 = For any given half hour, at most two sounds will play
-
-
-
 var soundsSoFar = 0;
+var deDuper = {};
+
+
+var logger = (function () {
+    var logger = {};
+    var jenkins = '[Jenkins]'.green;
+    var build = 'BUILD'.magenta;
+
+    logger.buildSound = function (what) {
+        var args = [].slice.call(arguments);
+        if (args.length > 1) {
+            what = util.format.apply(util, arguments);
+        }
+        var str = util.format('[%d/%d Build Sounds]'.cyan, soundsSoFar, MaxSoundsPerInterval);
+        console.log('%s : %s', str, what);
+        if (DeDupeSounds) {
+            logger.minorInfo(JSON.stringify(deDuper));
+        }
+    };
+
+    logger.jenkins = function (what) {
+        var args = [].slice.call(arguments);
+        if (args.length > 1) {
+            what = util.format.apply(util, arguments);
+        }
+        console.log('%s : %s', jenkins, what);
+    };
+
+    logger.build = function (what) {
+        var args = [].slice.call(arguments);
+        if (args.length > 1) {
+            what = util.format.apply(util, arguments);
+        }
+        logger.jenkins('%s : %s', build, what);
+    };
+
+    logger.minorInfo = function (what) {
+        var args = [].slice.call(arguments);
+        if (args.length > 1) {
+            what = util.format.apply(util, arguments);
+        }
+        console.log('...%s'.grey, what);
+    };
+
+    logger.requestResolution = function (url, status) {
+        logger.minorInfo('request resolved: [%s] : %s'.grey, status, url);
+    };
+
+    logger.error = function (error, info) {
+        console.log('ERROR new-jenkins-notify ERROR'.red.bold);
+        console.log(error);
+        if (error.stack) {
+            console.log(error.stack);
+        }
+        if (info) {
+            console.log('Additional Info'.yellow);
+            console.log(JSON.stringify(info, void 0, ' '));
+        }
+    };
+
+    return logger;
+}());
 
 function makeSound (urlOfSound) {
     if (!(/http/.test(urlOfSound))) {
@@ -36,18 +99,24 @@ function makeSound (urlOfSound) {
     }
 
     if (soundsSoFar >= MaxSoundsPerInterval) {
-        console.log('[%d/%d Build Sounds] : No available slots for %s', soundsSoFar, MaxSoundsPerInterval, urlOfSound);
+        logger.buildSound('No available slots for %s', urlOfSound);
         return;
     }
+    if (DeDupeSounds && deDuper[urlOfSound]) {
+        logger.buildSound('Enforcing de-dupe for %s', urlOfSound);
+        return;
+    }
+    deDuper[urlOfSound] = new Date();
     soundsSoFar += 1;
-    console.log('[%d/%d Build Sounds] : Slot taken by %s', soundsSoFar, MaxSoundsPerInterval, urlOfSound);
+    logger.buildSound('Slot taken by %s', urlOfSound);
     setTimeout(function () {
         soundsSoFar -= 1;
-        console.log('[%d/%d Build Sounds] : Slot opened up!', soundsSoFar, MaxSoundsPerInterval);
+        deDuper[urlOfSound] = void 0;
+        logger.buildSound('Slot opened up!');
     }, IntervalMinutes * 60 * 1000);
 
     http.get(urlOfSound, function(res) {
-        return console.log('[%s] GET %s', res.statusCode, urlOfSound);
+        return logger.requestResolution(urlOfSound, res.statusCode);
     });
 }
 
@@ -71,7 +140,7 @@ module.exports = function(robot) {
         room = 'dev';
         try {
             data = req.body;
-            console.log("BUILD: " + data.name + " - #" + data.build.number + ": " + data.build.status);
+            logger.build('%s - #%s: %s', data.name, data.build.number, (data.build.status || data.build.phase || '[unknown state]'));
             if (data.build.phase === 'STARTED') {
                 if (data.name.match(/mothra.*qa/i)) {
                     makeSound('mothra-qa');
@@ -80,7 +149,7 @@ module.exports = function(robot) {
             if (data.build.phase === 'COMPLETED') {
                 if (data.name.match(/.*qa.*/i) && !data.name.match(/.*selenium.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
-                    console.log("Notifying QA: %s", qaMsg);
+                    logger.minorInfo("Notifying QA: %s", qaMsg);
                     robot.messageRoom('#qa', qaMsg);
                 }
                 if (data.build.status === 'FAILURE') {
@@ -94,14 +163,10 @@ module.exports = function(robot) {
                         foo.failing.push(data.name);
                     }
                     if (data.name.match(/mothra.*qa/i)) {
-                        console.log("MOTHRA!!");
-                        console.log(res.statusCode);
                         robot.messageRoom('#dev', "Mothra has the upper hand!");
                         robot.messageRoom('#dev', "http://i.imgur.com/CoqJxBx.gif");
                     }
                     if (data.name === 'MechaGodzilla .com (Prod)') {
-                        console.log("MECHA GODZILLA!!!!");
-                        console.log(res.statusCode);
                         makeSound('mechawins');
                         robot.messageRoom('qa-chat', "Mecha Godzilla is winning!:poop::poop::poop:");
                         robot.messageRoom('qa-chat', "http://i.imgur.com/AoeZXir.gif");
@@ -138,8 +203,6 @@ module.exports = function(robot) {
                         robot.messageRoom("#dev", "The Death Star is now fully armed and operational");
                     }
                     if (data.name === 'MechaGodzilla .com (Prod)') {
-                        console.log("MECHA GODZILLA!!!!");
-                        console.log(res.statusCode);
                         makeSound('mechaloses');
                         robot.messageRoom('qa-chat', "Mecha Godzilla has been defeated!:excited_tomato::excited_tomato::excited_tomato:");
                         robot.messageRoom('qa-chat', "http://i.imgur.com/t8tLizl.gif");
@@ -147,8 +210,7 @@ module.exports = function(robot) {
                 }
             }
         } catch (error) {
-            console.log("jenkins-notify error: " + error + ". Data: " + req.body);
-            return console.log(error.stack);
+            logger.error(error, req.body);
         }
     });
 };

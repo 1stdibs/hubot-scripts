@@ -4,7 +4,8 @@ var util = require('util');
 var logger = {};
 var jenkins = '[Jenkins]'.green;
 var build = 'BUILD'.magenta;
-var dibsy = '[Dibsy]'.yellow;
+var plainDibsy = '[Dibsy]';
+var dibsy = plainDibsy.yellow;
 var spot = '[Spot]'.yellow;
 var _ = require('underscore');
 
@@ -57,7 +58,7 @@ logger.minorDibsyInfo = function (what) {
     if (args.length > 1) {
         what = util.format.apply(util, arguments);
     }
-    logger.minorInfo(util.format(' %s - %s', dibsy, what).reset);
+    logger.minorInfo(' %s - %s', plainDibsy, what);
 };
 
 logger.minorInfo = function (what) {

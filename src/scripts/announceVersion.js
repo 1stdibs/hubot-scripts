@@ -48,6 +48,11 @@ function getVersion () {
 }
 
 module.exports = function (robot) {
+
+    getVersion().then(function (version) {
+        robot.messageRoom('#general', 'Hubot-1stdibs Scripts Version ' + version);
+    });
+
     robot.respond(/scripts version\?/i, function (message) {
         getVersion().then(function (version) {
             message.send('Hubot-1stdibs Scripts Version ' + version);

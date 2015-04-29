@@ -98,7 +98,7 @@ function randEl (arr) {
 }
 
 function getVersionString () {
-    return util.format(':sparkles::%s::sparkles:Dibsy [v%s]:sparkles::%s::sparkles:', randEl(emoji.things), versioning.version, randEl(emoji.things));
+    return util.format(':sparkles::%s::sparkles:Dibsy-Spot-Integration v%s:sparkles::%s::sparkles:', randEl(emoji.things), versioning.version, randEl(emoji.things));
 }
 
 //getCurrentVersion = function (callback) {
@@ -620,12 +620,8 @@ module.exports = function (robot) {
     });
     //TODO: Make a responder to add to defaultQueue
 
-    //(process.env.HUBOT_CAMPFIRE_ROOMS || '').split(',').forEach(function (room) {
-    //    try {
-    //        robot.send({room : room}, getVersionString());
-    //    } catch (e) {}
-    //});
-    //
+    robot.messageRoom('#general', getVersionString());
+
     return robot.respond(/spot version\??/i, function (message) {
         return message.send(getVersionString());
 //        return getCurrentVersion(function (e, repoVersion) {

@@ -1,9 +1,8 @@
 
-var fs = require('fs'),
-    Path = require('path'),
-    scripts;
+var fs = require('fs');
+var Path = require('path');
 
-scripts = [
+var scripts = [
     'pokemonfusion.js',
     'catoverflow.js',
     'nugme.coffee',

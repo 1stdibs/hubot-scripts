@@ -57,7 +57,7 @@ logger.minorDibsyInfo = function (what) {
     if (args.length > 1) {
         what = util.format.apply(util, arguments);
     }
-    logger.minorInfo(' %s - %s'.reset, dibsy, what);
+    logger.minorInfo(util.format(' %s - %s'.reset, dibsy, what));
 };
 
 logger.minorInfo = function (what) {

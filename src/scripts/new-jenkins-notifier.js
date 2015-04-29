@@ -123,8 +123,8 @@ module.exports = function(robot) {
                     }
                     if (data.name === 'MechaGodzilla .com (Prod)') {
                         makeSound('mechawins');
-                        robot.messageRoom('qa-chat', "Mecha Godzilla is winning!:poop::poop::poop:");
-                        robot.messageRoom('qa-chat', "http://i.imgur.com/AoeZXir.gif");
+                        robot.messageRoom('#dev', "Mecha Godzilla is winning!:poop::poop::poop:");
+                        robot.messageRoom('#dev', "http://i.imgur.com/AoeZXir.gif");
                     }
                 }
                 if (data.build.status === 'SUCCESS') {
@@ -159,8 +159,8 @@ module.exports = function(robot) {
                     }
                     if (data.name === 'MechaGodzilla .com (Prod)') {
                         makeSound('mechaloses');
-                        robot.messageRoom('qa-chat', "Mecha Godzilla has been defeated!:excited_tomato::excited_tomato::excited_tomato:");
-                        robot.messageRoom('qa-chat', "http://i.imgur.com/t8tLizl.gif");
+                        robot.messageRoom('#dev', "Mecha Godzilla has been defeated!:excited_tomato::excited_tomato::excited_tomato:");
+                        robot.messageRoom('#dev', "http://i.imgur.com/t8tLizl.gif");
                     }
                 }
             }

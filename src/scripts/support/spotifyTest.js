@@ -52,14 +52,3 @@ MetaSpotify.findArtists('lana del rey', 3, getDataHandler(message.message.user.i
     message.send(str);
 }));
 
-setTimeout(function () {
-
-    var lResult = manager.getLastResultMetaDataForUser(1, 'tracks');
-    console.log('last info for user 1', lResult);
-//    if (lResult) {
-//        message.send(['the last result was:', templates.tracksLines(lResult, true)].join("\n"));
-//    } else {
-//        message.send(':flushed: I don\'t know what you\'re talking about');
-//    }
-}, 3000);
-

@@ -153,14 +153,13 @@ All = (function () {
  * @returns {number} Index of persisted list
  */
 Manager.persist = function (list, type, userId, timestamp) {
-    var ts = timestamp || now(),
-        index = All.add(list, {
+    var ts = timestamp || now();
+    return All.add(list, {
         type : type,
         numResults : list.length,
         userId : userId,
         timestamp : ts
     });
-    return index;
 };
 
 Manager.purge = All.purge;
@@ -200,7 +199,6 @@ function getScore (metaData, type, userId, listIndex) {
     if (userId) {
         userScore = metaData.userId == userId ? 1 : 0;
     }
-//    console.log(metaData.index, 'minutes', minutesAgo, 'score', timeScore, userScore);
     return timeScore + userScore;
 }
 

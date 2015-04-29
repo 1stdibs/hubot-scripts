@@ -72,6 +72,7 @@ var CAMPFIRE_CHRONOLOGICAL_DELAY,
 
 var showAlbumArt;
 
+var logger = require('./support/logger');
 var emoji = require('./support/emoji');
 var versioning = require('./support/spotVersion');
 var util = require('util');
@@ -309,11 +310,11 @@ function setupDefaultQueue(queue, reload, callback) {
 
     if (!queue.isEmpty() || reload) {
         if (!reload) {
-            console.log('found no redis stuff for ', queue.getName());            
+            logger.minorInfo('found no redis stuff for %s', queue.getName());
         } else {
-            console.log('reloading playlist for ', queue.getName());
+            logger.minorInfo('reloading playlist for %s', queue.getName());
         }
-        console.log('reading file...', process.env.HUBOT_SPOTIFY_PLAYLIST_FILE);
+        logger.minorInfo('reading file %s', process.env.HUBOT_SPOTIFY_PLAYLIST_FILE);
         fs.readFile(process.env.HUBOT_SPOTIFY_PLAYLIST_FILE, 'utf-8', function (err, data) {
             if (err) { throw err; }
             var json = JSON.parse(data),

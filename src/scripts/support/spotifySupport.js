@@ -16,9 +16,10 @@ var Support = {},
     robot,
     url;
 var $ = require('jquery');
+var logger = require('./logger');
 
 function spotRequest(path, method, params, callback) {
-    console.log('SPOT:' + method, url + path, params);
+    logger.spotRequest(method, url + path, params);
     robot.http(url + path).query(params)[method]()(callback);
 }
 

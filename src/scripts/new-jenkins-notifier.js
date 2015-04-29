@@ -32,12 +32,8 @@ var MaxSoundsPerInterval = 2;//For any given interval, there will be no more tha
 var soundsSoFar = 0;
 var deDuper = {};
 
-
 var logger = (function () {
-    var logger = {};
-    var jenkins = '[Jenkins]'.green;
-    var build = 'BUILD'.magenta;
-
+    var logger = require('./support/logger');
     logger.buildSound = function (what) {
         var args = [].slice.call(arguments);
         if (args.length > 1) {
@@ -49,47 +45,6 @@ var logger = (function () {
             logger.minorInfo(JSON.stringify(deDuper));
         }
     };
-
-    logger.jenkins = function (what) {
-        var args = [].slice.call(arguments);
-        if (args.length > 1) {
-            what = util.format.apply(util, arguments);
-        }
-        console.log('%s : %s', jenkins, what);
-    };
-
-    logger.build = function (what) {
-        var args = [].slice.call(arguments);
-        if (args.length > 1) {
-            what = util.format.apply(util, arguments);
-        }
-        logger.jenkins('%s : %s', build, what);
-    };
-
-    logger.minorInfo = function (what) {
-        var args = [].slice.call(arguments);
-        if (args.length > 1) {
-            what = util.format.apply(util, arguments);
-        }
-        console.log('...%s'.grey, what);
-    };
-
-    logger.requestResolution = function (url, status) {
-        logger.minorInfo('request resolved: [%s] : %s'.grey, status, url);
-    };
-
-    logger.error = function (error, info) {
-        console.log('ERROR new-jenkins-notify ERROR'.red.bold);
-        console.log(error);
-        if (error.stack) {
-            console.log(error.stack);
-        }
-        if (info) {
-            console.log('Additional Info'.yellow);
-            console.log(JSON.stringify(info, void 0, ' '));
-        }
-    };
-
     return logger;
 }());
 

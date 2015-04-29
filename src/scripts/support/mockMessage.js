@@ -1,8 +1,9 @@
 
 var message = {};
+var logger = require('./logger');
 
 message.send = function (txt) {
-    console.log('Dibsy: ' + txt);
+    logger.dibsyInfo(txt);
 };
 
 message.message = {

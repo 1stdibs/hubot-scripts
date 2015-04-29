@@ -17,6 +17,7 @@ var MetaData = {
     backupRate = 20000,//Commit data at most every 20 seconds
     mapping = {},
     robot;
+var logger = require('./logger');
 
 function persistUriData(uri, prefix, data) {
     var args;
@@ -28,7 +29,7 @@ function persistUriData(uri, prefix, data) {
         uri = prefix + uri;
     }
     allData[uri] = data;
-    console.log('allData now has a [%s] entry for %s', !!data, uri);
+    logger.minorDibsyInfo('allData now has a %s-y entry for %s', !!data, uri);
     backedUp = false;
 }
 
@@ -83,12 +84,12 @@ function getUriInfo (uri, params, callback) {
     params.uri = uri;
     data = getPersistedUriData(uri, prefix);
     if (data) {
-        console.log('cache HIT [uri: %s] [prefix: %s]', uri, prefix);
+        logger.minorDibsyInfo('cache HIT [uri: %s] [prefix: %s]', uri, prefix);
         callback(void 0, data);
         return;
     }
-    console.log('cache MISS [uri: %s] [prefix: %s]', uri, prefix);
-    console.log('fetching', MetaData.uris.lookup, params);
+    logger.minorDibsyInfo('cache MISS [uri: %s] [prefix: %s]', uri, prefix);
+    logger.minorDibsyInfo('fetching %s %s', MetaData.uris.lookup, params);
     robot.http(MetaData.uris.lookup).query(params).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistUriData(uri, prefix, jsonData);
@@ -105,11 +106,11 @@ function query (type, queryString, callback) {
     }
     data = getPersistedQueryResult(queryString, type);
     if (data) {
-        console.log('cache HIT', type, queryString);
+        logger.minorDibsyInfo('cache HIT %s %s', type, queryString);
         callback(void 0, data);
         return;
     }
-    console.log('cache MISS', type, queryString);
+    logger.minorDibsyInfo('cache MISS %s %s', type, queryString);
     robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistQueryResult(queryString, type, data);
@@ -475,7 +476,7 @@ module.exports = function (Robot) {
     allData.queries = allData.queries || {};
     setInterval(function () {
         if (robot && !backedUp) {
-            console.log('commiting metadata to brain');
+            logger.minorDibsyInfo('commiting metadata to brain');
             robot.brain.set(allDataKey, allData);
             backedUp = true;
         }

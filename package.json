@@ -1,7 +1,7 @@
 {
   "name": "hubot-1stdibs",
   "description": "1stdibs Custom Hubot Scripts",
-  "version": "5.12.7",
+  "version": "5.12.8",
   "author": "1stdibs.com",
   "main": "./src/index.js",
   "repository": {

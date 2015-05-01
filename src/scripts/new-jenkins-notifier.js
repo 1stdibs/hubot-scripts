@@ -140,29 +140,29 @@ module.exports = function(robot) {
                     }
                 }
                 if (data.build.status === 'SUCCESS') {
-                    if (data.name === '1stdibs.com Deploy Production PROD PROD PROD PROD') {
+                    if (data.name === '1stdibs.com Deploy Production PROD PROD PROD PROD' && data.parameters.Hotfix === 'true') {
                         makeSound('shipit');
-                        robot.messageRoom("#release", "1stdibs.com hotfix has been release!");
+                        robot.messageRoom("#release", "1stdibs.com hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");
                     }
-                    if (data.name === 'Admin-v2 Deploy (PROD)') {
+                    if (data.name === 'Admin-v2 Deploy (PROD)' && data.parameters.Hotfix === 'true') {
                         makeSound('shipit-adminv2');
-                        robot.messageRoom("#release", "Admin v2 hotfix has been release!");
+                        robot.messageRoom("#release", "Admin v2 hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");
                     }
-                    if (data.name === 'Admin-v1 Deploy (PROD) (RACKSPACE)') {
+                    if (data.name === 'Admin-v1 Deploy (PROD) (RACKSPACE)' && data.parameters.Hotfix === 'true') {
                         makeSound('shipit-adminv1');
-                        robot.messageRoom("#release", "Admin v1 hotfix has been release!");
+                        robot.messageRoom("#release", "Admin v1 hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");
                     }
-                    if (data.name === 'JAVA-InventoryService (Prod)') {
+                    if (data.name === 'JAVA-InventoryService (Hotfix to Prod)') {
                         makeSound('shipit-inventory');
-                        robot.messageRoom("#release", "Inventory service hotfix has been release!");
+                        robot.messageRoom("#release", "Inventory service hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");
                     }
-                    if (data.name === 'JAVA-IdentityService (Prod)') {
+                    if (data.name === 'JAVA-IdentityService (Hotfix to Prod)') {
                         makeSound('shipit-identity');
-                        robot.messageRoom("#release", "Identity service hotfix has been release!");
+                        robot.messageRoom("#release", "Identity service hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");
                     }
                     if (data.build && data.build.parameters && data.build.parameters.SERVER_HOSTNAME === 'deathstar.1stdibs.com') {

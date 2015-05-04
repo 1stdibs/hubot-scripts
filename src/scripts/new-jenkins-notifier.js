@@ -114,7 +114,7 @@ module.exports = function(robot) {
                     logger.minorInfo("Notifying Relase Channel: %s", qaMsg);
                     robot.messageRoom('#release', qaMsg);
                 }
-                if (data.name.match(/.*prod.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i)) {
+                if (data.name.match(/.*prod.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i) && !data.name.match(/.*everything except.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     logger.minorInfo("Notifying Relase Channel: %s", qaMsg);
                     robot.messageRoom('#release', qaMsg);

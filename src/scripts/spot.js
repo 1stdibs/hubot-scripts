@@ -432,7 +432,7 @@ module.exports = function (robot) {
         return message.send(':ok_hand:');
     });
 
-    robot.respond(/blame\s*$/i, blame);
+    robot.respond(/(blame|credit)\s*$/i, blame);
     robot.respond(/who asked for (.+)\??/i, blame);
 
     robot.respond(/(play|queue) (.+)/i, function (message) {

@@ -10,7 +10,8 @@ var scripts = [
     'spot.js',
     'hr.js',
     'announceVersion.js',
-    'new-jenkins-notifier.js'
+    'new-jenkins-notifier.js',
+    'kegbot.coffee'
 ];
 
 module.exports = function (robot) {

@@ -75,7 +75,7 @@ module.exports = function(robot) {
     });
 
     robot.respond(/(cat|dog) me/i, function (msg) {
-        fetchAndSend(msg.match[0], 1, msg);
+        fetchAndSend(msg.match[1], 1, msg);
     });
 
     robot.hear(/^nsfw/i, function (msg) {

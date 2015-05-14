@@ -1,5 +1,5 @@
 // Description:
-//   Random cat images from Cat Overflow
+//   Random cat/dog images from Cat/Dog Overflow
 //
 // Dependencies:
 //   underscore
@@ -7,19 +7,33 @@
 // Commands:
 //   hubot cat me - Random cat gif from www.catoverflow.com
 //   hubot cat bomb (n) - n/5 random cat gifs from www.catoverflow.com
+//   hubot dog me - Random dog gif from www.dogoverflow.com
+//   hubot dog bomb (n) - n/5 random dog gifs from www.dogoverflow.com
 //
 // Author:
 //   andromedado
 
 var _ = require('underscore');
 var util = require('util');
-var max = 342;
+
+var config = {
+    cat : {
+        max : 343,
+        host : 'catoverflow.com'
+    },
+    dog : {
+        max : 101,
+        host : 'dogoverflow.com'
+    }
+};
 
 module.exports = function(robot) {
 
-    function getSrcs (num, callback) {
+    function getSrcs (type, num, callback) {
         num = num || 1;
-        url = util.format('http://catoverflow.com/api/query?limit=%s&offset=%s', num, (Math.ceil(Math.random() * (max - num + 1))));
+        var host = config[type].host;
+        var max = config[type].max;
+        url = util.format('http://%s/api/query?limit=%s&offset=%s', host, num, (Math.ceil(Math.random() * (max - num + 1))));
         robot.http(url).get()(function (err, res, body) {
             if (err) {
                 callback(err);
@@ -39,7 +53,7 @@ module.exports = function(robot) {
         });
     }
 
-    function fetchAndSend (num, msg) {
+    function fetchAndSend (type, num, msg) {
         var i;
         var cb = function (err, srcs) {
             if (err) {
@@ -51,21 +65,21 @@ module.exports = function(robot) {
             }
         };
         for (i = 0; i < Math.abs(num); i++) {
-            getSrcs(1, cb);
+            getSrcs(type, 1, cb);
         }
     }
 
-    robot.respond(/cat bomb( (\d+))?/i, function (msg) {
-        var num = Math.min(30, msg.match[2] || 5);
-        fetchAndSend(num, msg);
+    robot.respond(/(cat|dog) bomb( (\d+))?/i, function (msg) {
+        var num = Math.min(30, msg.match[3] || 5);
+        fetchAndSend(msg.match[1], num, msg);
     });
 
-    robot.respond(/cat me/i, function (msg) {
-        fetchAndSend(1, msg);
+    robot.respond(/(cat|dog) me/i, function (msg) {
+        fetchAndSend(msg.match[0], 1, msg);
     });
 
     robot.hear(/^nsfw/i, function (msg) {
-        fetchAndSend(6, msg);
+        fetchAndSend('cat', 6, msg);
     });
 
 };

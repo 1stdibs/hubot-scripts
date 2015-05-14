@@ -4,7 +4,7 @@ var Path = require('path');
 
 var scripts = [
     'pokemonfusion.js',
-    'catoverflow.js',
+    'petoverflow.js',
     'nugme.coffee',
     'mta.coffee',
     'spot.js',

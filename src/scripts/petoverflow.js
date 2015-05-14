@@ -44,11 +44,7 @@ module.exports = function(robot) {
                 return url && url.length && url.length > 0 && /\S/.test(url);
             });
             var urlsToUse = _.map(urls, function (url) {
-                url = url + '?_=' + Math.random().toFixed(4);
-                if (/\.gif/i.test(url)) {
-                    return url;
-                }
-                return url + '#.png';
+                return url + '#.png?_=' + Math.random().toFixed(4);
             });
             callback(null, urlsToUse);
         });

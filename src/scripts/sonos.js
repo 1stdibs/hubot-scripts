@@ -16,6 +16,8 @@
 //   hubot vol -- - Decrease the volume by quite a bit
 //   hubot set vol to <number> - Set the volume to a specific number (between 0 and 100)
 //   hubot lock vol at <number> - Lock the volume for a few minutes at a specific volume
+//   hubot mute - Set the volume to 0
+//   hubot unmute - Restore volume to level before mute
 // 
 // Author:
 //   berg, jballant
@@ -117,12 +119,13 @@ function sendErrorMessage (msg, err) {
 }
 
 function lockVolume () {
-    logInfo('Locking sonos volume');
+    var duration = (3 * 60 * 1000);
+    logInfo('Locking sonos volume for %s seconds', duration / 1000);
     volumeIsLocked = true;
     setTimeout(function () {
         volumeIsLocked = false;
         logInfo('Volume is now unlocked');
-    }, (6 * 1000));
+    }, duration);
 }
 
 
@@ -144,9 +147,13 @@ module.exports = function(robot) {
         });
     }
 
+    function sendVolLockedMessage (msg) {
+        return sendErrorMessage(msg, ':no_good: Volume is currently locked');
+    }
+
     function increaseVolByAmountWithMessage (msg, amount) {
         if (volumeIsLocked) {
-            return sendErrorMessage(msg, ':no_good: Volume is currently locked');
+            sendVolLockedMessage(msg);
         }
         increaseVolByAmount(amount, function (err) {
             if (err) { return sendErrorMessage(msg, err); }
@@ -158,6 +165,9 @@ module.exports = function(robot) {
         var newVol;
         volume = checkInputVolume(volume, msg);
         newVol = calcNewVolume(volume);
+        if (volumeIsLocked) {
+            sendVolLockedMessage(msg);
+        }
         setVolumeTo(newVol, function (err) {
             if (err) {
                 return sendErrorMessage(msg);
@@ -167,27 +177,27 @@ module.exports = function(robot) {
         });
     }
 
-    robot.respond(/vol ?\+$/i, function(msg) {
+    robot.respond(/vol(?:ume)? ?\+$/i, function(msg) {
         increaseVolByAmountWithMessage(msg, 7);
     });
 
-    robot.respond(/vol ?\-$/i, function(msg) {
+    robot.respond(/vol(?:ume)? ?\-$/i, function(msg) {
         increaseVolByAmountWithMessage(msg, -7);
     });
 
-    robot.respond(/vol ?\+\+$/i, function(msg) {
+    robot.respond(/vol(?:ume)? ?\+\+$/i, function(msg) {
         increaseVolByAmountWithMessage(msg, 14);
     });
 
-    robot.respond(/vol ?\-\-$/i, function(msg) {
+    robot.respond(/vol(?:ume)? ?\-\-$/i, function(msg) {
         increaseVolByAmountWithMessage(msg, -14);
     });
 
-    robot.respond(/vol\?/i, function (msg) {
+    robot.respond(/vol(?:ume)?\?/i, function (msg) {
         getVolumeWithMsg(msg, 'Volume is currently ');
     });
 
-    robot.respond(/set vol to (\d+)/i, function (msg) {
+    robot.respond(/set vol(?:ume)? to (\d+)/i, function (msg) {
         if (volumeIsLocked) {
             return sendErrorMessage(msg, ':no_good: Volume is currently locked');
         }
@@ -215,12 +225,13 @@ module.exports = function(robot) {
         }
     });
 
-    robot.respond(/lock vol at (\d+)/i, function (msg) {
+    robot.respond(/lock vol(?:ume)? at (\d+)/i, function (msg) {
         var volume = msg.match[1];
         volume = checkInputVolume(volume);
         if (volume > 70 || volume < 40) {
             return sendErrorMessage(msg, ':no_good: You may only lock at reasonable volumes');
         }
-        setVolumeWithMessage(volume, msg, 'Volume locked at');
+        lockVolume();
+        setVolumeWithMessage(volume, msg, 'Volume locked at ');
     });
 };

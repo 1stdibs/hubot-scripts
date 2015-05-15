@@ -15,6 +15,7 @@
 //   hubot vol ++ - Increase the volume by quite a bit
 //   hubot vol -- - Decrease the volume by quite a bit
 //   hubot set vol to <number> - Set the volume to a specific number (between 0 and 100)
+//   hubot lock vol at <number> - Lock the volume for a few minutes at a specific volume
 // 
 // Author:
 //   berg, jballant
@@ -23,9 +24,11 @@
 var logger = require('./support/logger');
 var sonos = require('sonos');
 
-var maxVol = 50;
+var DEFAULT_MAX_VOL = 50;
 
-var _VOLUME_ = 20;
+var maxVol = DEFAULT_MAX_VOL;
+
+var savedVolume = null;
 
 var sonosInstance;
 
@@ -33,24 +36,12 @@ var volumeIsLocked = false;
 
 function getSonos() {
 
-    // TODO: Remove and use actual sonos
-    return {
-        getVolume: function (cb) {
-            cb(null, _VOLUME_);
-        },
-        setVolume: function (vol, cb) {
-            _VOLUME_ = vol;
-            cb();
-        }
-    };
-    // TODO: remove above and use actual sonos code below
-
     var host;
     var port;
     if (!sonosInstance) {
-        host = process.env.HUBOT_SONOS_HOST || 'https://sonos:1400';
+        host = process.env.HUBOT_SONOS_HOST || '192.168.96.150';
         port = process.env.HUBOT_SONOS_PORT || 1400;
-        maxVol = process.env.HUBOT_SONOS_MAX_VOLUME || 100;
+        maxVol = process.env.HUBOT_SONOS_MAX_VOLUME || DEFAULT_MAX_VOL;
         maxVol = parseInt(maxVol, 10);
         sonosInstance = new sonos.Sonos(host, 1400);
     }
@@ -163,6 +154,19 @@ module.exports = function(robot) {
         });
     }
 
+    function setVolumeWithMessage (volume, msg, text) {
+        var newVol;
+        volume = checkInputVolume(volume, msg);
+        newVol = calcNewVolume(volume);
+        setVolumeTo(newVol, function (err) {
+            if (err) {
+                return sendErrorMessage(msg);
+            }
+            text = text || 'Volume set to ';
+            msg.send(text + volume);
+        });
+    }
+
     robot.respond(/vol ?\+$/i, function(msg) {
         increaseVolByAmountWithMessage(msg, 7);
     });
@@ -189,31 +193,34 @@ module.exports = function(robot) {
         }
 
         var volume = msg.match[1];
-        var newVol;
-        volume = checkInputVolume(volume, msg);
-        newVol = calcNewVolume(volume);
-        setVolumeTo(newVol, function (err) {
+        setVolumeWithMessage(volume, msg);
+    });
+
+    robot.respond(/ mute$/i, function (msg) {
+        getVolume(function (err, vol) {
             if (err) {
                 return sendErrorMessage(msg);
             }
-            msg.send('Volume set to ' + volume);
+            savedVolume = calcOrigVolume(parseInt(vol, 10));
+            setVolumeWithMessage(0, msg);
         });
+    });
+
+    robot.respond(/ unmute$/i, function (msg) {
+        if (savedVolume !== null) {
+            setVolumeWithMessage(savedVolume, msg);
+            savedVolume = null;
+        } else {
+            msg.send('Volume is not muted');
+        }
     });
 
     robot.respond(/lock vol at (\d+)/i, function (msg) {
         var volume = msg.match[1];
-        var newVol;
         volume = checkInputVolume(volume);
         if (volume > 70 || volume < 40) {
             return sendErrorMessage(msg, ':no_good: You may only lock at reasonable volumes');
         }
-        newVol = calcNewVolume(volume);
-        setVolumeTo(newVol, function (err) {
-            if (err) {
-                return sendErrorMessage(msg);
-            }
-            lockVolume();
-            msg.send('Volume locked at ' + volume);
-        });
+        setVolumeWithMessage(volume, msg, 'Volume locked at');
     });
 };

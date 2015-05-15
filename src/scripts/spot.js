@@ -562,6 +562,7 @@ module.exports = function (robot) {
             return showAlbumArt(message);
         });
     });
+    /*
     robot.respond(/lock volume at (\d+)/i, function (message) {
         var volume;
         if (volumeLocked) {
@@ -595,6 +596,7 @@ module.exports = function (robot) {
         }
         return setVolume(adi, message);
     });
+*/
     robot.respond(/(how much )?(time )?(remaining|left)\??$/i, remainingRespond);
     robot.respond(/say me/i, function (message) {
         return message.send('no way ' + message.message.user.name);

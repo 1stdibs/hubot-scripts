@@ -29,6 +29,8 @@ var _VOLUME_ = 20;
 
 var sonosInstance;
 
+var volumeIsLocked = false;
+
 function getSonos() {
 
     // TODO: Remove and use actual sonos
@@ -98,7 +100,6 @@ function increaseVolByAmount (amount, callback) {
     logInfo('Increasing volume by %s', amount);
     getVolume(function (err, volume) {
         if (err) {
-            logErr(err);
             return callback(err);
         }
         volume = parseInt(volume, 10);
@@ -116,23 +117,48 @@ function logInfo () {
     logger.minorInfo.apply(logger, arguments);
 }
 
-function sendErrorMessage (msg, text) {
-    return msg.send(text || 'An error occurred communicating with Sonos');
+function sendErrorMessage (msg, err) {
+    if (err && err.message) {
+        logErr(err);
+    }
+    var text = (err && typeof err === 'string') ? err : 'An error occurred communicating with Sonos';
+    return msg.send(text);
 }
+
+function lockVolume () {
+    logInfo('Locking sonos volume');
+    volumeIsLocked = true;
+    setTimeout(function () {
+        volumeIsLocked = false;
+        logInfo('Volume is now unlocked');
+    }, (6 * 1000));
+}
+
 
 module.exports = function(robot) {
 
+    function checkInputVolume (volume, msg) {
+        volume = (volume || volume === 0) ? parseInt(volume, 10) : null;
+        if (volume === null || isNaN(volume)) {
+            sendErrorMessage(msg, 'Unable to parse volume param');
+        }
+        return volume < 0 ? 0 : (volume > 100) ? 100 : volume;
+    }
+
     function getVolumeWithMsg (msg, text) {
         getVolume(function (err, volume) {
-            if (err) { return sendErrorMessage(msg); }
+            if (err) { return sendErrorMessage(msg, err); }
             text = text || 'Volume set to ';
             msg.send(text + calcOrigVolume(volume));
         });
     }
 
     function increaseVolByAmountWithMessage (msg, amount) {
+        if (volumeIsLocked) {
+            return sendErrorMessage(msg, ':no_good: Volume is currently locked');
+        }
         increaseVolByAmount(amount, function (err) {
-            if (err) { return sendErrorMessage(msg); }
+            if (err) { return sendErrorMessage(msg, err); }
             getVolumeWithMsg(msg);
         });
     }
@@ -158,16 +184,36 @@ module.exports = function(robot) {
     });
 
     robot.respond(/set vol to (\d+)/i, function (msg) {
+        if (volumeIsLocked) {
+            return sendErrorMessage(msg, ':no_good: Volume is currently locked');
+        }
+
         var volume = msg.match[1];
         var newVol;
-        volume = volume ? parseInt(volume, 10) : null;
-        if (!volume && volume !== 0) {
-            return sendErrorMessage(msg, 'Unable to parse volume param');
-        }
-        volume = parseInt(volume, 10);
+        volume = checkInputVolume(volume, msg);
         newVol = calcNewVolume(volume);
         setVolumeTo(newVol, function (err) {
+            if (err) {
+                return sendErrorMessage(msg);
+            }
             msg.send('Volume set to ' + volume);
+        });
+    });
+
+    robot.respond(/lock vol at (\d+)/i, function (msg) {
+        var volume = msg.match[1];
+        var newVol;
+        volume = checkInputVolume(volume);
+        if (volume > 70 || volume < 40) {
+            return sendErrorMessage(msg, ':no_good: You may only lock at reasonable volumes');
+        }
+        newVol = calcNewVolume(volume);
+        setVolumeTo(newVol, function (err) {
+            if (err) {
+                return sendErrorMessage(msg);
+            }
+            lockVolume();
+            msg.send('Volume locked at ' + volume);
         });
     });
 };

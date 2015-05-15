@@ -29,6 +29,7 @@ function makeUrl (tubeUrl) {
 }
 
 function makePlayVideoRequest (tubeUrl, callback) {
+    // TODO: Remove these below 
     var url = makeUrl(tubeUrl);
     if (!url) {
         logger.minorInfo('Could not create play url for link %s', tubeUrl);
@@ -36,6 +37,8 @@ function makePlayVideoRequest (tubeUrl, callback) {
     }
     logger.minorInfo('Requesting youtube sound clip "%s"', url);
     callback(null, url);
+
+    // TODO: Uncomment request below once endpoint works
     // http.get(url, function (res) {
     //     logResponse(url, res);
     //     if (callback) {
@@ -75,7 +78,9 @@ module.exports = function (robot) {
             if (err) {
                 return message.send(err);
             }
-            return message.send("FIANL URL " + finalUrl);
+            // TODO REMOVE THE BELOW WHEN ENDPOINTS WORK
+            return message.send("Playing youtube clip " + finalUrl);
+            // return message.send("Playing youtube clip");
         });
     });
 

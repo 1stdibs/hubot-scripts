@@ -268,7 +268,6 @@ volumeLocked = false;
 var volumeKeywords = {
     '💯' : 100,
     ':100:' : 100,
-    '\uD83D\uDCAF' : 100,
     'max' : 100
 };
 

@@ -38,10 +38,13 @@ module.exports = function(robot) {
         try {
             data = req.body.data;
             var who = data.user.display_name;
+            if (who === 'guest') {
+                who = 'Someone';
+            }
             var drankMl = parseFloat(data.drink.volume_ml);
             var drankOz = drankMl * 0.033814;
             var drinkName = data.keg.beverage.name;
-            var msg = who + ' drank ' + (drankOz.toFixed(1)) + 'oz of ' + drinkName;
+            var msg = who + ' poured ' + (drankOz.toFixed(1)) + 'oz of ' + drinkName;
             console.log(data);
             console.log("Someone drank " + data.drink.volume_ml);
             console.log("There's " + data.keg.volume_ml_remain + " left");

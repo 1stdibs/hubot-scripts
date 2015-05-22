@@ -265,6 +265,13 @@ sayYourError = function (message) {
 
 volumeLocked = false;
 
+var volumeKeywords = {
+    '💯' : 100,
+    ':100:' : 100,
+    '\uD83D\uDCAF' : 100,
+    'max' : 100
+};
+
 setVolume = function (level, message) {
     var params;
     level = level + "";
@@ -290,12 +297,12 @@ setVolume = function (level, message) {
         });
         return;
     }
+    if (volumeKeywords[level]) {
+        level = volumeKeywords[level] + '';
+    }
     if (!level.match(/^\d+$/)) {
         message.send("Invalid volume: " + level);
         return;
-    }
-    if (level === ":100:") {
-        level = 100
     }
     params = {
         volume: level

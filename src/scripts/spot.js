@@ -294,6 +294,9 @@ setVolume = function (level, message) {
         message.send("Invalid volume: " + level);
         return;
     }
+    if (level === ":100:") {
+        level = 100
+    }
     params = {
         volume: level
     };

@@ -207,6 +207,7 @@ module.exports = function (robot) {
                 return message.send('Error stopping youtube clip');
             }
             playingVideo = false;
+            clearVideoTimeout();
             videoQueue = [];
             message.send("Stopped youtube clip");
         });

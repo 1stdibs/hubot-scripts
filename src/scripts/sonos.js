@@ -60,21 +60,30 @@ function getVolume (callback) {
     });
 }
 
-function calcNewVolume (vol) {
+/**
+ * Give the public facing volume, and this will translate it into
+ * the value to use privately
+ *
+ * @param vol
+ * @returns {number}
+ */
+function publicToPrivateVolume (vol) {
     var ratio = 100 / maxVol;
     logInfo('Calculating new volume with input "%s" and ratio to sonos "%s"', vol, ratio);
     return Math.floor(vol / ratio);
 }
 
-function calcOrigVolume (vol) {
+/**
+ * Give the private volume, and this will translate it into
+ * the public facing integer
+ *
+ * @param vol
+ * @returns {number}
+ */
+function privateToPublicVolume (vol) {
     var ratio = 100 / maxVol;
     logInfo('Calculating original user input volume with input "%s" and ratio to sonos "%s"', vol, ratio);
     return Math.ceil(vol * ratio);
-}
-
-function calcVolIncrease (currVol, amount) {
-    var vol = calcOrigVolume(currVol) + amount;
-    return calcNewVolume(vol);
 }
 
 function setVolumeTo (newVolume, callback) {
@@ -96,7 +105,7 @@ function increaseVolByAmount (amount, callback) {
             return callback(err);
         }
         volume = parseInt(volume, 10);
-        var newVol = calcNewVolume(calcOrigVolume(volume) + amount);
+        var newVol = publicToPrivateVolume(privateToPublicVolume(volume) + amount);
         logInfo('Calculated new sonos volume: %s', newVol);
         setVolumeTo(newVol, callback);
     });
@@ -128,6 +137,19 @@ function lockVolume () {
     }, duration);
 }
 
+/**
+ * This will be able to handle things like emoji/keywords
+ *
+ * @param volume
+ * @param callback
+ */
+function volumeToInt(volume, callback) {
+    volume = (volume || volume === 0) ? parseInt(volume, 10) : null;
+    if (volume === null || isNaN(volume)) {
+        callback('Unable to parse volume param');
+    }
+    callback(null, volume < 0 ? 0 : (volume > 100) ? 100 : volume);
+}
 
 module.exports = function(robot) {
 
@@ -143,7 +165,7 @@ module.exports = function(robot) {
         getVolume(function (err, volume) {
             if (err) { return sendErrorMessage(msg, err); }
             text = text || 'Volume set to ';
-            msg.send(text + calcOrigVolume(volume));
+            msg.send(text + privateToPublicVolume(volume));
         });
     }
 
@@ -164,7 +186,7 @@ module.exports = function(robot) {
     function setVolumeWithMessage (volume, msg, text) {
         var newVol;
         volume = checkInputVolume(volume, msg);
-        newVol = calcNewVolume(volume);
+        newVol = publicToPrivateVolume(volume);
         if (volumeIsLocked) {
             return sendVolLockedMessage(msg);
         }
@@ -211,7 +233,7 @@ module.exports = function(robot) {
             if (err) {
                 return sendErrorMessage(msg);
             }
-            savedVolume = calcOrigVolume(parseInt(vol, 10));
+            savedVolume = privateToPublicVolume(parseInt(vol, 10));
             setVolumeWithMessage(0, msg);
         });
     });

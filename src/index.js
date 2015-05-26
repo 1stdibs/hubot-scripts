@@ -4,7 +4,7 @@ var Path = require('path');
 
 var scripts = [
     'pokemonfusion.js',
-    'catoverflow.js',
+    'petoverflow.js',
     'nugme.coffee',
     'mta.coffee',
     'spot.js',
@@ -13,7 +13,8 @@ var scripts = [
     'hr.js',
     'announceVersion.js',
     'new-jenkins-notifier.js',
-    'kegbot.coffee'
+    'kegbot.coffee',
+    'kegbot-alerts.js'
 ];
 
 module.exports = function (robot) {

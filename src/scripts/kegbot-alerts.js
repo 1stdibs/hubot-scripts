@@ -36,12 +36,38 @@ module.exports = function(robot) {
             envelope.user.type = query.type;
         }
         try {
-            data = req.body;
-            console.log(data);
-            console.log("Someone drank " + data.drink.volume_ml);
-            console.log("There's " + data.keg.volume_ml_remain + " left");
-            //robot.messageRoom('#general', "data.drink.volume_ml");
-            //robot.messageRoom('#general', "data.keg.volume_ml_remain");
+            data = req.body.data;
+            switch (data.kind) {
+                case 'session_started':
+                    console.log(data);
+                    robot.messageRoom('#general', ':beers: Session Started! :beers:');
+                    break;
+                case 'session_joined':
+                    console.log(data);
+                    robot.messageRoom('#general', 'Session Joined');
+                    break;
+                case 'keg_tapped':
+                    console.log(data);
+                    robot.messageRoom('#general', ':dizzy_face: Keg Tapped! :boom:');
+                    break;
+                case 'keg_ended':
+                    console.log(data);
+                    robot.messageRoom('#general', ':exclamation: Keg Ended :exclamation:');
+                    break;
+                case 'drink_poured':
+                    var who = data.user.display_name;
+                    if (who === 'guest') {
+                        who = 'Someone';
+                    }
+                    var drankMl = parseFloat(data.drink.volume_ml);
+                    var drankOz = drankMl * 0.033814;
+                    var drinkName = data.keg.beverage.name;
+                    var msg = who + ' poured ' + (drankOz.toFixed(1)) + 'oz of ' + drinkName;
+                    console.log("Someone drank " + data.drink.volume_ml);
+                    console.log("There's " + data.keg.volume_ml_remain + " left");
+                    robot.messageRoom('#general', msg);
+                    break;
+            }
         } catch (error) {
             console.log(error);
         }

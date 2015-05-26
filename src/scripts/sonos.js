@@ -53,7 +53,7 @@ function getSonos() {
     return sonosInstance;
 }
 
-function getVolume (callback) {
+function getPrivateVolume (callback) {
     logInfo('Getting sonos volume...');
     getSonos().getVolume(function (err, vol) {
         if (vol) {
@@ -103,7 +103,7 @@ function setVolumeTo (newVolume, callback) {
 
 function increaseVolByAmount (amount, callback) {
     logInfo('Increasing volume by %s', amount);
-    getVolume(function (err, volume) {
+    getPrivateVolume(function (err, volume) {
         if (err) {
             return callback(err);
         }
@@ -182,11 +182,12 @@ function volumeToInt(volume, callback) {
         return;
     }
     if (relativeVolumeKeywords.hasOwnProperty(vol)) {
-        getVolume(function (err, currentVolume) {
+        getPrivateVolume(function (err, privateVolume) {
             if (err) {
                 callback(err);
                 return;
             }
+            var currentVolume = privateToPublicVolume(privateVolume);
             callback(null, boundPublicVolume((relativeVolumeKeywords[vol])(currentVolume)));
         });
         return;
@@ -197,7 +198,7 @@ function volumeToInt(volume, callback) {
 module.exports = function(robot) {
 
     function getVolumeWithMsg (msg, text) {
-        getVolume(function (err, volume) {
+        getPrivateVolume(function (err, volume) {
             if (err) { return sendErrorMessage(msg, err); }
             text = text || 'Volume set to ';
             msg.send(text + privateToPublicVolume(volume));
@@ -254,7 +255,7 @@ module.exports = function(robot) {
     });
 
     robot.respond(/ mute$/i, function (msg) {
-        getVolume(function (err, vol) {
+        getPrivateVolume(function (err, vol) {
             if (err) {
                 return sendErrorMessage(msg);
             }

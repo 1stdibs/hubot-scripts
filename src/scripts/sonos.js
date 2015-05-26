@@ -153,7 +153,7 @@ module.exports = function(robot) {
 
     function increaseVolByAmountWithMessage (msg, amount) {
         if (volumeIsLocked) {
-            sendVolLockedMessage(msg);
+            return sendVolLockedMessage(msg);
         }
         increaseVolByAmount(amount, function (err) {
             if (err) { return sendErrorMessage(msg, err); }
@@ -166,7 +166,7 @@ module.exports = function(robot) {
         volume = checkInputVolume(volume, msg);
         newVol = calcNewVolume(volume);
         if (volumeIsLocked) {
-            sendVolLockedMessage(msg);
+            return sendVolLockedMessage(msg);
         }
         setVolumeTo(newVol, function (err) {
             if (err) {
@@ -197,7 +197,7 @@ module.exports = function(robot) {
         getVolumeWithMsg(msg, 'Volume is currently ');
     });
 
-    robot.respond(/set vol(?:ume)? to (\d+)/i, function (msg) {
+    robot.respond(/set vol(?:ume)? to (\d+)$/i, function (msg) {
         if (volumeIsLocked) {
             return sendErrorMessage(msg, ':no_good: Volume is currently locked');
         }
@@ -225,13 +225,13 @@ module.exports = function(robot) {
         }
     });
 
-    robot.respond(/lock vol(?:ume)? at (\d+)/i, function (msg) {
+    robot.respond(/lock vol(?:ume)? at (\d+)$/i, function (msg) {
         var volume = msg.match[1];
         volume = checkInputVolume(volume);
         if (volume > 70 || volume < 40) {
             return sendErrorMessage(msg, ':no_good: You may only lock at reasonable volumes');
         }
-        lockVolume();
         setVolumeWithMessage(volume, msg, 'Volume locked at ');
+        lockVolume();
     });
 };

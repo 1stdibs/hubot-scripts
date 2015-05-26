@@ -80,7 +80,7 @@ module.exports = function(robot) {
     var foo = {};
 
     return robot.router.post("/hubot/jenkins-notify", function(req, res) {
-        var build, data, envelope, query, room;
+        var build, data, envelope, query, room, params;
         foo.failing = foo.failing || [];
         query = querystring.parse(url.parse(req.url).query);
         res.end('');
@@ -95,6 +95,7 @@ module.exports = function(robot) {
         room = 'dev';
         try {
             data = req.body;
+            params = (data && data.parameters) || {};
             logger.build('%s - #%s: %s', data.name, data.build.number, (data.build.status || data.build.phase || '[unknown state]'));
             if (data.build.phase === 'STARTED') {
                 if (data.name.match(/mothra.*qa/i)) {
@@ -140,17 +141,17 @@ module.exports = function(robot) {
                     }
                 }
                 if (data.build.status === 'SUCCESS') {
-                    if (data.name === '1stdibs.com Deploy Production PROD PROD PROD PROD' && data.parameters.Hotfix === 'true') {
+                    if (data.name === '1stdibs.com Deploy Production PROD PROD PROD PROD' && params.Hotfix === 'true') {
                         makeSound('shipit');
                         robot.messageRoom("#release", "1stdibs.com hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");
                     }
-                    if (data.name === 'Admin-v2 Deploy (PROD)' && data.parameters.Hotfix === 'true') {
+                    if (data.name === 'Admin-v2 Deploy (PROD)' && params.Hotfix === 'true') {
                         makeSound('shipit-adminv2');
                         robot.messageRoom("#release", "Admin v2 hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");
                     }
-                    if (data.name === 'Admin-v1 Deploy (PROD) (RACKSPACE)' && data.parameters.Hotfix === 'true') {
+                    if (data.name === 'Admin-v1 Deploy (PROD) (RACKSPACE)' && params.Hotfix === 'true') {
                         makeSound('shipit-adminv1');
                         robot.messageRoom("#release", "Admin v1 hotfix has been released!");
                         robot.messageRoom("#release", "I hope you know what you're doing...");

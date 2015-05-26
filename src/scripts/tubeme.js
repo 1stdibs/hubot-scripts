@@ -21,7 +21,7 @@
 var http = require('http');
 var logger = require('./support/logger');
 var nodeUrl = require('url');
-var XSERV_BASE_URL = "" + (process.env.HUBOT_YOUTUBE_API_BASE_URL || 'http://xserv:5051/');
+var HUBOT_YOUTUBE_API_BASE_URL = "" + (process.env.HUBOT_YOUTUBE_API_BASE_URL || 'http://xserv:5051/');
 var SPOTIFY_URL = "" + (process.env.HUBOT_SPOT_URL || "http://localhost ");
 
 function makeUrl (tubeUrl) {
@@ -36,7 +36,7 @@ function makeUrl (tubeUrl) {
     if (!tubeUrl) {
         return null;
     }
-    return XSERV_BASE_URL + 'play-youtube-uri/?uri=' + encodeURIComponent(tubeUrl); 
+    return HUBOT_YOUTUBE_API_BASE_URL + 'play-youtube-uri/?uri=' + encodeURIComponent(tubeUrl); 
 }
 
 function isValidTubeURL (url) {
@@ -86,7 +86,7 @@ function makePlayVideoRequest (tubeUrl, callback) {
 }
 
 function makeStopVideoRequest (callback) {
-    var url = XSERV_BASE_URL + 'kill-video';
+    var url = HUBOT_YOUTUBE_API_BASE_URL + 'kill-video';
     logger.minorInfo('Requesting that the current youtube clip stop playing');
     makeGetRequest(url, callback);
 }

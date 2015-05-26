@@ -28,6 +28,9 @@ var sonos = require('sonos');
 
 var DEFAULT_MAX_VOL = 50;
 
+var MAX_PUBLIC_VOLUME = 100;
+var MIN_PUBLIC_VOLUME = 0;
+
 var maxVol = DEFAULT_MAX_VOL;
 
 var savedVolume = null;
@@ -68,7 +71,7 @@ function getVolume (callback) {
  * @returns {number}
  */
 function publicToPrivateVolume (vol) {
-    var ratio = 100 / maxVol;
+    var ratio = MAX_PUBLIC_VOLUME / maxVol;
     logInfo('Calculating new volume with input "%s" and ratio to sonos "%s"', vol, ratio);
     return Math.floor(vol / ratio);
 }
@@ -81,7 +84,7 @@ function publicToPrivateVolume (vol) {
  * @returns {number}
  */
 function privateToPublicVolume (vol) {
-    var ratio = 100 / maxVol;
+    var ratio = MAX_PUBLIC_VOLUME / maxVol;
     logInfo('Calculating original user input volume with input "%s" and ratio to sonos "%s"', vol, ratio);
     return Math.ceil(vol * ratio);
 }
@@ -137,6 +140,31 @@ function lockVolume () {
     }, duration);
 }
 
+var volumeKeywords = {
+    '💯' : MAX_PUBLIC_VOLUME,
+    ':100:' : MAX_PUBLIC_VOLUME,
+    'max' : MAX_PUBLIC_VOLUME
+};
+
+var relativeVolumeKeywords = {
+    '-' : function (curVolume) {
+        return curVolume - 7;
+    },
+    '--' : function (curVolume) {
+        return curVolume - 14;
+    },
+    '+' : function (curVolume) {
+        return curVolume + 7;
+    },
+    '++' : function (curVolume) {
+        return curVolume + 14;
+    }
+};
+
+function boundPublicVolume (vol) {
+    return Math.min(MAX_PUBLIC_VOLUME, Math.max(0, vol));
+}
+
 /**
  * This will be able to handle things like emoji/keywords
  *
@@ -144,22 +172,29 @@ function lockVolume () {
  * @param callback
  */
 function volumeToInt(volume, callback) {
-    volume = (volume || volume === 0) ? parseInt(volume, 10) : null;
-    if (volume === null || isNaN(volume)) {
-        callback('Unable to parse volume param');
+    var vol = (volume + '').replace(/^\s+|\s+$/g, '');
+    if ((/^\d+$/).test(vol)) {
+        callback(null, boundPublicVolume(parseInt(vol, 10)));
+        return;
     }
-    callback(null, volume < 0 ? 0 : (volume > 100) ? 100 : volume);
+    if (volumeKeywords.hasOwnProperty(vol)) {
+        callback(null, boundPublicVolume(volumeKeywords[vol]));
+        return;
+    }
+    if (relativeVolumeKeywords.hasOwnProperty(vol)) {
+        getVolume(function (err, currentVolume) {
+            if (err) {
+                callback(err);
+                return;
+            }
+            callback(null, boundPublicVolume((relativeVolumeKeywords[vol])(currentVolume)));
+        });
+        return;
+    }
+    callback('Unable to parse volume param: ' + volume);
 }
 
 module.exports = function(robot) {
-
-    function checkInputVolume (volume, msg) {
-        volume = (volume || volume === 0) ? parseInt(volume, 10) : null;
-        if (volume === null || isNaN(volume)) {
-            sendErrorMessage(msg, 'Unable to parse volume param');
-        }
-        return volume < 0 ? 0 : (volume > 100) ? 100 : volume;
-    }
 
     function getVolumeWithMsg (msg, text) {
         getVolume(function (err, volume) {
@@ -185,7 +220,7 @@ module.exports = function(robot) {
 
     function setVolumeWithMessage (volume, msg, text) {
         var newVol;
-        volume = checkInputVolume(volume, msg);
+        volume = boundPublicVolume(volume);
         newVol = publicToPrivateVolume(volume);
         if (volumeIsLocked) {
             return sendVolLockedMessage(msg);
@@ -199,33 +234,23 @@ module.exports = function(robot) {
         });
     }
 
-    robot.respond(/vol(?:ume)? ?\+$/i, function(msg) {
-        increaseVolByAmountWithMessage(msg, 7);
-    });
-
-    robot.respond(/vol(?:ume)? ?\-$/i, function(msg) {
-        increaseVolByAmountWithMessage(msg, -7);
-    });
-
-    robot.respond(/vol(?:ume)? ?\+\+$/i, function(msg) {
-        increaseVolByAmountWithMessage(msg, 14);
-    });
-
-    robot.respond(/vol(?:ume)? ?\-\-$/i, function(msg) {
-        increaseVolByAmountWithMessage(msg, -14);
-    });
-
     robot.respond(/vol(?:ume)?\?/i, function (msg) {
         getVolumeWithMsg(msg, 'Volume is currently ');
     });
 
-    robot.respond(/(?:set )?vol(?:ume)?(?: to)? (\d+)$/i, function (msg) {
+    robot.respond(/(?:set )?vol(?:ume)?(?: to)? (.+)$/i, function (msg) {
         if (volumeIsLocked) {
             return sendErrorMessage(msg, ':no_good: Volume is currently locked');
         }
 
         var volume = msg.match[1];
-        setVolumeWithMessage(volume, msg);
+        volumeToInt(volume, function (err, volume) {
+            if (err) {
+                sendErrorMessage(err);
+                return;
+            }
+            setVolumeWithMessage(volume, msg);
+        });
     });
 
     robot.respond(/ mute$/i, function (msg) {
@@ -247,13 +272,18 @@ module.exports = function(robot) {
         }
     });
 
-    robot.respond(/lock vol(?:ume)? at (\d+)$/i, function (msg) {
+    robot.respond(/lock vol(?:ume)? at (.+)$/i, function (msg) {
         var volume = msg.match[1];
-        volume = checkInputVolume(volume);
-        if (volume > 70 || volume < 40) {
-            return sendErrorMessage(msg, ':no_good: You may only lock at reasonable volumes');
-        }
-        setVolumeWithMessage(volume, msg, 'Volume locked at ');
-        lockVolume();
+        volumeToInt(volume, function (err, volume) {
+            if (err) {
+                sendErrorMessage(err);
+                return;
+            }
+            if (volume > 70 || volume < 40) {
+                return sendErrorMessage(msg, ':no_good: You may only lock at reasonable volumes');
+            }
+            setVolumeWithMessage(volume, msg, 'Volume locked at ');
+            lockVolume();
+        });
     });
 };

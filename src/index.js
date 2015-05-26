@@ -10,7 +10,6 @@ var scripts = [
     'spot.js',
     'tubeme.js',
     'sonos.js',
-    'hr.js',
     'announceVersion.js',
     'new-jenkins-notifier.js',
     'kegbot.coffee',

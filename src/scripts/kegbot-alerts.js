@@ -44,15 +44,17 @@ module.exports = function(robot) {
                     break;
                 case 'session_joined':
                     console.log(data);
-                    robot.messageRoom('#general', 'Session Joined');
+                    //Re-enable this when we have instant drink attribution
+                    //i.e. session joined by bob
+                    //robot.messageRoom('#general', 'Session Joined');
                     break;
                 case 'keg_tapped':
                     console.log(data);
-                    robot.messageRoom('#general', ':dizzy_face: Keg Tapped! :boom:');
+                    robot.messageRoom('#general', ':boom: Keg Tapped! :beers:');
                     break;
                 case 'keg_ended':
                     console.log(data);
-                    robot.messageRoom('#general', ':exclamation: Keg Ended :exclamation:');
+                    robot.messageRoom('#general', ':exclamation: Keg Ended :dizzy_face:');
                     break;
                 case 'drink_poured':
                     var who = data.user.display_name;

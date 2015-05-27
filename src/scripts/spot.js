@@ -571,41 +571,13 @@ module.exports = function (robot) {
             return showAlbumArt(message);
         });
     });
-    /*
-    robot.respond(/lock volume at (\d+)/i, function (message) {
-        var volume;
-        if (volumeLocked) {
-            message.send(':no_good: Volume is currently locked');
-            return;
-        }
-        volume = parseInt(message.match[1]) || 0;
-        setVolume(volume, message);
-        if (volume < 45) {
-            message.send(':no_good: I won\'t lock the volume that low');
-            return;
-        }
-        if (volume > 65) {
-            message.send(':no_good: I won\'t lock the volume that high');
-            return;
-        }
-        volumeLocked = true;
-        return setTimeout(function () {
-            return volumeLocked = false;
-        }, volumeLockDuration);
-    });
-    robot.respond(/mute/i, function (message) {
-        return setVolume(0, message);
-    });
-    robot.respond(/volume(.*)/i, function (message) {
+
+    robot.respond(/set spot volume to (.*)/i, function (message) {
         var adi;
         adi = trim(message.match[1]);
-        if (!adi || adi === '?') {
-            volumeRespond(message);
-            return;
-        }
         return setVolume(adi, message);
     });
-*/
+
     robot.respond(/(how much )?(time )?(remaining|left)\??$/i, remainingRespond);
     robot.respond(/say me/i, function (message) {
         return message.send('no way ' + message.message.user.name);

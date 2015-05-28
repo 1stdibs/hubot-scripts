@@ -15,11 +15,8 @@
 //   hubot play next - Plays the next song.
 //   hubot play back - Plays the previous song.
 //   hubot playing? - Returns the currently-played song.
-//   hubot volume? - Returns the current volume level.
-//   hubot volume [0-100] - Sets the volume.
-//   hubot volume + - Bumps the volume.
-//   hubot volume - - Bumps the volume down.
-//   hubot mute - Sets the volume to 0.
+//   hubot spot volume? - Returns the current spotify volume level.
+//   hubot spot volume [0-100] - Sets the spotify volume.
 //   hubot [name here] says turn it down - Sets the volume to 15 and blames [name here].
 //   hubot say <message> - Tells hubot to read a message aloud.
 //   hubot play <song> - Play a particular song. This plays the first most popular result.
@@ -275,7 +272,7 @@ setVolume = function (level, message) {
     var params;
     level = level + "";
     if (volumeLocked) {
-        message.send(':no_good: Volume is currently locked');
+        message.send(':no_good: Spot volume is currently locked');
         return;
     }
     if (level.match(/^\++$/)) {
@@ -572,16 +569,39 @@ module.exports = function (robot) {
         });
     });
 
-    robot.respond(/set spot volume to (.*)/i, function (message) {
+    robot.respond(/lock spot volume at (\d+)/i, function (message) {
+        var volume;
+        if (volumeLocked) {
+            message.send(':no_good: Spot volume is currently locked');
+            return;
+        }
+        volume = parseInt(message.match[1]) || 0;
+        setVolume(volume, message);
+        if (volume < 45) {
+            message.send(':no_good: I won\'t lock the spot volume that low');
+            return;
+        }
+        if (volume > 85) {
+            message.send(':no_good: I won\'t lock the spot volume that high');
+            return;
+        }
+        volumeLocked = true;
+        return setTimeout(function () {
+            return volumeLocked = false;
+        }, volumeLockDuration);
+    });
+
+    robot.respond(/(set )?spot volume(( to)? (.+)|\??)$/i, function (message) {
         var adi;
-        adi = trim(message.match[1]);
-        return setVolume(adi, message);
+        if (message.match[1] || message.match[4]) {
+            adi = trim(message.match[4]) || '0';
+            return setVolume(adi, message);
+        }
+        volumeRespond(message);
     });
 
     robot.respond(/(how much )?(time )?(remaining|left)\??$/i, remainingRespond);
-    robot.respond(/say me/i, function (message) {
-        return message.send('no way ' + message.message.user.name);
-    });
+
     robot.respond(/(.*) says.*turn.*down.*/i, function (message) {
         var name, params;
         name = message.match[1];

@@ -90,7 +90,7 @@ module.exports = function(robot) {
                     var drankPints = drankOz * 0.0625;
                     var drinkName = data.keg.beverage.name;
                     var amount = (drankOz.toFixed(1)) + 'oz';
-                    if (drankPints > 0) {
+                    if (drankPints > 1) {
                         amount = (drankPints.toFixed(1)) + ' pints';//shame? credit?
                     }
                     var msg = who + ' poured ' + amount + ' of ' + drinkName;

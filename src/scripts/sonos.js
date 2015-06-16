@@ -287,4 +287,23 @@ module.exports = function(robot) {
             lockVolume();
         });
     });
+
+    return robot.router.get("/hubot/volume-decay", function(req, res) {
+        logInfo('Decaying volume by 5');
+        res.end('');
+        getPrivateVolume(function (err, privateVolume) {
+            if (err) {
+                callback(err);
+                return;
+            }
+            var currentVolume = privateToPublicVolume(privateVolume);
+            var targetVolume = currentVolume - 5;
+            logInfo('Old volume: ' + currentVolume);
+            logInfo('New volume: ' + targetVolume);
+            setVolumeTo (publicToPrivateVolume(targetVolume), function (res) {
+                logInfo(res);
+            });
+        });
+    });
+
 };

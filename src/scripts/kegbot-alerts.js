@@ -69,7 +69,7 @@ module.exports = function(robot) {
                     robot.messageRoom('#general', ':boom: Keg Tapped! :beers:');
                     if (data.keg && data.keg.beverage) {
                         var liters = (parseFloat(data.keg.volume_ml_remain) / 1000).toFixed(1);
-                        robot.messageRoom('#general', liters + ' liters of ' + explainBeverage(data.keg.beverage) + '\n✨🚚✨ Come and get it ✨🆓🍺✨');
+                        robot.messageRoom('#general', '📈 ' + liters + ' liters of ' + explainBeverage(data.keg.beverage) + '🚰\n✨🚚✨ Come and get it ✨🆓🍺✨');
                     }
                     break;
                 case 'keg_ended':

@@ -311,6 +311,13 @@ setVolume = function (level, message) {
     });
 };
 
+var convertEmoji = function (str) {
+    if (str[0] === ':' && str[str.length - 1] === ':') {
+        str = str.replace('-', ' ');
+    }
+    return str
+};
+
 function setupDefaultQueue(queue, reload, callback) {
     var fs = require('fs');
 
@@ -427,7 +434,7 @@ module.exports = function (robot) {
         return Support.findArtists(message.match[3], message.message.user.id, message.match[2] || DEFAULT_LIMIT, getStrHandler(message));
     });
     robot.respond(/(show|find) (me )?((\d+) )?(music|tracks|songs) (.+)/i, function (message) {
-        return Support.findTracks(message.match[6], message.message.user.id, message.match[4] || DEFAULT_LIMIT, getStrHandler(message));
+        return Support.findTracks(convertEmoji(message.match[6]), message.message.user.id, message.match[4] || DEFAULT_LIMIT, getStrHandler(message));
     });
     robot.respond(/purge results!/i, function (message) {
         Support.purgeLists();

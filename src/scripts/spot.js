@@ -313,7 +313,7 @@ setVolume = function (level, message) {
 
 var convertEmoji = function (str) {
     if (str[0] === ':' && str[str.length - 1] === ':') {
-        str = str.replace('-', ' ');
+        str = str.replace(/_/g, ' ').replace(/:/g, '');
     }
     return str
 };

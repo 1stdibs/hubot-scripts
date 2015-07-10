@@ -156,6 +156,7 @@ Support.translateToAlbum = function (str, userId, callback) {
 
 Support.translateToTrack = function (str, userId, callback) {
     var resultNum, listItem, results, data;
+    str = convertEmoji(str);
     if (str.match(/\s*this\s*(track)?\s*$/)) {
         Support.getCurrentTrack(callback);
         return;

@@ -62,6 +62,13 @@ function getDataHandler (userId, type, callback) {
     };
 }
 
+function convertEmoji (str) {
+    if (str[0] === ':' && str[str.length - 1] === ':') {
+        str = str.replace(/_/g, ' ').replace(/:/g, '');
+    }
+    return str
+}
+
 Support.translateURItoURL = function (uri) {
     return (uri + '').replace(/spotify:([a-z]+):(.*)$/i, 'https://open.spotify.com/$1/$2');
 };
@@ -341,6 +348,7 @@ Support.playTrack = function (track, callback) {
 Support.findTracks = function (query, userId, limit, callback) {
     var handler = getDataHandler(userId, manager.types.TRACKS, callback),
         aQuery;
+    query = convertEmoji(query);
     if (query.match(/^\s*by\s+(.+)/)) {
         aQuery = RegExp.$1;
         Support.translateToArtist(aQuery, userId, function (err, artist) {
@@ -357,6 +365,7 @@ Support.findTracks = function (query, userId, limit, callback) {
 
 Support.findAlbums = function (query, userId, limit, callback) {
     var handler = getDataHandler(userId, manager.types.ALBUMS, callback);
+    query = convertEmoji(query);
     if (query.match(/^\s*by\s+(.+)/)) {
         Support.translateToArtist(RegExp.$1, userId, function (err, artist) {
             if (err) {
@@ -376,6 +385,7 @@ Support.findAlbums = function (query, userId, limit, callback) {
 };
 
 Support.findArtists = function (query, userId, limit, callback) {
+    query = convertEmoji(query);
     MetaData.findArtists(query, limit, getDataHandler(userId, manager.types.ARTISTS, callback));
 };
 

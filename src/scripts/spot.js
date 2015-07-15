@@ -591,15 +591,6 @@ module.exports = function (robot) {
         }, volumeLockDuration);
     });
 
-    robot.respond(/(set )?spot volume(( to)? (.+)|\??)$/i, function (message) {
-        var adi;
-        if (message.match[1] || message.match[4]) {
-            adi = trim(message.match[4]) || '0';
-            return setVolume(adi, message);
-        }
-        volumeRespond(message);
-    });
-
     robot.respond(/(how much )?(time )?(remaining|left)\??$/i, remainingRespond);
 
     robot.respond(/(.*) says.*turn.*down.*/i, function (message) {

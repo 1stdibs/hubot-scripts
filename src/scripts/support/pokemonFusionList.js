@@ -541,7 +541,7 @@ module.exports = {
         "suffix": "tung"
     },
     "109": {
-        "name": "Koffing ",
+        "name": "Koffing",
         "prefix": "Koff",
         "suffix": "fing"
     },

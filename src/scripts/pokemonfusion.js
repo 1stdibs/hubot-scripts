@@ -111,7 +111,7 @@ module.exports = function(robot) {
             } else {
                 bodyId = randId;
             }
-            showOnsagerPokemon(msg, faceId, bodyId, false);
+            showOnsagerPokemon(msg, faceId, bodyId, true);
         }
     });
 };

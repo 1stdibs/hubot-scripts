@@ -616,8 +616,8 @@ module.exports = {
         "suffix": "ther"
     },
     "124": {
-        "name": "Jinx",
-        "prefix": "Jin",
+        "name": "Jynx",
+        "prefix": "Jyn",
         "suffix": "nx"
     },
     "125": {

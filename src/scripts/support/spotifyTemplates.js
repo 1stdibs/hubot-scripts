@@ -107,7 +107,7 @@ templates.summarizeQueue = function (tracks) {
         var i = listIndexBase;
         tracks.forEach(function (track) {
             lines.push(asOrdinal(i) + ' ' + templates.trackLine(track, true));
-            queueTimeLeft += track.length;
+            queueTimeLeft += (track.length || 0);
             i++;
         });
 

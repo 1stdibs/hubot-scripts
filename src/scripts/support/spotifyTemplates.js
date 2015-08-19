@@ -68,27 +68,52 @@ function asYear (str) {
 }
 
 function calcLength (seconds) {
-    iSeconds = parseInt(seconds, 10);
-    if (iSeconds < 60) {
-        return (Math.round(iSeconds * 10) / 10) + ' seconds'
+    seconds = parseInt(seconds, 10);
+    var hours = Math.floor(seconds / 3600);
+    var mins = Math.floor((seconds - (hours * 3600)) / 60);
+    var secs = seconds % 60;
+    var timeRemaining = [];
+    var padMinutes = false;
+    var padSeconds = false;
+
+    if (seconds >= 3600) {
+        timeRemaining.push(hours);
+        padMinutes = true;
     }
-    rSeconds = iSeconds % 60;
-    if (rSeconds < 10) {
-        rSeconds = '0' + rSeconds;
+    if (seconds >= 60) {
+        if (padMinutes && mins < 10) {
+            mins = '0' + mins;
+        }
+        timeRemaining.push(mins);
+        padSeconds = true;
     }
-    return Math.floor(iSeconds / 60) + ':' + rSeconds
+
+    if (padSeconds && secs < 10) {
+        secs = '0' + secs;
+    }
+
+    timeRemaining.push(secs);
+
+    return (seconds >= 60) ? timeRemaining.join(':') : (secs + ' seconds');
 }
 
 templates.summarizeQueue = function (tracks) {
     var lines = [asTitle('le Queue')];
+    var queueTimeLeft = 0;
+
     if (!tracks || !tracks.length) {
         lines.push(asAdditional('is empty'));
     } else {
         var i = listIndexBase;
         tracks.forEach(function (track) {
             lines.push(asOrdinal(i) + ' ' + templates.trackLine(track, true));
+            queueTimeLeft += track.length;
             i++;
         });
+
+        if (queueTimeLeft > 0) {
+            lines.push('Total Queue time: ' + asDuration(calcLength(queueTimeLeft)));
+        }
     }
     return lines.join("\n");
 };

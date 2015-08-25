@@ -99,7 +99,7 @@ function calcLength (seconds) {
 
 templates.summarizeQueue = function (tracks) {
     var lines = [asTitle('le Queue')];
-    var queueTimeLeft = 0;
+    var queueLength = 0;
 
     if (!tracks || !tracks.length) {
         lines.push(asAdditional('is empty'));
@@ -107,13 +107,13 @@ templates.summarizeQueue = function (tracks) {
         var i = listIndexBase;
         tracks.forEach(function (track) {
             lines.push(asOrdinal(i) + ' ' + templates.trackLine(track, true));
-            queueTimeLeft += (track.length || 0);
+            if (track.length) {
+                queueLength += parseInt(track.length, 10);
+            }
             i++;
         });
 
-        if (queueTimeLeft > 0) {
-            lines.push('Total Queue time: ' + asDuration(calcLength(queueTimeLeft)));
-        }
+        lines.push('Total Queue time: ' + asDuration(calcLength(queueLength)));
     }
     return lines.join("\n");
 };

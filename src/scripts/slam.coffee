@@ -31,5 +31,5 @@ images = [
 
 
 module.exports = (robot) ->
-  robot.hear /slam|burn/i, (msg) ->
+  robot.hear /dibsy (slam|burn)/i, (msg) ->
     msg.send msg.random images

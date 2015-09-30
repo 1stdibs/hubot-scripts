@@ -8,7 +8,8 @@
 #   None
 #
 # Commands:
-#   (Slam|Burn) - Get Slammed
+#   Dibsy slam - get slammed
+#   Dibsy burn - get slammed
 #
 # Author:
 #   taylor

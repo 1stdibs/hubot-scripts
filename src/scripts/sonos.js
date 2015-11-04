@@ -44,7 +44,7 @@ function getSonos() {
     var host;
     var port;
     if (!sonosInstance) {
-        host = process.env.HUBOT_SONOS_HOST || '192.168.96.150';
+        host = process.env.HUBOT_SONOS_HOST || '192.168.98.99';
         port = process.env.HUBOT_SONOS_PORT || 1400;
         maxVol = process.env.HUBOT_SONOS_MAX_VOLUME || DEFAULT_MAX_VOL;
         maxVol = parseInt(maxVol, 10);

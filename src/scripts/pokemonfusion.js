@@ -85,7 +85,7 @@ module.exports = function(robot) {
     robot.respond(/lickitung me/i, function (msg) {
         showOnsagerPokemon(msg, lickId, pokedex.fusion.random(lickId), true);
     });
-    robot.respond(/(.+)( body)? bomb( (\d+))?/i, function (msg) {
+    robot.respond(/(.+?)( body)? bomb( (\d+))?/i, function (msg) {
         var num, w = msg.match[1], id, randId, nots, faceId, bodyId;
         if (w == 'fusion') {
             id = pokedex.fusion.random();

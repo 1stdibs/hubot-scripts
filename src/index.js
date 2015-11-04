@@ -3,7 +3,7 @@ var fs = require('fs');
 var Path = require('path');
 
 var scripts = [
-    'slam.coffee',
+    'slam.js',
     'pokemonfusion.js',
     'petoverflow.js',
     'nugme.coffee',

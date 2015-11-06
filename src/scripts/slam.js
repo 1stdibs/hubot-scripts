@@ -42,12 +42,12 @@ var images = [
 ];
 
 for (var i = 0; i < 130; i++) {
-    images.push("https://media.giphy.com/media/QgixZj4y3TwnS/giphy.gif");
+    images.push("http://media1.giphy.com/media/IfaFEvfGz8CXK/giphy.gif");
 }
 
 module.exports = function(robot) {
     return robot.hear(/dibsy (slam|burn)/i, function(msg) {
-        return msg.send(msg.random(images));
+        return msg.send(msg.random(images) + "?_=" + (Math.ceil(Math.random() * 1000)));
     });
 };
 

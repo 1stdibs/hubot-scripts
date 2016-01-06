@@ -14,7 +14,7 @@ var scripts = [
     'announceVersion.js',
     'new-jenkins-notifier.js',
     'kegbot.coffee',
-    'kegbot-alerts.js'
+    'kegbot-alerts.js',
     'scorekeeper.coffee'
 ];
 

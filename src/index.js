@@ -15,6 +15,7 @@ var scripts = [
     'new-jenkins-notifier.js',
     'kegbot.coffee',
     'kegbot-alerts.js'
+    'scorekeeper.coffee'
 ];
 
 module.exports = function (robot) {

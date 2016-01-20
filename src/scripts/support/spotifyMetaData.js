@@ -89,7 +89,7 @@ function getUriInfo (uri, params, callback) {
         return;
     }
     logger.minorDibsyInfo('cache MISS [uri: %s] [prefix: %s]', uri, prefix);
-    logger.minorDibsyInfo('fetching %s %s', MetaData.uris.lookup, params);
+    logger.minorDibsyInfo('fetching %s %j', MetaData.uris.lookup, params);
     robot.http(MetaData.uris.lookup).query(params).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistUriData(uri, prefix, jsonData);

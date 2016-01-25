@@ -97,9 +97,9 @@ function getUriInfo (type, uri, callback) {
         return;
     }
 
-    type = type || '';
-    uri = args.shift();
+    type = args.shift();
     callback = args.pop();
+    uri = args.pop();
     data = getPersistedUriData(uri);
 
     if (data) {
@@ -172,10 +172,12 @@ function find(what, queryString, limit, callback) {
             return;
         }
         if (!data || !data.info || !data.info.type) {
+            logger.minorDibsyInfo('response inconsistent with data [data: %j]', data);
             callback('invalid response, no data->info->type');
             return;
         }
         if (!mapping[data.info.type]) {
+            logger.minorDibsyInfo('unknown type in mapping [type: %s] [mapping: %j]', data.info.type, data);
             callback('don\'t know what to do with ' + data.info.type);
             return;
         }
@@ -213,9 +215,9 @@ function fetchOne(type, uri, callback) {
     var One;
     var args = Array.prototype.slice.call(arguments);
 
-    uri = args.shift();
+    type = args.shift();
     callback = args.pop();
-    type = args.pop();
+    uri = args.pop();
     One = uriToClass(uri);
 
     if (!One) {

@@ -182,16 +182,12 @@ function find(what, queryString, limit, callback) {
             callback(err);
             return;
         }
-        if (!data || !data.type) {
-            callback('invalid response, no data->type');
-            return;
-        }
-        if (!mapping[data.type]) {
+        if (!mapping[what]) {
             logger.minorDibsyInfo('unknown type in mapping [type: %s]', data.type);
             callback('don\'t know what to do with ' + data.type);
             return;
         }
-        key = data.type + 's';
+        key = what + 's';
         if (!data[key]) {
             callback('No ' + key + ' index found in response');
             return;
@@ -207,7 +203,7 @@ function find(what, queryString, limit, callback) {
             use = available;
         }
         use.forEach(function (datum) {
-            objs.push(new mapping[data.type](datum));
+            objs.push(new mapping[what](datum));
         });
         callback(err, objs);
     });
@@ -514,8 +510,6 @@ MetaData.clearCache = function () {
 module.exports = function (Robot) {
     robot = Robot;
     allData = robot.brain.get(allDataKey) || {};
-    console.log('ALL THE DATA');
-    console.log(JSON.stringify(allData, void 0, ' '));
     allData.queries = allData.queries || {};
     setInterval(function () {
         if (robot && !backedUp) {

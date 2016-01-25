@@ -182,16 +182,16 @@ function find(what, queryString, limit, callback) {
             callback(err);
             return;
         }
-        if (!data || !data.info || !data.info.type) {
-            callback('invalid response, no data->info->type');
+        if (!data || !data.type) {
+            callback('invalid response, no data->type');
             return;
         }
-        if (!mapping[data.info.type]) {
-            logger.minorDibsyInfo('unknown type in mapping [type: %s]', data.info.type);
-            callback('don\'t know what to do with ' + data.info.type);
+        if (!mapping[data.type]) {
+            logger.minorDibsyInfo('unknown type in mapping [type: %s]', data.type);
+            callback('don\'t know what to do with ' + data.type);
             return;
         }
-        key = data.info.type + 's';
+        key = data.type + 's';
         if (!data[key]) {
             callback('No ' + key + ' index found in response');
             return;
@@ -207,7 +207,7 @@ function find(what, queryString, limit, callback) {
             use = available;
         }
         use.forEach(function (datum) {
-            objs.push(new mapping[data.info.type](datum));
+            objs.push(new mapping[data.type](datum));
         });
         callback(err, objs);
     });
@@ -237,7 +237,7 @@ function fetchOne(type, uri, callback) {
     getUriInfo(type, uri, function (err, data) {
         var one;
         if (!err) {
-            one = new One(data[data.info.type]);
+            one = new One(data[data.type]);
         }
         callback(err, one);
     });
@@ -310,8 +310,8 @@ MetaData.Album = (function () {
         getUriInfo('album', this.href, function (err, data) {
             self.tracks = [];
             if (!err) {
-                if (data[data.info.type].tracks) {
-                    data[data.info.type].tracks.forEach(function (track) {
+                if (data[data.type].tracks) {
+                    data[data.type].tracks.forEach(function (track) {
                         if (track.href) {
                             track.album = self.getData();
                             persistUriData(track.href, {info : {type : 'track'}, track : track});
@@ -427,12 +427,12 @@ MetaData.Artist = (function (){
         getUriInfo('artistAlbum', this.href, function (err, data) {
             self.albums = [];
             if (!err) {
-                if (data[data.info.type].albums) {
-                    data[data.info.type].albums.forEach(function (data) {
-                        if (data[data.info.type].href) {
-                            persistUriData(data[data.info.type].href, data);
+                if (data[data.type].albums) {
+                    data[data.type].albums.forEach(function (data) {
+                        if (data[data.type].href) {
+                            persistUriData(data[data.type].href, data);
                         }
-                        self.albums.push(new MetaData.Album(data[data.info.type]));
+                        self.albums.push(new MetaData.Album(data[data.type]));
                     });
                 } else {
                     err = 'no albums in the response';

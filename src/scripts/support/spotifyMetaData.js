@@ -183,8 +183,8 @@ function find(what, queryString, limit, callback) {
             return;
         }
         if (!mapping[what]) {
-            logger.minorDibsyInfo('unknown type in mapping [type: %s]', data.type);
-            callback('don\'t know what to do with ' + data.type);
+            logger.minorDibsyInfo('unknown type in mapping [type: %s]', what);
+            callback('don\'t know what to do with ' + what);
             return;
         }
         key = what + 's';
@@ -233,7 +233,7 @@ function fetchOne(type, uri, callback) {
     getUriInfo(type, uri, function (err, data) {
         var one;
         if (!err) {
-            one = new One(data[data.type]);
+            one = new One(data);
         }
         callback(err, one);
     });
@@ -306,8 +306,8 @@ MetaData.Album = (function () {
         getUriInfo('album', this.href, function (err, data) {
             self.tracks = [];
             if (!err) {
-                if (data[data.type].tracks) {
-                    data[data.type].tracks.forEach(function (track) {
+                if (data.tracks) {
+                    data.tracks.forEach(function (track) {
                         if (track.href) {
                             track.album = self.getData();
                             persistUriData(track.href, {info : {type : 'track'}, track : track});
@@ -343,7 +343,7 @@ MetaData.Track = (function () {
         this.album = data.album || {};
         this.name = data.name;
         this.popularity = data.popularity;
-        this.length = data.length;
+        this.length = data.duration_ms;
         this.href = data.href;
         this.artists = [];
         if (data.artists && data.artists.length) {
@@ -351,7 +351,7 @@ MetaData.Track = (function () {
                 self.artists.push(artist);
             });
         }
-        this.trackNumber = data['track-number'];
+        this.trackNumber = data['track_number'];
     };
 
     Track.prototype.hasArtist = function (artist) {
@@ -423,12 +423,12 @@ MetaData.Artist = (function (){
         getUriInfo('artistAlbum', this.href, function (err, data) {
             self.albums = [];
             if (!err) {
-                if (data[data.type].albums) {
-                    data[data.type].albums.forEach(function (data) {
-                        if (data[data.type].href) {
-                            persistUriData(data[data.type].href, data);
+                if (data.albums) {
+                    data.albums.forEach(function (data) {
+                        if (data.href) {
+                            persistUriData(data.href, data);
                         }
-                        self.albums.push(new MetaData.Album(data[data.type]));
+                        self.albums.push(new MetaData.Album(data));
                     });
                 } else {
                     err = 'no albums in the response';

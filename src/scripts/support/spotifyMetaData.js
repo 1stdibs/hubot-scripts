@@ -151,7 +151,7 @@ function query (type, queryString, callback) {
 
     robot.http(MetaData.uris.search).query({type: type, q : queryString}).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
-            persistQueryResult(queryString, type, data);
+            persistQueryResult(queryString, type, jsonData);
         }
         callback(err, jsonData);
     }));
@@ -514,6 +514,8 @@ MetaData.clearCache = function () {
 module.exports = function (Robot) {
     robot = Robot;
     allData = robot.brain.get(allDataKey) || {};
+    console.log('ALL THE DATA');
+    console.log(JSON.stringify(allData, void 0, ' '));
     allData.queries = allData.queries || {};
     setInterval(function () {
         if (robot && !backedUp) {

@@ -28,6 +28,15 @@ var MetaData = {
     robot;
 var logger = require('./logger');
 
+/**
+ * Get ID from from Spotify URI by stripping out resource identifier e.g. 'spotify:track:'
+ * @param {string} uri
+ * @returns {string}
+ */
+function getId(uri) {
+    return uri.replace(/^spotify:[a-zA-Z]*:/, '');
+}
+
 function persistUriData(uri, prefix, data) {
     var args;
     args = Array.prototype.slice.call(arguments);
@@ -88,8 +97,8 @@ function getJSONResponseParser (callback) {
  */
 function getUriInfo (type, uri, callback) {
     var args = Array.prototype.slice.call(arguments);
-    var prefix;
     var url;
+    var id;
     var data;
 
     if (!MetaData.uris.lookup[type]) {
@@ -100,6 +109,8 @@ function getUriInfo (type, uri, callback) {
     type = args.shift();
     callback = args.pop();
     uri = args.pop();
+
+    id = getId(uri);
     data = getPersistedUriData(uri);
 
     if (data) {
@@ -108,14 +119,14 @@ function getUriInfo (type, uri, callback) {
         return;
     }
 
-    url = MetaData.uris.lookup[type].replace('{id}', uri);
+    url = MetaData.uris.lookup[type].replace('{id}', id);
 
     logger.minorDibsyInfo('cache MISS [uri: %s]', uri);
     logger.minorDibsyInfo('fetching %s %j', url);
 
     robot.http(url).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
-            persistUriData(uri, prefix, jsonData);
+            persistUriData(uri, jsonData);
         }
         callback(err, jsonData);
     }));
@@ -172,12 +183,11 @@ function find(what, queryString, limit, callback) {
             return;
         }
         if (!data || !data.info || !data.info.type) {
-            logger.minorDibsyInfo('response inconsistent with data [data: %j]', data);
             callback('invalid response, no data->info->type');
             return;
         }
         if (!mapping[data.info.type]) {
-            logger.minorDibsyInfo('unknown type in mapping [type: %s] [mapping: %j]', data.info.type, data);
+            logger.minorDibsyInfo('unknown type in mapping [type: %s]', data.info.type);
             callback('don\'t know what to do with ' + data.info.type);
             return;
         }

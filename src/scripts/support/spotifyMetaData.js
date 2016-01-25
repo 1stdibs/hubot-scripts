@@ -1,18 +1,27 @@
 'use strict';
 
+/*
+ * Spotify Metadata API has been deprecated and we have migrated to Spotify's Web API
+ * TODO: Rename references to 'Metadata' (vars, comments, files, etc.) at some point...
+ *
+ * Handy References:
+ * @link https://developer.spotify.com/web-api/ (Spotify Web API User Guide)
+ * @link https://developer.spotify.com/web-api/migration-guide/ (Migration to Web Api Guide [from Metadata API])
+ */
 var MetaData = {
         uris : {
-            lookup : 'http://ws.spotify.com/lookup/1/.json',
-            search : {
-                artist : 'http://ws.spotify.com/search/1/artist.json',
-                album : 'http://ws.spotify.com/search/1/album.json',
-                track : 'http://ws.spotify.com/search/1/track.json'
-            }
+            lookup : {
+                artist       : 'https://api.spotify.com/v1/artists/{id}',
+                artistAlbum  : 'https://api.spotify.com/v1/artists/{id}/albums',
+                album        : 'https://api.spotify.com/v1/albums/{id}',
+                track        : 'https://api.spotify.com/v1/tracks/{id}'
+            },
+            search : 'https://api.spotify.com/v1/search'
         }
     },
     _ = require('underscore'),
     allData,
-    allDataKey = 'spotifyMetaDataAllData',
+    allDataKey = 'spotifyWebApiAllData',
     backedUp = false,
     backupRate = 20000,//Commit data at most every 20 seconds
     mapping = {},
@@ -58,7 +67,7 @@ function getJSONResponseParser (callback) {
         var data = void 0;
         if (!err) {
             if (resp && resp.statusCode && resp.statusCode >= 400) {
-                callback('Spotfy Meta Data API returned a ' + resp.statusCode);
+                callback('Spotify Web API returned a ' + resp.statusCode);
                 return;
             }
             try {
@@ -71,26 +80,40 @@ function getJSONResponseParser (callback) {
     };
 }
 
-function getUriInfo (uri, params, callback) {
-    var data,
-        prefix,
-        args = Array.prototype.slice.call(arguments);
+/**
+ * Get Spotify catalog information for a single album, artist or track.
+ * @param {('artist'|'artistAlbum'|'album'|'track')} type
+ * @param {string} uri
+ * @param {function} callback
+ */
+function getUriInfo (type, uri, callback) {
+    var args = Array.prototype.slice.call(arguments);
+    var prefix;
+    var url;
+    var data;
+
+    if (!MetaData.uris.lookup[type]) {
+        callback('Unknown lookup type ' + type);
+        return;
+    }
+
+    type = type || '';
     uri = args.shift();
     callback = args.pop();
-    params = args.pop() || {};
-    if (params.extras) {
-        prefix = params.extras;
-    }
-    params.uri = uri;
-    data = getPersistedUriData(uri, prefix);
+    data = getPersistedUriData(uri);
+
     if (data) {
-        logger.minorDibsyInfo('cache HIT [uri: %s] [prefix: %s]', uri, prefix);
+        logger.minorDibsyInfo('cache HIT [uri: %s]', uri);
         callback(void 0, data);
         return;
     }
-    logger.minorDibsyInfo('cache MISS [uri: %s] [prefix: %s]', uri, prefix);
-    logger.minorDibsyInfo('fetching %s %j', MetaData.uris.lookup, params);
-    robot.http(MetaData.uris.lookup).query(params).get()(getJSONResponseParser(function (err, jsonData) {
+
+    url = MetaData.uris.lookup[type].replace('{id}', uri);
+
+    logger.minorDibsyInfo('cache MISS [uri: %s]', uri);
+    logger.minorDibsyInfo('fetching %s %j', url);
+
+    robot.http(url).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistUriData(uri, prefix, jsonData);
         }
@@ -98,20 +121,24 @@ function getUriInfo (uri, params, callback) {
     }));
 }
 
+/**
+ * Get Spotify catalog information about artists, albums, tracks or playlists that match a keyword string.
+ * @param {('artist'|'album'|'track'|'playlist')} type
+ * @param {object} queryString
+ * @param {function} callback
+ */
 function query (type, queryString, callback) {
-    var data;
-    if (!MetaData.uris.search[type]) {
-        callback('Unknown query type ' + type);
-        return;
-    }
-    data = getPersistedQueryResult(queryString, type);
+    var data = getPersistedQueryResult(queryString, type);
+
     if (data) {
         logger.minorDibsyInfo('cache HIT %s %s', type, queryString);
         callback(void 0, data);
         return;
     }
+
     logger.minorDibsyInfo('cache MISS %s %s', type, queryString);
-    robot.http(MetaData.uris.search[type]).query({q : queryString}).get()(getJSONResponseParser(function (err, jsonData) {
+
+    robot.http(MetaData.uris.search).query({type: type, q : queryString}).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistQueryResult(queryString, type, data);
         }
@@ -182,18 +209,20 @@ function uriToClass(uri) {
     return null;
 }
 
-function fetchOne(uri, params, callback) {
-    var One,
-        args = Array.prototype.slice.call(arguments);
+function fetchOne(type, uri, callback) {
+    var One;
+    var args = Array.prototype.slice.call(arguments);
+
     uri = args.shift();
     callback = args.pop();
-    params = args.pop();
+    type = args.pop();
     One = uriToClass(uri);
+
     if (!One) {
         callback('invalid uri: ' + uri);
         return;
     }
-    getUriInfo(uri, params, function (err, data) {
+    getUriInfo(type, uri, function (err, data) {
         var one;
         if (!err) {
             one = new One(data[data.info.type]);
@@ -266,7 +295,7 @@ MetaData.Album = (function () {
             callback(void 0, this.tracks);
             return this;
         }
-        getUriInfo(this.href, {extras : 'trackdetail'}, function (err, data) {
+        getUriInfo('album', this.href, function (err, data) {
             self.tracks = [];
             if (!err) {
                 if (data[data.info.type].tracks) {
@@ -338,7 +367,7 @@ MetaData.Track = (function () {
             callback('no album info to fetch with!');
             return this;
         }
-        return fetchOne(this.album.href, callback);
+        return fetchOne('album', this.album.href, callback);
     };
 
     Track.prototype.getInflatedAlbum = function (callback) {
@@ -383,7 +412,7 @@ MetaData.Artist = (function (){
             callback(void 0, this.albums);
             return this;
         }
-        getUriInfo(this.href, {extras : 'albumdetail'}, function (err, data) {
+        getUriInfo('artistAlbum', this.href, function (err, data) {
             self.albums = [];
             if (!err) {
                 if (data[data.info.type].albums) {
@@ -413,7 +442,7 @@ MetaData.fetchAlbum = function (albumUri, callback) {
     if (!String(albumUri).match(MetaData.Album.uriRegExp)) {
         callback('invalid uri: ' + albumUri);
     } else {
-        fetchOne(albumUri, {extras : 'trackdetail'}, callback);
+        fetchOne('album', albumUri, callback);
     }
     return MetaData;
 };
@@ -422,7 +451,7 @@ MetaData.fetchTrack = function (trackUri, callback) {
     if (!String(trackUri).match(MetaData.Track.uriRegExp)) {
         callback('invalid uri: ' + trackUri);
     } else {
-        fetchOne(trackUri, callback);
+        fetchOne('track', trackUri, callback);
     }
     return MetaData;
 };
@@ -431,7 +460,7 @@ MetaData.fetchArtist = function (artistUri, callback) {
     if (!String(artistUri).match(MetaData.Artist.uriRegExp)) {
         callback('invalid uri: ' + artistUri);
     } else {
-        fetchOne(artistUri, callback);
+        fetchOne('artist', artistUri, callback);
     }
     return MetaData;
 };
@@ -476,7 +505,7 @@ module.exports = function (Robot) {
     allData.queries = allData.queries || {};
     setInterval(function () {
         if (robot && !backedUp) {
-            logger.minorDibsyInfo('commiting metadata to brain');
+            logger.minorDibsyInfo('commiting web api to brain');
             robot.brain.set(allDataKey, allData);
             backedUp = true;
         }

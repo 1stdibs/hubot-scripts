@@ -159,11 +159,8 @@ function query (type, queryString, callback) {
 
 function availableInTheUS (item) {
     if (item) {
-        if (item.availablility && item.availability.territories) {
-            return !!String(item.availability.territories).match(/US/i);
-        }
-        if (item.album && item.album.availability && item.album.availability.territories) {
-            return !!String(item.album.availability.territories).match(/US/i);
+        if (item.available_markets) {
+            return item.available_markets.indexOf('US') > -1;
         }
         return true;
     }
@@ -192,7 +189,7 @@ function find(what, queryString, limit, callback) {
             callback('No ' + key + ' index found in response');
             return;
         }
-        available = _.filter(data[key], availableInTheUS);
+        available = _.filter(data[key].items, availableInTheUS);
         if (!available.length) {
             callback('Nothing Found');
             return;
@@ -251,7 +248,7 @@ MetaData.Album = (function () {
         data = data || {};
         this.popularity = data.popularity;
         this.name = data.name;
-        this.released = data.released;
+        this.released = data.release_date;
         this.href = data.href;
         this.artists = [];
         if (data.artist && data['artist-id']) {
@@ -343,7 +340,7 @@ MetaData.Track = (function () {
         this.album = data.album || {};
         this.name = data.name;
         this.popularity = data.popularity;
-        this.length = data.duration_ms;
+        this.length = data.duration_ms / 1000;
         this.href = data.href;
         this.artists = [];
         if (data.artists && data.artists.length) {

@@ -265,8 +265,8 @@ MetaData.Album = (function () {
             });
         }
         this.tracks = [];
-        if (data.tracks && data.tracks.length) {
-            data.track.forEach(function (track) {
+        if (data.tracks && data.tracks.items && data.tracks.items.length) {
+            data.track.items.forEach(function (track) {
                 self.tracks.push(track);
             });
         }
@@ -310,7 +310,7 @@ MetaData.Album = (function () {
             self.tracks = [];
             if (!err) {
                 if (data.tracks) {
-                    data.tracks.forEach(function (track) {
+                    data.tracks.items.forEach(function (track) {
                         if (track.href) {
                             track.album = self.getData();
                             persistUriData(track.href, {info : {type : 'track'}, track : track});

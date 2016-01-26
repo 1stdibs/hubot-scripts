@@ -343,7 +343,7 @@ Support.playUri = function (uri, callback) {
 };
 
 Support.playTrack = function (track, callback) {
-    return Support.playUri(track.href, callback);
+    return Support.playUri(track.uri, callback);
 };
 
 Support.findTracks = function (query, userId, limit, callback) {

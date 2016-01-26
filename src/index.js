@@ -15,6 +15,7 @@ var scripts = [
     'new-jenkins-notifier.js',
     'kegbot.coffee',
     'kegbot-alerts.js',
+    'spiderbomb.js',
     'scorekeeper.coffee'
 ];
 

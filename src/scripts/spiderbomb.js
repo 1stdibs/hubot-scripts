@@ -23,7 +23,7 @@ for (var i = 0; i < 130; i++) {
 }
 
 module.exports = function(robot) {
-    return robot.hear(/dibsy (spiderbomb)/i, function(msg) {
+    return robot.respond(/.*spiderbomb/i, function (msg) {
         return msg.send(msg.random(images) + "?_=" + (Math.ceil(Math.random() * 1000)));
     });
 };

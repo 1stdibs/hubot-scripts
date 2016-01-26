@@ -20,7 +20,7 @@ module.exports = function (Robot, URL, queueName, forever) {
         Queue = new EE(),
         _queue = null,
         get,
-        getTrackHref,
+        getTrackUri,
         url,
         interval,
         intervalDuration = 20000,
@@ -135,8 +135,8 @@ module.exports = function (Robot, URL, queueName, forever) {
         return Array.prototype.slice.call(q || []);
     };
 
-    getTrackHref = function (track) {
-        return (_.isString(track)) ? track : track.href;
+    getTrackUri = function (track) {
+        return (_.isString(track)) ? track : track.uri;
     };
 
     isSpotTrackUri = function (t) {
@@ -183,7 +183,7 @@ module.exports = function (Robot, URL, queueName, forever) {
         tryingToPlay = true;
 
         /*jslint unparam: true */
-        spotRequest('/play-uri', 'post', {'uri' : getTrackHref(track) }, function (err, res, body) {
+        spotRequest('/play-uri', 'post', {'uri' : getTrackUri(track) }, function (err, res, body) {
             lockTimeout = setTimeout(function () {
                 lockTimeout = null;
             }, lockDuration);
@@ -280,7 +280,7 @@ module.exports = function (Robot, URL, queueName, forever) {
 
     Queue.removeTrack = function (track) {
         set(_.filter(get(), function (t) {
-            return getTrackHref(track) !== getTrackHref(t);
+            return getTrackUri(track) !== getTrackUri(t);
         }));
         ping();
     };
@@ -296,7 +296,7 @@ module.exports = function (Robot, URL, queueName, forever) {
         }
         queue = Queue.get();
         _.each(queue, function (t, i) {
-            if (getTrackHref(track) === getTrackHref(t)) {
+            if (getTrackUri(track) === getTrackUri(t)) {
                 index = +i + 1;
             }
         });

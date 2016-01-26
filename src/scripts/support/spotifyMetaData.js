@@ -122,7 +122,7 @@ function getUriInfo (type, uri, callback) {
     url = MetaData.uris.lookup[type].replace('{id}', id);
 
     logger.minorDibsyInfo('cache MISS [uri: %s]', uri);
-    logger.minorDibsyInfo('fetching %s %j', url);
+    logger.minorDibsyInfo('fetching %s', url);
 
     robot.http(url).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
@@ -149,7 +149,11 @@ function query (type, queryString, callback) {
 
     logger.minorDibsyInfo('cache MISS %s %s', type, queryString);
 
-    robot.http(MetaData.uris.search).query({type: type, q : queryString}).get()(getJSONResponseParser(function (err, jsonData) {
+    var params = {type: type, q : queryString};
+
+    logger.minorDibsyInfo('fetching %s %j', MetaData.uris.search, params);
+
+    robot.http(MetaData.uris.search).query(params).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistQueryResult(queryString, type, jsonData);
         }
@@ -250,6 +254,7 @@ MetaData.Album = (function () {
         this.name = data.name;
         this.released = data.release_date;
         this.href = data.href;
+        this.uri = data.uri;
         this.artists = [];
         if (data.artist && data['artist-id']) {
             this.artists.push({name : data.artist, href : data['artist-id']});
@@ -279,6 +284,7 @@ MetaData.Album = (function () {
         return {
             name : this.name,
             released : this.released,
+            uri : this.uri,
             href : this.href
         };
     };
@@ -300,7 +306,7 @@ MetaData.Album = (function () {
             callback(void 0, this.tracks);
             return this;
         }
-        getUriInfo('album', this.href, function (err, data) {
+        getUriInfo('album', this.uri, function (err, data) {
             self.tracks = [];
             if (!err) {
                 if (data.tracks) {
@@ -342,6 +348,7 @@ MetaData.Track = (function () {
         this.popularity = data.popularity;
         this.length = data.duration_ms / 1000;
         this.href = data.href;
+        this.uri = data.uri;
         this.artists = [];
         if (data.artists && data.artists.length) {
             data.artists.forEach(function (artist) {
@@ -408,6 +415,7 @@ MetaData.Artist = (function (){
         data = data || {};
         this.name = data.name;
         this.href = data.href;
+        this.uri = data.uri;
         this.popularity = data.popularity;
     };
 
@@ -417,7 +425,7 @@ MetaData.Artist = (function (){
             callback(void 0, this.albums);
             return this;
         }
-        getUriInfo('artistAlbum', this.href, function (err, data) {
+        getUriInfo('artistAlbum', this.uri, function (err, data) {
             self.albums = [];
             if (!err) {
                 if (data.albums) {

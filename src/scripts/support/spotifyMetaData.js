@@ -140,6 +140,7 @@ function getUriInfo (type, uri, callback) {
  */
 function query (type, queryString, callback) {
     var data = getPersistedQueryResult(queryString, type);
+    var params;
 
     if (data) {
         logger.minorDibsyInfo('cache HIT %s %s', type, queryString);
@@ -149,7 +150,7 @@ function query (type, queryString, callback) {
 
     logger.minorDibsyInfo('cache MISS %s %s', type, queryString);
 
-    var params = {type: type, q : queryString};
+    params = {type: type, q : queryString, market: 'US'};
 
     logger.minorDibsyInfo('fetching %s %j', MetaData.uris.search, params);
 

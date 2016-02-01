@@ -8,10 +8,12 @@
 //   None
 //
 // Commands:
-//   (shiabomb) - For when you need some motivation
+//   hubot shia me - For when you need some motivation
+//   hubot shiabomb (n) - For when you need a lot of motivation
 //
 // Author:
 //   Chris - shamelessly cribbed from Joey, who stole from (taylor, andromedado)
+//   andromedado
 
 var images = [
     "http://i.giphy.com/qvdqF0PGFPfyg.gif",
@@ -37,14 +39,43 @@ var images = [
     "https://collegecandy.files.wordpress.com/2015/11/giphy10.gif"
 ];
 
-function sendShia (msg) {
-    return msg.send(msg.random(images) + "?_=" + (Math.ceil(Math.random() * 1000)));
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+}
+
+function sendShia (msg, howMany) {
+    var shias = shuffle(images);
+    howMany = howMany || 1;
+    for (i = 0; i < howMany; i++) {
+        //This way there are no duplicates unless you've asked for more Shias than we have
+        msg.send(shias[i % shias.length] + "?_=" + (Math.ceil(Math.random() * 1000)));
+    }
 }
 
 module.exports = function(robot) {
-    return robot.respond(/.*shiabomb/i, function (msg) {
-        for (i = 0; i < 4; i++) {
-            this.sendShia(msg);
-        }
+
+    robot.respond(/((shia|labeouf) )+me/i, function (msg) {
+        sendShia(msg);
     });
+
+    robot.respond(/.*shiabomb( (\d+))?/i, function (msg) {
+        var howMany = msg.match[2] || 4;
+        sendShia(msg, howMany);
+    });
+
 };

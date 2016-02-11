@@ -17,7 +17,8 @@ var scripts = [
     'kegbot-alerts.js',
     'spiderbomb.js',
     'scorekeeper.coffee',
-    'shiabomb.js'
+    'shiabomb.js',
+    'pandabomb.js'
 ];
 
 module.exports = function (robot) {

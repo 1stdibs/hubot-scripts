@@ -8,11 +8,11 @@
 //   None
 //
 // Commands:
-//   Dibsy spiderbomb - Spiders for when you need 'em most
-//   spider/spiders - Drops a single pic
+//   hubot spiderbomb - Spiders for when you need 'em most
+//   hubot spider/spiders|spiderbomb me - Drops a single pic
 //
 // Author:
-//   Joey - EXTREMELY stolen from andromedo and his awesome shiabomb
+//   Joey - EXTREMELY stolen from andromedado and his awesome shiabomb
 
 var images = [
     "https://media.giphy.com/media/OM8JhWiICevDy/giphy.gif",
@@ -26,9 +26,6 @@ var images = [
     "http://cdn2.list25.com/wp-content/uploads/2014/07/gifsec.com-GIF-Huge-Spider.gif",
     "http://cdn3.list25.com/wp-content/uploads/2014/07/metro.co_.uk-spider4.gif",
     "http://cdn2.list25.com/wp-content/uploads/2014/07/www.buzzfeed.com-anigif_enhanced-buzz-12918-1418657848-6.gif"
-
-
-
 ];
 
 function shuffle(array) {
@@ -61,7 +58,7 @@ function sendSpiders (msg, howMany) {
 
 module.exports = function(robot) {
 
-    robot.respond(/((spider|spiders) )+me/i, function (msg) {
+    robot.respond(/((spiders?|spiderbomb) )+me/i, function (msg) {
         sendSpiders(msg);
     });
 

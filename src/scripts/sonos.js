@@ -288,6 +288,9 @@ module.exports = function(robot) {
         });
     });
 
+    robot.getSonosVolume = function (message) {
+        return getVolumeWithMsg(message, 'Volume is currently ');
+    };
     return robot.router.get("/hubot/volume-decay", function(req, res) {
         logInfo('Decaying volume by 5');
         res.end('');

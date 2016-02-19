@@ -239,6 +239,10 @@ module.exports = function(robot) {
         getVolumeWithMsg(msg, 'Volume is currently ');
     });
 
+    robot.respond(/music status\??/i, function (message) {
+        return getVolumeWithMsg(message, 'Volume is currently ');
+    });
+
     robot.respond(/(?:set )?vol(?:ume)?(?: to)? (.+)$/i, function (msg) {
         if (volumeIsLocked) {
             return sendErrorMessage(msg, ':no_good: Volume is currently locked');
@@ -288,9 +292,6 @@ module.exports = function(robot) {
         });
     });
 
-    robot.getSonosVolume = function (message) {
-        return getVolumeWithMsg(message, 'Volume is currently ');
-    };
     return robot.router.get("/hubot/volume-decay", function(req, res) {
         logInfo('Decaying volume by 5');
         res.end('');

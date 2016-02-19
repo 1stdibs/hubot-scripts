@@ -492,7 +492,6 @@ module.exports = function (robot) {
         });
         blame(message);
         playingRespond(message);
-        robot.getSonosVolume(message);
         return Queue.describe(message);
     });
     robot.respond(/spot vol(ume)?\?$/i, function (message) {

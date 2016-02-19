@@ -63,6 +63,7 @@ var CAMPFIRE_CHRONOLOGICAL_DELAY,
     trim,
     volumeLockDuration,
     volumeLocked,
+    spotVolumeRespond,
     volumeRespond,
     words,
     _;
@@ -73,6 +74,7 @@ var logger = require('./support/logger');
 var emoji = require('./support/emoji');
 var versioning = require('./support/spotVersion');
 var util = require('util');
+var sonosClient = require('./sonos');
 
 https = require('https');
 
@@ -209,13 +211,17 @@ spotNext = function (msg) {
     });
 };
 
-volumeRespond = function (message) {
+spotVolumeRespond = function (message) {
     return spotRequest(message, '/volume', 'get', {}, function (err, res, body) {
         if (err) {
             return sayMyError(err, message);
         }
         return message.send("Spot volume is " + body + ". :mega:");
     });
+};
+
+volumeRespond = function (message) {
+    return sonosClient.getVolumeWithMsg(message, 'Volume is currently ');
 };
 
 remainingRespond = function (message) {
@@ -494,6 +500,9 @@ module.exports = function (robot) {
         playingRespond(message);
         volumeRespond(message);
         return Queue.describe(message);
+    });
+    robot.respond(/spot vol(ume)?\?$/i, function (message) {
+        return spotVolumeRespond(message);
     });
     robot.respond(/(show (me )?the )?queue\??\s*$/i, function (message) {
         return Queue.describe(message);

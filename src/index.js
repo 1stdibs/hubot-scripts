@@ -18,6 +18,7 @@ var scripts = [
     'spiderbomb.js',
     'scorekeeper.coffee',
     'shiabomb.js',
+    'smokebomb.js',
     'pandabomb.js'
 ];
 

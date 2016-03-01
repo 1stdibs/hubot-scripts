@@ -14,7 +14,14 @@
 //   Shad, Written For Taylor Bragg
 
 var images = [
-    //[URL PATHS HERE]
+    "https://s-media-cache-ak0.pinimg.com/originals/7c/18/d9/7c18d9ad2ea1bde311b78fce30c23945.gif",
+    "http://blogfiles.wfmu.org/KF/2014/04/23/cartoon_smoke.gif",
+    "http://www.reactiongifs.us/wp-content/uploads/2015/07/smoke_bomb_archer.gif",
+    "http://i.imgur.com/E21FhIf.gif",
+    "http://i.imgur.com/uocDcnW.gif",
+    "http://media.fyre.co/ehIL2qumSGeNTEzSqK3X_ninja_magic.gif",
+    "http://i.imgur.com/hPip3nF.gif",
+    "http://cdn.makeagif.com/media/10-16-2015/Bxsvl2.gif"
 ];
 
 function shuffle(array) {

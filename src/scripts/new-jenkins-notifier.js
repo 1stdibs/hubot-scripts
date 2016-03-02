@@ -157,6 +157,11 @@ module.exports = function(robot) {
                     }
                 }
                 if (data.build.status === 'SUCCESS') {
+                    if (data.name === 'Weekly Production Release') {
+                        makeSound('shipit');
+                        robot.messageRoom("#release", "1stdibs weekly production release is complete!");
+                        robot.messageRoom("#release", "I hope you know what you're doing...");
+                    }
                     if (data.name === '1stdibs.com Deploy Production PROD PROD PROD PROD' && params.Hotfix === 'true') {
                         makeSound('shipit');
                         robot.messageRoom("#release", "1stdibs.com hotfix has been released!");

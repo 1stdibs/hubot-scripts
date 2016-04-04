@@ -67,6 +67,10 @@ var CAMPFIRE_CHRONOLOGICAL_DELAY,
     words,
     _;
 
+var errorTemplate = function (error) {
+    return ':flushed: ' + error;
+};
+
 var showAlbumArt;
 
 var logger = require('./support/logger');
@@ -253,7 +257,7 @@ getStrHandler = function (message) {
 };
 
 sayMyError = function (err, message) {
-    return message.send(":flushed: " + err);
+    return message.send(errorTemplate(err));
 };
 
 sayYourError = function (message) {
@@ -503,7 +507,7 @@ module.exports = function (robot) {
     robot.respond(/dequeue #?(\d+)/i, function (message) {
         return Queue.dequeue(+message.match[1], function (err, name) {
             if (err) {
-                message.send(":flushed: " + err);
+                sayMyError(err, message);
                 return;
             }
             return message.send(":small_blue_diamond: \"" + name + "\" removed from the queue");
@@ -630,23 +634,31 @@ module.exports = function (robot) {
 //        });
     });
 
-    return robot.router.get("/hubot/queue-track", function(req, res) {
-        var trackURI = req.query['spotify'];
-        var trackRequestedBy = req.query['user'];
+    robot.router.get("/hubot/queue-track", function(req, res) {
+        var trackURI = trim(req.query['spotify']);
+        if (!trackURI) {
+            res.send('Please provide a value for `spotify` in your query string');
+            return;
+        }
         console.log('HTTP request to queue: ' + trackURI);
-        return Support.translateToTrack(trim(req.query['spotify']), 0, function (err, track) {
+        var trackRequestedBy = req.query['user'];
+        if (!trackRequestedBy) {
+            res.send('Please provide a value for `user` in your query string');
+            return;
+        }
+        Support.translateToTrack(trackURI, 0, function (err, track) {
             if (err) {
-                sayMyError(err, message);
+                robot.messageRoom('#general', errorTemplate('Error queueing ' + trackURI + ' ' + err));
                 return;
             }
             Assoc.set(track.href, trackRequestedBy);
-            return Queue.addTrack(track, function (err, index) {
+            Queue.addTrack(track, function (err, index) {
                 if (err) {
-                    sayMyError(err, message);
+                    robot.messageRoom('#general', errorTemplate('Error queueing ' + trackURI + ' ' + err));
                     return;
                 }
                 robot.messageRoom('#general', ":small_blue_diamond: #" + index + " in the queue is " + templates.trackLine(track));
-                return res.end('Successfully queued ' + track.name);
+                res.send('Successfully queued ' + track.name);
             });
         });
     });

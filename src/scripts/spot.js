@@ -618,7 +618,7 @@ module.exports = function (robot) {
 
     robot.messageRoom('#general', getVersionString());
 
-    return robot.respond(/spot version\??/i, function (message) {
+    robot.respond(/spot version\??/i, function (message) {
         return message.send(getVersionString());
 //        return getCurrentVersion(function (e, repoVersion) {
 //            var msg;
@@ -629,6 +629,28 @@ module.exports = function (robot) {
 //            return message.send(msg);
 //        });
     });
+
+    return robot.router.get("/hubot/queue-track", function(req, res) {
+        var trackURI = req.query['spotify'];
+        var trackRequestedBy = req.query['user'];
+        console.log('HTTP request to queue: ' + trackURI);
+        return Support.translateToTrack(trim(req.query['spotify']), 0, function (err, track) {
+            if (err) {
+                sayMyError(err, message);
+                return;
+            }
+            Assoc.set(track.href, trackRequestedBy);
+            return Queue.addTrack(track, function (err, index) {
+                if (err) {
+                    sayMyError(err, message);
+                    return;
+                }
+                robot.messageRoom('#general', ":small_blue_diamond: #" + index + " in the queue is " + templates.trackLine(track));
+                return res.end('Successfully queued ' + track.name);
+            });
+        });
+    });
+
 };
 
 

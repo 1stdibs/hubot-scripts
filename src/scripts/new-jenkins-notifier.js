@@ -104,7 +104,7 @@ module.exports = function(robot) {
             }
             if (data.build.phase === 'COMPLETED') {
                 // Notify QA when QA builds complete
-                if (data.name.match(/.*qa.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i)) {
+                if (data.name.match(/.*qa.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i) && data.name.match(/.*statement.*/i) && data.name.match(/.*customer.*/i) && data.name.match(/.*nodegraphql.*/i) && data.name.match(/.*cmsTrade.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     logger.minorInfo("Notifying QA: %s", qaMsg);
                     robot.messageRoom('#qa', qaMsg);

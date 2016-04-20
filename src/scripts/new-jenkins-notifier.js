@@ -126,7 +126,7 @@ module.exports = function(robot) {
                     }
                 }
                 // Notify the release channel when stage or prod get built
-                if (data.name.match(/.*stage.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i)) {
+                if (data.name.match(/.*stage.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i) && data.name.match(/.*hotfix.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     logger.minorInfo("Notifying Relase Channel: %s", qaMsg);
                     robot.messageRoom('#release', qaMsg);

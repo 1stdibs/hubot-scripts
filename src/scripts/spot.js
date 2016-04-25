@@ -222,7 +222,7 @@ function spotifyRequestOptions(callback) {
             var accessToken = JSON.parse(body).access_token;
             //console.log(accessToken);
             options = {
-                url: 'https://api.spotify.com/v1/users/dibbywall/playlists/75aD8WgkR96l7etP3DbC5G/tracks?offset=0&limit=100',
+                url: 'https://api.spotify.com/v1/users/dibbywall/playlists/' + process.env.HUBOT_SPOTIFY_PLAYLIST_ID + '/tracks?offset=0&limit=100',
                 headers: { 'Authorization': 'Bearer ' + accessToken }
             };
         }

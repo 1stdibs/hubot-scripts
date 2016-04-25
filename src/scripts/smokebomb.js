@@ -22,7 +22,7 @@ var images = [
     "http://media.fyre.co/ehIL2qumSGeNTEzSqK3X_ninja_magic.gif",
     "http://i.imgur.com/hPip3nF.gif",
     "http://cdn.makeagif.com/media/10-16-2015/Bxsvl2.gif",
-    "http://i.imgur.com/DPhNOpo.gifv"
+    "http://i.imgur.com/DPhNOpo.gif"
 ];
 
 function shuffle(array) {

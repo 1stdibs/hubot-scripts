@@ -33,7 +33,7 @@ function showOnsagerPokemon (msg, faceId, bodyId, verbose) {
     if (verbose !== false) {
         msg.send(":small_blue_diamond: " + pokedex.fusion.name(faceId, bodyId, verbose));
     }
-    msg.send(pokedex.fusion.image(faceId, bodyId));
+    msg.send(pokedex.fusion.image(faceId, bodyId) + '?=' + (new Date()).getTime());
 }
 
 function showPokemon (msg, id, verbose) {
@@ -49,6 +49,10 @@ function showAndRateUpTo (msg, id) {
     setTimeout(function () {
         msg.send(":small_blue_diamond: " + pokedex.evaluate(id));
     }, stutter);
+}
+
+function sample(ary) {
+    return ary[Math.floor(Math.random() * ary.length)]
 }
 
 module.exports = function(robot) {
@@ -114,5 +118,19 @@ module.exports = function(robot) {
             showOnsagerPokemon(msg, faceId, bodyId, true);
         }
     });
+    robot.hear(/get\sout(.*\snow)?/i, function (msg) {
+        var faces = [
+            'golduck', 'ivysaur', 'charmeleon', 'charizard', 'metapod', 'raticate', 'ekans', 'nidorino', 'golbat',
+            'primeape', 'geodude', 'dodrio', 'cubone', 'marowak', 'weezing', 'rhydon', 'seadra', 'scyther', 'gyarados',
+            'porygon', 'aerodactyl', 'mewtwo'
+        ];
+        var superAngryFaces = ['golbat', 'gyarados', 'aerodactyl']; //Used for 'get out NOW'
+        var bodies = ['farfetchd'];
+        var superAngry = msg.match[1];
+        var face = superAngry ? sample(superAngryFaces) : sample(faces);
+        var body = sample(bodies);
+
+        showOnsagerPokemon(msg, pokedex.getId(face), pokedex.getId(body), false);
+    })
 };
 

@@ -35,27 +35,39 @@ var maxVol = DEFAULT_MAX_VOL;
 
 var savedVolume = null;
 
-var sonosInstance;
+var sonosInstance = [];
 
 var volumeIsLocked = false;
 
-function getSonos() {
+var SONOS_HOST_MAP = {
+    'main'  : process.env.HUBOT_SONOS_HOST,
+    'bar '  : '192.168.96.159'
+};
 
+var SONOS_PORT_MAP = {
+    'main'  : process.env.HUBOT_SONOS_PORT,
+    'bar '  : process.env.HUBOT_SONOS_PORT
+};
+
+function getSonos(type) {
     var host;
     var port;
-    if (!sonosInstance) {
-        host = process.env.HUBOT_SONOS_HOST || '192.168.98.99';
-        port = process.env.HUBOT_SONOS_PORT || 1400;
+
+    type = type || 'main';
+
+    if (!sonosInstance[type]) {
+        host = SONOS_HOST_MAP[type];
+        port = SONOS_PORT_MAP[type] || 1400;
         maxVol = process.env.HUBOT_SONOS_MAX_VOLUME || DEFAULT_MAX_VOL;
         maxVol = parseInt(maxVol, 10);
-        sonosInstance = new sonos.Sonos(host, 1400);
+        sonosInstance[type] = new sonos.Sonos(host, port);
     }
-    return sonosInstance;
+    return sonosInstance[type];
 }
 
-function getPrivateVolume (callback) {
+function getPrivateVolume (callback, type) {
     logInfo('Getting sonos volume...');
-    getSonos().getVolume(function (err, vol) {
+    getSonos(type).getVolume(function (err, vol) {
         if (vol) {
             logInfo('Got sonos volume %s', vol);
         }
@@ -89,7 +101,7 @@ function privateToPublicVolume (vol) {
     return Math.ceil(vol * ratio);
 }
 
-function setVolumeTo (newVolume, callback) {
+function setVolumeTo (newVolume, callback, type) {
     if (newVolume < 0) {
         logInfo('New volume less than 0, using 0 instead');
         newVolume = 0;
@@ -98,7 +110,7 @@ function setVolumeTo (newVolume, callback) {
         newVolume = maxVol;
     }
     logInfo('Setting sonos volume to %s', String(newVolume));
-    getSonos().setVolume(newVolume, callback);
+    getSonos(type).setVolume(newVolume, callback);
 }
 
 function increaseVolByAmount (amount, callback) {
@@ -171,7 +183,7 @@ function boundPublicVolume (vol) {
  * @param volume
  * @param callback
  */
-function volumeToInt(volume, callback) {
+function volumeToInt(volume, callback, type) {
     var vol = (volume + '').replace(/^\s+|\s+$/g, '');
     if ((/^\d+$/).test(vol)) {
         callback(null, boundPublicVolume(parseInt(vol, 10)));
@@ -219,7 +231,7 @@ module.exports = function(robot) {
         });
     }
 
-    function setVolumeWithMessage (volume, msg, text) {
+    function setVolumeWithMessage (volume, msg, text, type) {
         var newVol;
         volume = boundPublicVolume(volume);
         newVol = publicToPrivateVolume(volume);
@@ -232,7 +244,7 @@ module.exports = function(robot) {
             }
             text = text || 'Volume set to ';
             msg.send(text + volume);
-        });
+        }, type);
     }
 
     robot.respond(/vol(?:ume)?\?/i, function (msg) {
@@ -243,19 +255,21 @@ module.exports = function(robot) {
         return getVolumeWithMsg(message, 'Volume is currently ');
     });
 
-    robot.respond(/(?:set )?vol(?:ume)?(?: to)? (.+)$/i, function (msg) {
+    robot.respond(/(?:set )?(bar )?vol(?:ume)?(?: to)? (.+)$/i, function (msg) {
         if (volumeIsLocked) {
             return sendErrorMessage(msg, ':no_good: Volume is currently locked');
         }
 
-        var volume = msg.match[1];
+        var type = msg.match[1];
+        var volume = msg.match[2];
+
         volumeToInt(volume, function (err, volume) {
             if (err) {
                 sendErrorMessage(err);
                 return;
             }
-            setVolumeWithMessage(volume, msg);
-        });
+            setVolumeWithMessage(volume, msg, '', type);
+        }, type);
     });
 
     robot.respond(/ mute$/i, function (msg) {

@@ -174,6 +174,10 @@ comparePart = function (b, c, partName, partNamePlural) {
 };
 
 spotRequest = require('./support/spotRequest');
+var request = require('request');
+
+var options = {};
+var trackList = [];
 
 now = function () {
     return ~~(Date.now() / 1000);
@@ -203,6 +207,27 @@ determineLimit = function (word) {
     }
     return words[word];
 };
+
+var spotifyAuthOptions = {
+    url:'https://accounts.spotify.com/api/token',
+    form: {'grant_type':'client_credentials'},
+    headers: {'Authorization': 'Basic ' + process.env.HUBOT_SPOTIFY_CREDENTIALS }
+};
+
+function spotifyRequestOptions(callback) {
+    request.post(spotifyAuthOptions, function (err,httpResponse,body) {
+        if (err) {
+            console.log(err, body);
+        } else {
+            var accessToken = JSON.parse(body).access_token;
+            options = {
+                url: 'https://api.spotify.com/v1/users/dibbywall/playlists/' + process.env.HUBOT_SPOTIFY_PLAYLIST_ID + '/tracks?offset=0&limit=100',
+                headers: { 'Authorization': 'Bearer ' + accessToken }
+            };
+        }
+        callback(options);
+    });
+}
 
 spotNext = function (msg) {
     return spotRequest(msg, '/next', 'put', {}, function (err, res, body) {
@@ -315,6 +340,25 @@ setVolume = function (level, message) {
     });
 };
 
+function parseSpotReponse(error, response, body, callback) {
+    if (!error && response.statusCode === 200) {
+        var jbod = JSON.parse(body);
+        jbod.items.forEach(function (entry) {
+            trackList.push(entry.track.uri);
+        });
+        if (jbod.next) {
+            options.url = jbod.next;
+            request(options, function (error, response, body) {
+                parseSpotReponse(error, response, body, callback);
+            });
+        } else {
+            callback(trackList);
+        }
+    } else {
+        console.log(error + response.statusCode + body);
+    }
+}
+
 function setupDefaultQueue(queue, reload, callback) {
     var fs = require('fs');
 
@@ -324,23 +368,21 @@ function setupDefaultQueue(queue, reload, callback) {
         } else {
             logger.minorInfo('reloading playlist for %s', queue.getName());
         }
-        logger.minorInfo('reading file %s', process.env.HUBOT_SPOTIFY_PLAYLIST_FILE);
-        fs.readFile(process.env.HUBOT_SPOTIFY_PLAYLIST_FILE, 'utf-8', function (err, data) {
-            if (err) { throw err; }
-            var json = JSON.parse(data),
-                len = json.length,
-                i = -1,
-                list;
-
-            //list = json;
-            list = _.shuffle(json);
-            queue.clear(); // Empty the existing playlist, new songs wont be added otherwise
-            queue.addTracks(list); // Add the shuffled list to the empty playlist
-            queue.playNext(); // Start playling
-            queue.start();
-            if (callback) {
-                callback(queue);
-            }
+        logger.minorInfo('Querying Spotify API for contents of playlist: ' + process.env.HUBOT_SPOTIFY_PLAYLIST_ID);
+        spotifyRequestOptions(function (spotReqOpts) {
+            request(spotReqOpts, function (error, response, body) {
+                parseSpotReponse(error, response, body, function (tracks) {
+                    console.log(tracks);
+                    var list = _.shuffle(tracks);
+                    queue.clear(); // Empty the existing playlist, new songs wont be added otherwise
+                    queue.addTracks(list); // Add the shuffled list to the empty playlist
+                    queue.playNext(); // Start playling
+                    queue.start();
+                    if (callback) {
+                        callback(queue);
+                    }
+                });
+            });
         });
     }
 }
@@ -358,20 +400,20 @@ module.exports = function (robot) {
     Support = require('./support/spotifySupport')(robot, URL, Queue);
     Assoc = require('./support/spotifyAssoc')(robot);
 
-    //if (process.env.HUBOT_SPOTIFY_PLAYLIST_FILE) {
-    //    // Set up default queue
-    //    setupDefaultQueue(playlistQueue);
-    //
-    //    // Set the default queue on the queue master
-    //    queueMaster.setDefault(playlistQueue);
-    //
-    //    // Add the user queue
-    //    queueMaster.addQueue(Queue);
-    //
-    //    // Conduct the queues (the default queue will
-    //    // play if user queue is empty)
-    //   queueMaster.conduct();
-    //}
+    if (process.env.HUBOT_SPOTIFY_PLAYLIST_ID) {
+        // Set up default queue
+        setupDefaultQueue(playlistQueue);
+
+        // Set the default queue on the queue master
+        queueMaster.setDefault(playlistQueue);
+
+        // Add the user queue
+        queueMaster.addQueue(Queue);
+
+        // Conduct the queues (the default queue will
+        // play if user queue is empty)
+       queueMaster.conduct();
+    }
 
     Queue.start();
 

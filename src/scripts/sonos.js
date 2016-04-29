@@ -216,7 +216,7 @@ function volumeToInt(volume, callback, type) {
             }
             var currentVolume = privateToPublicVolume(privateVolume, type);
             callback(null, boundPublicVolume((relativeVolumeKeywords[vol])(currentVolume)));
-        });
+        }, type);
         return;
     }
     callback('Unable to parse volume param: ' + volume);

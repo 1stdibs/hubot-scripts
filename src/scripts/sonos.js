@@ -49,7 +49,7 @@ var volumeIsLocked = false;
 
 var SONOS_HOST_MAP = {
     main: process.env.HUBOT_SONOS_HOST,
-    bar : '192.168.96.159'
+    bar : process.env.HUBOT_SONOS_BAR_HOST
 };
 
 var SONOS_PORT_MAP = {

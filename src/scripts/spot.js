@@ -220,7 +220,6 @@ function spotifyRequestOptions(callback) {
             console.log(err, body);
         } else {
             var accessToken = JSON.parse(body).access_token;
-            //console.log(accessToken);
             options = {
                 url: 'https://api.spotify.com/v1/users/dibbywall/playlists/' + process.env.HUBOT_SPOTIFY_PLAYLIST_ID + '/tracks?offset=0&limit=100',
                 headers: { 'Authorization': 'Bearer ' + accessToken }
@@ -343,7 +342,6 @@ setVolume = function (level, message) {
 
 function parseSpotReponse(error, response, body, callback) {
     if (!error && response.statusCode === 200) {
-        //console.log(body);
         var jbod = JSON.parse(body);
         jbod.items.forEach(function (entry) {
             trackList.push(entry.track.uri);
@@ -354,7 +352,6 @@ function parseSpotReponse(error, response, body, callback) {
                 parseSpotReponse(error, response, body, callback);
             });
         } else {
-            //console.log(trackList);
             callback(trackList);
         }
     } else {

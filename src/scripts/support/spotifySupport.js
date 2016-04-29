@@ -15,7 +15,6 @@ var Support = {},
     manager,
     robot,
     url;
-var $ = require('jquery');
 var logger = require('./logger');
 
 function spotRequest(path, method, params, callback) {

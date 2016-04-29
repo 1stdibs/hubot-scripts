@@ -355,7 +355,7 @@ module.exports = function (robot) {
     say.attachToRobot(robot);
 
     Queue = require('./support/spotifyQueue')(robot, URL);
-    Support = require('./support/spotifySupport')(robot, URL, Queue);
+    Support = require('./support/spotifySupport')(robot, URL);
     Assoc = require('./support/spotifyAssoc')(robot);
 
     //if (process.env.HUBOT_SPOTIFY_PLAYLIST_FILE) {

@@ -358,11 +358,11 @@ module.exports = function(robot) {
         logInfo('Decaying volume by 5');
         res.end('');
         getPrivateVolume(function (err, privateVolume) {
-            var currentVolume = privateToPublicVolume(privateVolume, 'main');
+            var currentVolume = privateToPublicVolume(privateVolume, type);
             var targetVolume = currentVolume - 5;
             logInfo('Old volume: ' + currentVolume);
             logInfo('New volume: ' + targetVolume);
-            setVolumeTo(publicToPrivateVolume(targetVolume, 'main'), function (res) {
+            setVolumeTo(publicToPrivateVolume(targetVolume, type), function (res) {
                 logInfo(res);
             }, type);
         }, type);

@@ -401,18 +401,19 @@ module.exports = function (robot) {
     Assoc = require('./support/spotifyAssoc')(robot);
 
     if (process.env.HUBOT_SPOTIFY_PLAYLIST_ID) {
+        console.log("Enabling default queue: " + process.env.HUBOT_SPOTIFY_PLAYLIST_ID);
         // Set up default queue
-        setupDefaultQueue(playlistQueue);
+        setupDefaultQueue(playlistQueue, true, function () {
+            // Set the default queue on the queue master
+            queueMaster.setDefault(playlistQueue);
 
-        // Set the default queue on the queue master
-        queueMaster.setDefault(playlistQueue);
+            // Add the user queue
+            queueMaster.addQueue(Queue);
 
-        // Add the user queue
-        queueMaster.addQueue(Queue);
-
-        // Conduct the queues (the default queue will
-        // play if user queue is empty)
-       queueMaster.conduct();
+            // Conduct the queues (the default queue will
+            // play if user queue is empty)
+            queueMaster.conduct();
+        }
     }
 
     Queue.start();

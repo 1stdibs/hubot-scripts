@@ -413,7 +413,7 @@ module.exports = function (robot) {
             // Conduct the queues (the default queue will
             // play if user queue is empty)
             queueMaster.conduct();
-        }
+        });
     }
 
     Queue.start();

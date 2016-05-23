@@ -120,7 +120,7 @@ module.exports = function(robot) {
                     robot.messageRoom('#qa', customMsg);
                     robot.messageRoom('#qa', customDetails);
                     // Notify Goods team on imperial custom builds
-                    if (serverName.match(/.*deathstar.*/i) || serverName.match(/.*goods.*/i) || serverName.match(/.*stardestroyer.*/i) || serverName.match(/.*eggplant.*/i)) {
+                    if (serverName.match(/.*deathstar.*/i) || serverName.match(/.*goods.*/i) || serverName.match(/.*stardestroyer.*/i)) {
                         robot.messageRoom('goods', customMsg);
                         robot.messageRoom('goods', customDetails);
                     }

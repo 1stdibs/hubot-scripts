@@ -98,9 +98,7 @@ module.exports = function(robot) {
             params = (data && data.parameters) || {};
             logger.build('%s - #%s: %s', data.name, data.build.number, (data.build.status || data.build.phase || '[unknown state]'));
             if (data.build.phase === 'STARTED') {
-                if (data.name.match(/mothra.*qa/i)) {
-                    makeSound('mothra-qa');
-                }
+                //nothing here for now
             }
             if (data.build.phase === 'COMPLETED') {
                 // Notify QA when QA builds complete
@@ -201,6 +199,9 @@ module.exports = function(robot) {
                         makeSound('mechaloses');
                         robot.messageRoom('#dev', "Mecha Godzilla has been defeated!:excited_tomato::excited_tomato::excited_tomato:");
                         robot.messageRoom('#dev', "http://i.imgur.com/t8tLizl.gif");
+                    }
+                    if (data.name === 'Mothra-Ecom (QA)') {
+                        makeSound('mothra-qa');
                     }
                 }
             }

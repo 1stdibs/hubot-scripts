@@ -109,7 +109,7 @@ module.exports = function(robot) {
                 }
                 // Notify QA on certain custom builds
                 if (data.name.match(/.*custom.*/i) || data.name.match(/.*any.*/i) || data.name.match(/.*statement.*/i) || data.name.match(/.*customer.*/i) || data.name.match(/.*nodegraphql.*/i) || data.name.match(/.*cmsTrade.*/i)) {
-                    var params = data.build.parameters;
+                    var params = data.build.parameters ? data.build.parameters : {};
                     var serverName = params.SERVER_HOSTNAME ? params.SERVER_HOSTNAME : params.SERVER_NAME + '.intranet.1stdibs.com';
                     var customMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     var customDetails = "↳ built " + params.BRANCH_NAME + " to " + serverName;

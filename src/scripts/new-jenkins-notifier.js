@@ -105,7 +105,7 @@ module.exports = function(robot) {
                 if (data.name.match(/.*qa.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     logger.minorInfo("Notifying QA: %s", qaMsg);
-                    robot.messageRoom('#qa', qaMsg);
+                    robot.messageRoom('#qa-builds', qaMsg);
                 }
                 // Notify QA on certain custom builds
                 if (data.name.match(/.*custom.*/i) || data.name.match(/.*any.*/i) || data.name.match(/.*statement.*/i) || data.name.match(/.*customer.*/i) || data.name.match(/.*nodegraphql.*/i) || data.name.match(/.*cmsTrade.*/i)) {
@@ -115,13 +115,13 @@ module.exports = function(robot) {
                     var customDetails = "↳ built " + params.BRANCH_NAME + " to " + serverName;
                     logger.minorInfo("Custom build: %s", data.build.parameters.SERVER_HOSTNAME);
                     logger.minorInfo("Custom build: %s", data.build.parameters.BRANCH_NAME);
-                    robot.messageRoom('#qa', customMsg);
-                    robot.messageRoom('#qa', customDetails);
+                    robot.messageRoom('#qa-builds', customMsg);
+                    robot.messageRoom('#qa-builds', customDetails);
                     // Notify Goods team on imperial custom builds
-                    if (serverName.match(/.*deathstar.*/i) || serverName.match(/.*goods.*/i) || serverName.match(/.*stardestroyer.*/i)) {
-                        robot.messageRoom('goods', customMsg);
-                        robot.messageRoom('goods', customDetails);
-                    }
+                 //   if (serverName.match(/.*deathstar.*/i) || serverName.match(/.*goods.*/i) || serverName.match(/.*stardestroyer.*/i)) {
+                 //       robot.messageRoom('goods', customMsg);
+                 //       robot.messageRoom('goods', customDetails);
+                 //   }
                 }
                 // Notify the release channel when stage or prod get built
                 if (data.name.match(/.*stage.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i)) {

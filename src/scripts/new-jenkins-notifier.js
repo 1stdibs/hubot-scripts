@@ -32,6 +32,15 @@ var MaxSoundsPerInterval = 2;//For any given interval, there will be no more tha
 var soundsSoFar = 0;
 var deDuper = {};
 
+// Extra requirements for spreadsheet auto-updater
+const GoogleSpreadsheet = require('google-spreadsheet');
+const async = require('async');
+const doc = new GoogleSpreadsheet('1WopeRaHFPELrI16q7YhKf3Kb51H1UpDbvq8gPhvBTtI');
+
+// if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
+const important = /(QA)|(Stag(e)|(ing))|(Prod)/i;
+const sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-/ig;
+
 var logger = (function () {
     var logger = require('./support/logger');
     logger.buildSound = function (what) {
@@ -139,7 +148,7 @@ module.exports = function(robot) {
                     logger.minorInfo("Notifying Relase Channel: %s", qaMsg);
                     robot.messageRoom('#release', qaMsg);
                 }
-		
+
                 if (data.build.status === 'FAILURE') {
                     if (foo.failing.indexOf(data.name) >= 0) {
                         build = "is still";
@@ -161,6 +170,7 @@ module.exports = function(robot) {
                     }
                 }
                 if (data.build.status === 'SUCCESS') {
+                    // Text and audio notifications
                     if (data.name === 'Weekly Production Release') {
                         makeSound('shipit');
                         robot.messageRoom("#release", "1stdibs weekly production release is complete!");
@@ -202,6 +212,52 @@ module.exports = function(robot) {
                     }
                     if (data.name === 'Mothra-Ecom (QA)') {
                         makeSound('mothra-qa');
+                    }
+                    ///////////////////////////////////
+                    // Spreadsheet auto-updater logic
+                    ///////////////////////////////////
+                    if (data.name.match(important)) {
+                        let sheet;
+                        const simpleBuildName = data.name.replace(sanitize,'');
+                        async.series([
+                            function setAuth(step) {
+                                // see notes below for authentication instructions!
+                                const creds = require('/etc/pm2/google-generated-creds.json');
+                                doc.useServiceAccountAuth(creds, step);
+                            },
+                            function debugWorksheetInfo(step) {
+                                doc.getInfo(function (err, info) {
+                                    console.log('SREADSHEET -- Loaded doc: ' + info.title + ' by ' + info.author.email);
+                                    sheet = info.worksheets[0];
+                                    console.log('SREADSHEET -- sheet 1: ' + sheet.title + ' ' + sheet.rowCount + 'x' + sheet.colCount);
+                                    step();
+                                });
+                            },
+                            function updateMatchingRows(step) {
+                                sheet.getCells({
+                                    'min-row': 1,
+                                    //'max-row': 1,
+                                    'return-empty': true
+                                }, function (err, cells) {
+                                    //console.log(cells);
+                                    for (let i = 0; i < cells.length; i++) {
+                                        const cell = cells[i];
+                                        if (cell.col === 1) {
+                                            console.log('SREADSHEET -- Cell R' + cell.row + 'C' + cell.col + ' = ' + cell.value);
+                                            //if (cell.value === 'Identity') {
+                                            const simpleRowName = cell.value.replace(sanitize,'');
+                                            if (simpleRowName.match(simpleBuildName)) {
+                                                const releaseStatus = cells[i + 1];
+                                                console.log(releaseStatus.value);
+                                                releaseStatus.value = 'UPDATED';
+                                                releaseStatus.save(function () { console.log('SREADSHEET -- Successfully updated ' + cell.value + ' to ' + releaseStatus.value); });
+                                            }
+                                        }
+                                    }
+                                    step();
+                                });
+                            }
+                        ]);
                     }
                 }
             }

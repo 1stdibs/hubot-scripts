@@ -50,7 +50,7 @@ function getVersion () {
 module.exports = function (robot) {
 
     getVersion().then(function (version) {
-        robot.messageRoom('#general', 'Hubot-1stdibs Scripts Version ' + version);
+        robot.messageRoom('C0255MGHL', 'Hubot-1stdibs Scripts Version ' + version);
     });
 
     robot.respond(/scripts version\?/i, function (message) {

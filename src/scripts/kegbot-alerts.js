@@ -55,28 +55,28 @@ module.exports = function(robot) {
             switch (data.kind) {
                 case 'session_started':
                     //console.log(data);//See Examples at end of this file
-                    robot.messageRoom('#general', ':beers: Session Started! :beers:');
+                    robot.messageRoom('C0255MGHL', ':beers: Session Started! :beers:');
                     //Comment about the hour! =)
                     break;
                 case 'session_joined':
                     //console.log(data);//See Examples at end of this file
                     //Re-enable this when we have instant drink attribution
                     //i.e. session joined by bob
-                    //robot.messageRoom('#general', 'Session Joined');
+                    //robot.messageRoom('C0255MGHL', 'Session Joined');
                     break;
                 case 'keg_tapped':
                     //console.log(data);//See Examples at end of this file
-                    robot.messageRoom('#general', ':boom: Keg Tapped! :beers:');
+                    robot.messageRoom('C0255MGHL', ':boom: Keg Tapped! :beers:');
                     if (data.keg && data.keg.beverage) {
                         var liters = (parseFloat(data.keg.volume_ml_remain) / 1000).toFixed(1);
-                        robot.messageRoom('#general', '📈 ' + liters + ' liters of ' + explainBeverage(data.keg.beverage) + '🚰\n✨🚚✨ Come and get it ✨🆓🍺✨');
+                        robot.messageRoom('C0255MGHL', '📈 ' + liters + ' liters of ' + explainBeverage(data.keg.beverage) + '🚰\n✨🚚✨ Come and get it ✨🆓🍺✨');
                     }
                     break;
                 case 'keg_ended':
                     //console.log(data);//See Examples at end of this file
-                    robot.messageRoom('#general', ':exclamation: Keg Ended :dizzy_face:');
+                    robot.messageRoom('C0255MGHL', ':exclamation: Keg Ended :dizzy_face:');
                     if (data.keg && data.keg.beverage) {
-                        robot.messageRoom('#general', '🙋 Goodbye ' + explainBeverage(data.keg.beverage) + ' 🙎');
+                        robot.messageRoom('C0255MGHL', '🙋 Goodbye ' + explainBeverage(data.keg.beverage) + ' 🙎');
                     }
                     break;
                 case 'drink_poured':
@@ -96,7 +96,7 @@ module.exports = function(robot) {
                     var msg = who + ' poured ' + amount + ' of ' + drinkName;
                     console.log("Someone poured " + data.drink.volume_ml);
                     console.log("There's " + data.keg.volume_ml_remain + " left");
-                    robot.messageRoom('#general', msg);
+                    robot.messageRoom('C0255MGHL', msg);
                     break;
             }
         } catch (error) {

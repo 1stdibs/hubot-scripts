@@ -33,13 +33,13 @@ var soundsSoFar = 0;
 var deDuper = {};
 
 // Extra requirements for spreadsheet auto-updater
-const GoogleSpreadsheet = require('google-spreadsheet');
-const async = require('async');
-const doc = new GoogleSpreadsheet('1WopeRaHFPELrI16q7YhKf3Kb51H1UpDbvq8gPhvBTtI');
+var GoogleSpreadsheet = require('google-spreadsheet');
+var async = require('async');
+var doc = new GoogleSpreadsheet('1WopeRaHFPELrI16q7YhKf3Kb51H1UpDbvq8gPhvBTtI');
 
 // if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
-const important = /(QA)|(Stag(e)|(ing))|(Prod)/i;
-const sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-/ig;
+var important = /(QA)|(Stag(e)|(ing))|(Prod)/i;
+var sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-/ig;
 
 var logger = (function () {
     var logger = require('./support/logger');
@@ -217,12 +217,12 @@ module.exports = function(robot) {
                     // Spreadsheet auto-updater logic
                     ///////////////////////////////////
                     if (data.name.match(important)) {
-                        let sheet;
-                        const simpleBuildName = data.name.replace(sanitize,'');
+                        var sheet;
+                        var simpleBuildName = data.name.replace(sanitize,'');
                         async.series([
                             function setAuth(step) {
                                 // see notes below for authentication instructions!
-                                const creds = require('/etc/pm2/google-generated-creds.json');
+                                var creds = require('/etc/pm2/google-generated-creds.json');
                                 doc.useServiceAccountAuth(creds, step);
                             },
                             function debugWorksheetInfo(step) {
@@ -240,14 +240,14 @@ module.exports = function(robot) {
                                     'return-empty': true
                                 }, function (err, cells) {
                                     //console.log(cells);
-                                    for (let i = 0; i < cells.length; i++) {
-                                        const cell = cells[i];
+                                    for (var i = 0; i < cells.length; i++) {
+                                        var cell = cells[i];
                                         if (cell.col === 1) {
                                             console.log('SREADSHEET -- Cell R' + cell.row + 'C' + cell.col + ' = ' + cell.value);
                                             //if (cell.value === 'Identity') {
-                                            const simpleRowName = cell.value.replace(sanitize,'');
+                                            var simpleRowName = cell.value.replace(sanitize,'');
                                             if (simpleRowName.match(simpleBuildName)) {
-                                                const releaseStatus = cells[i + 1];
+                                                var releaseStatus = cells[i + 1];
                                                 console.log(releaseStatus.value);
                                                 releaseStatus.value = 'UPDATED';
                                                 releaseStatus.save(function () { console.log('SREADSHEET -- Successfully updated ' + cell.value + ' to ' + releaseStatus.value); });

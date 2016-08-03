@@ -490,6 +490,10 @@ module.exports = function (robot) {
 
     robot.respond(/(play|queue) (.+)/i, function (message) {
         return Support.translateToTrack(trim(message.match[2]), message.message.user.id, function (err, track) {
+            console.log("Playqueue message: " + message);
+            console.log("Playqueue message message: " + message.message);
+            console.log("Playqueue message message room: " + message.message.room);
+            console.log("Playqueue message message channel: " + message.message.channel);
             if (err) {
                 sayMyError(err, message);
                 return;
@@ -663,7 +667,7 @@ module.exports = function (robot) {
     });
     //TODO: Make a responder to add to defaultQueue
 
-    robot.messageRoom('#general', getVersionString());
+    robot.messageRoom('C0255MGHL', getVersionString());
 
     robot.respond(/spot version\??/i, function (message) {
         return message.send(getVersionString());

@@ -36,6 +36,7 @@ var deDuper = {};
 var GoogleSpreadsheet = require('google-spreadsheet');
 var async = require('async');
 var doc = new GoogleSpreadsheet('1WopeRaHFPELrI16q7YhKf3Kb51H1UpDbvq8gPhvBTtI');
+var sheet;
 
 // if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
 var important = /(QA)|(Stag(e)|(ing))|(Prod)/i;
@@ -217,15 +218,22 @@ module.exports = function(robot) {
                     // Spreadsheet auto-updater logic
                     ///////////////////////////////////
                     if (data.name.match(important)) {
+                        console.log('SREADSHEET -- An important build has completed!');
                         var sheet;
                         var simpleBuildName = data.name.replace(sanitize,'');
                         async.series([
                             function setAuth(step) {
-                                // see notes below for authentication instructions!
                                 var creds = require('/etc/pm2/google-generated-creds.json');
+                                console.log(creds);
                                 doc.useServiceAccountAuth(creds, step);
+                                console.log('xxxxxxxx');
+                            },
+                            function debugLog(step) {
+                                console.log('SPREADSHEET -- Debug step executing');
+                                step();
                             },
                             function debugWorksheetInfo(step) {
+                                console.log('SPREADSHEET -- Debug worksheet info:');
                                 doc.getInfo(function (err, info) {
                                     console.log('SREADSHEET -- Loaded doc: ' + info.title + ' by ' + info.author.email);
                                     sheet = info.worksheets[0];
@@ -245,12 +253,15 @@ module.exports = function(robot) {
                                         if (cell.col === 1) {
                                             console.log('SREADSHEET -- Cell R' + cell.row + 'C' + cell.col + ' = ' + cell.value);
                                             //if (cell.value === 'Identity') {
+                                            var fullName = cell.value;
                                             var simpleRowName = cell.value.replace(sanitize,'');
+                                            console.log('Simplified spreadsheet name: ' + simpleRowName);
+                                            console.log('Simplified build name: ' + simpleBuildName);
                                             if (simpleRowName.match(simpleBuildName)) {
                                                 var releaseStatus = cells[i + 1];
                                                 console.log(releaseStatus.value);
                                                 releaseStatus.value = 'UPDATED';
-                                                releaseStatus.save(function () { console.log('SREADSHEET -- Successfully updated ' + cell.value + ' to ' + releaseStatus.value); });
+                                                releaseStatus.save(function () { console.log('SREADSHEET -- Successfully updated ' + fullName + ' to ' + releaseStatus.value); });
                                             }
                                         }
                                     }

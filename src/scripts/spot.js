@@ -490,12 +490,15 @@ module.exports = function (robot) {
 
     robot.respond(/(play|queue) (.+)/i, function (message) {
         return Support.translateToTrack(trim(message.match[2]), message.message.user.id, function (err, track) {
-            console.log("Playqueue message: " + message);
-            console.log("Playqueue message message: " + message.message);
-            console.log("Playqueue message message room: " + message.message.room);
-            console.log("Playqueue message message channel: " + message.message.channel);
             if (err) {
                 sayMyError(err, message);
+                return;
+            }
+            console.log("Playqueue message from room: " + message.message.room);
+            if (message.message.room !== 'C0255MGHL') {
+                console.log("Playqueue message came from NON-STANDARD room!");
+                console.log("Denied!");
+                message.send(':no_entry_sign: :no_good: :no_bell:');
                 return;
             }
             Assoc.set(track.href, message.message.user.name);

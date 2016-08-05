@@ -250,7 +250,7 @@ module.exports = function(robot) {
                                     //console.log(cells);
                                     for (var i = 0; i < cells.length; i++) {
                                         var cell = cells[i];
-                                        if (cell.col === 1) {
+                                        if (cell.col === 1 && cell.value.length > 0) {
                                             console.log('SREADSHEET -- Cell R' + cell.row + 'C' + cell.col + ' = ' + cell.value);
                                             //if (cell.value === 'Identity') {
                                             var fullName = cell.value;
@@ -260,8 +260,9 @@ module.exports = function(robot) {
                                             if (simpleRowName.match(simpleBuildName)) {
                                                 var releaseStatus = cells[i + 1];
                                                 console.log(releaseStatus.value);
+                                                console.log('SPREADSHEET -- Going to update: ' + cell.value + ' to ' + releaseStatus.value);
                                                 releaseStatus.value = 'UPDATED';
-                                                releaseStatus.save(function () { console.log('SREADSHEET -- Successfully updated ' + fullName + ' to ' + releaseStatus.value); });
+                                                releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + fullName + ' to ' + releaseStatus.value); });
                                             }
                                         }
                                     }

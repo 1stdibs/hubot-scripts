@@ -134,20 +134,21 @@ module.exports = function(robot) {
                  //   }
                 }
                 // Notify the release channel when stage or prod get built
+                var releaseRoom = 'C24UWKLR0';
                 if (data.name.match(/.*stage.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     logger.minorInfo("Notifying Release Channel: %s", qaMsg);
-                    robot.messageRoom('C02FZMJLL', qaMsg);
+                    robot.messageRoom(releaseRoom, qaMsg);
                 }
                 if (data.name.match(/.*prod.*/i) && !data.name.match(/.*selenium.*/i) && !data.name.match(/.*godzilla.*/i) && !data.name.match(/.*everything except.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     logger.minorInfo("Notifying Release Channel: %s", qaMsg);
-                    robot.messageRoom('C02FZMJLL', qaMsg);
+                    robot.messageRoom(releaseRoom, qaMsg);
                 }
                 if (data.name.match(/.*hotfix.*/i)) {
                     var qaMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     logger.minorInfo("Notifying Release Channel: %s", qaMsg);
-                    robot.messageRoom('C02FZMJLL', qaMsg);
+                    robot.messageRoom(releaseRoom, qaMsg);
                 }
 
                 if (data.build.status === 'FAILURE') {

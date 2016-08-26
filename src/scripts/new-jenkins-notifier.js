@@ -261,8 +261,8 @@ module.exports = function(robot) {
                                             if (simpleRowName.match(simpleBuildName)) {
                                                 var releaseStatus = cells[i + 1];
                                                 console.log(releaseStatus.value);
+                                                releaseStatus.value = data.name.match(important)[1];
                                                 console.log('SPREADSHEET -- Going to update: ' + cell.value + ' to ' + releaseStatus.value);
-                                                releaseStatus.value = 'UPDATED';
                                                 releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + fullName + ' to ' + releaseStatus.value); });
                                             }
                                         }

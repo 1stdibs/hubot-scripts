@@ -258,9 +258,10 @@ module.exports = function(robot) {
                                             var simpleRowName = cell.value.replace(sanitize,'');
                                             console.log('Simplified spreadsheet name: ' + simpleRowName);
                                             console.log('Simplified build name: ' + simpleBuildName);
-                                            if (simpleRowName.match(simpleBuildName)) {
+                                            if (simpleRowName.toLowerCase().match(simpleBuildName.toLowerCase())) {
                                                 var releaseStatus = cells[i + 1];
-                                                console.log(releaseStatus.value);
+                                                console.log('Old release status: ' + releaseStatus.value);
+                                                console.log('New release status: ' + data.name.match(important)[1]);
                                                 releaseStatus.value = data.name.match(important)[1];
                                                 console.log('SPREADSHEET -- Going to update: ' + cell.value + ' to ' + releaseStatus.value);
                                                 releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + fullName + ' to ' + releaseStatus.value); });

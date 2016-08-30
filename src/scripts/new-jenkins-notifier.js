@@ -263,8 +263,8 @@ module.exports = function(robot) {
                                                 var localFullName = cell.value;
                                                 console.log('Matchy thing: ' + data.name.match(important));
                                                 console.log('Old release status: ' + releaseStatus.value);
-                                                console.log('New release status: ' + data.name.match(important)[1]);
-                                                releaseStatus.value = data.name.match(important)[1];
+                                                console.log('New release status: ' + data.name.match(important)[0]);
+                                                releaseStatus.value = data.name.match(important)[0];
                                                 console.log('SPREADSHEET -- Going to update: ' + cell.value + ' to ' + releaseStatus.value);
                                                 releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + localFullName + ' to ' + releaseStatus.value); });
                                             }

@@ -260,11 +260,13 @@ module.exports = function(robot) {
                                             console.log('Simplified build name: ' + simpleBuildName);
                                             if (simpleRowName.toLowerCase().match(simpleBuildName.toLowerCase())) {
                                                 var releaseStatus = cells[i + 1];
+                                                var localFullName = cell.value;
+                                                console.log('Matchy thing: ' + data.name.match(important));
                                                 console.log('Old release status: ' + releaseStatus.value);
                                                 console.log('New release status: ' + data.name.match(important)[1]);
                                                 releaseStatus.value = data.name.match(important)[1];
                                                 console.log('SPREADSHEET -- Going to update: ' + cell.value + ' to ' + releaseStatus.value);
-                                                releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + fullName + ' to ' + releaseStatus.value); });
+                                                releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + localFullName + ' to ' + releaseStatus.value); });
                                             }
                                         }
                                     }

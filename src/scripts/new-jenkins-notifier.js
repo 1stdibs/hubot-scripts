@@ -39,7 +39,7 @@ var doc = new GoogleSpreadsheet('1WopeRaHFPELrI16q7YhKf3Kb51H1UpDbvq8gPhvBTtI');
 var sheet;
 
 // if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
-var important = /(QA)|(Stag(e)|(ing))|(Prod)/i;
+var important = /(QA|Stag(e|ing)|Prod)/i;
 var sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-/ig;
 
 var logger = (function () {

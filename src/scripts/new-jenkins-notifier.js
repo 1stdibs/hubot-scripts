@@ -23,6 +23,7 @@ var querystring = require('querystring');
 var http = require('http');
 var colors = require('colors');
 var util = require('util');
+var moment = require('moment');
 
 var DeDupeSounds = true;//If True, then, for example, mothra may only place once per "IntervalMinutes"
 var IntervalMinutes = 30;
@@ -218,7 +219,11 @@ module.exports = function(robot) {
                     ///////////////////////////////////
                     // Spreadsheet auto-updater logic
                     ///////////////////////////////////
-                    if (data.name.match(important)) {
+                    var params = data.build.parameters ? data.build.parameters : {};
+                    var serverName = params.SERVER_HOSTNAME ? params.SERVER_HOSTNAME : params.SERVER_NAME + '.intranet.1stdibs.com';
+                    if (data.name.match(important) || serverName.match(important) ) {
+                        var envName = data.name.match(important) ? data.name.match(important)[0] : serverName.match(important)[0];
+                        console.log('Matchy thing: ' + envName);
                         console.log('SREADSHEET -- An important build has completed!');
                         var sheet;
                         var simpleBuildName = data.name.replace(sanitize,'');
@@ -258,15 +263,19 @@ module.exports = function(robot) {
                                             var simpleRowName = cell.value.replace(sanitize,'');
                                             console.log('Simplified spreadsheet name: ' + simpleRowName);
                                             console.log('Simplified build name: ' + simpleBuildName);
-                                            if (simpleRowName.toLowerCase().match(simpleBuildName.toLowerCase())) {
+                                            if (simpleRowName.toLowerCase() === (simpleBuildName.toLowerCase())) {
                                                 var releaseStatus = cells[i + 1];
+                                                var releaseTime = cells[i + 2];
                                                 var localFullName = cell.value;
-                                                console.log('Matchy thing: ' + data.name.match(important));
+                                                var newReleaseTime = moment().format('YYYY-M-D -- HH:m'); 
                                                 console.log('Old release status: ' + releaseStatus.value);
-                                                console.log('New release status: ' + data.name.match(important)[0]);
-                                                releaseStatus.value = data.name.match(important)[0];
+                                                console.log('New release status: ' + envName);
+                                                console.log('Release time: ' + newReleaseTime);
+                                                releaseStatus.value = envName;
+                                                releaseTime.value = newReleaseTime;
                                                 console.log('SPREADSHEET -- Going to update: ' + cell.value + ' to ' + releaseStatus.value);
                                                 releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + localFullName + ' to ' + releaseStatus.value); });
+                                                releaseTime.save(function () { console.log('SPREADSHEET -- Successfully logged release time as ' + releaseTime.value); });
                                             }
                                         }
                                     }

@@ -36,7 +36,7 @@ var deDuper = {};
 // Extra requirements for spreadsheet auto-updater
 var GoogleSpreadsheet = require('google-spreadsheet');
 var async = require('async');
-var doc = new GoogleSpreadsheet('1WopeRaHFPELrI16q7YhKf3Kb51H1UpDbvq8gPhvBTtI');
+var doc = new GoogleSpreadsheet('1EJzQgI1JMdjM8CWF5s-4mQOuR_dTGvn7VsoGQbc8wSM');
 var sheet;
 
 // if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
@@ -267,7 +267,7 @@ module.exports = function(robot) {
                                                 var releaseStatus = cells[i + 1];
                                                 var releaseTime = cells[i + 2];
                                                 var localFullName = cell.value;
-                                                var newReleaseTime = moment().format('YYYY-M-D -- HH:m'); 
+                                                var newReleaseTime = moment().format('YYYY-M-D HH:mm');
                                                 console.log('Old release status: ' + releaseStatus.value);
                                                 console.log('New release status: ' + envName);
                                                 console.log('Release time: ' + newReleaseTime);

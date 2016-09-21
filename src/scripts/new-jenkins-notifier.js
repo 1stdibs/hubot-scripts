@@ -41,7 +41,7 @@ var sheet;
 
 // if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
 var important = /(QA|Stag(e|ing)|Prod)/i;
-var sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-/ig;
+var sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-|QA|Stag(e|ing)|Prod/ig;
 
 var logger = (function () {
     var logger = require('./support/logger');
@@ -124,8 +124,8 @@ module.exports = function(robot) {
                     var serverName = params.SERVER_HOSTNAME ? params.SERVER_HOSTNAME : params.SERVER_NAME + '.intranet.1stdibs.com';
                     var customMsg = data.name + " build #" + data.build.number + " : " + data.build.status + " -- " + data.build.full_url;
                     var customDetails = "↳ built " + params.BRANCH_NAME + " to " + serverName;
-                    logger.minorInfo("Custom build: %s", data.build.parameters.SERVER_HOSTNAME);
-                    logger.minorInfo("Custom build: %s", data.build.parameters.BRANCH_NAME);
+                    logger.minorInfo("Custom build: %s", params.SERVER_HOSTNAME);
+                    logger.minorInfo("Custom build: %s", params.BRANCH_NAME);
                     robot.messageRoom('C1MH5A8TU', customMsg);
                     robot.messageRoom('C1MH5A8TU', customDetails);
                     // Notify Goods team on imperial custom builds

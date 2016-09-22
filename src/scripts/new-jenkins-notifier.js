@@ -40,7 +40,7 @@ var doc = new GoogleSpreadsheet('1EJzQgI1JMdjM8CWF5s-4mQOuR_dTGvn7VsoGQbc8wSM');
 var sheet;
 
 // if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
-var important = /(QA|Stag(e|ing)|Prod)/i;
+var important = /(?:[^A-Za-z])?(QA|Stag(e|ing)|Prod)/i;
 var sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-|QA|Stag(e|ing)|Prod/ig;
 
 var logger = (function () {
@@ -222,7 +222,7 @@ module.exports = function(robot) {
                     var params = data.build.parameters ? data.build.parameters : {};
                     var serverName = params.SERVER_HOSTNAME ? params.SERVER_HOSTNAME : params.SERVER_NAME + '.intranet.1stdibs.com';
                     if (data.name.match(important) || serverName.match(important) ) {
-                        var envName = data.name.match(important) ? data.name.match(important)[0] : serverName.match(important)[0];
+                        var envName = data.name.match(important) ? data.name.match(important)[1] : serverName.match(important)[1];
                         console.log('Matchy thing: ' + envName);
                         console.log('SREADSHEET -- An important build has completed!');
                         var sheet;

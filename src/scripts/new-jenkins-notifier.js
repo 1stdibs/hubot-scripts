@@ -226,6 +226,7 @@ module.exports = function(robot) {
                     if (data.name.match(important) || serverName.match(important) ) {
                         var weeklyProdJob = data.name === 'Weekly Production Release';
                         var envName = data.name.match(important) ? data.name.match(important)[1] : serverName.match(important)[1];
+                        var buildBranch = data.build.scm.branch;
                         console.log('Matchy thing: ' + envName);
                         console.log('SREADSHEET -- An important build has completed!');
                         var sheet;
@@ -269,6 +270,7 @@ module.exports = function(robot) {
                                             if ((simpleRowName.toLowerCase() === (simpleBuildName.toLowerCase())) || (weeklyProdJob && (weeklyProdDeployables.indexOf(cell.value) > -1))) {
                                                 var releaseStatus = cells[i + 1];
                                                 var releaseTime = cells[i + 2];
+                                                var releaseBranch = cells[i + 3];
                                                 var localFullName = cell.value;
                                                 var newReleaseTime = moment().format('YYYY-M-D HH:mm');
                                                 console.log('Old release status: ' + releaseStatus.value);
@@ -276,9 +278,11 @@ module.exports = function(robot) {
                                                 console.log('Release time: ' + newReleaseTime);
                                                 releaseStatus.value = envName;
                                                 releaseTime.value = newReleaseTime;
+                                                releaseBranch.value = buildBranch;
                                                 console.log('SPREADSHEET -- Going to update: ' + cell.value + ' to ' + releaseStatus.value);
                                                 releaseStatus.save(function () { console.log('SPREADSHEET -- Successfully updated ' + localFullName + ' to ' + releaseStatus.value); });
                                                 releaseTime.save(function () { console.log('SPREADSHEET -- Successfully logged release time as ' + releaseTime.value); });
+                                                releaseBranch.save(function () { console.log('SPREADSHEET -- Successfully logged release branch as ' + releaseBranch.value); });
                                             }
                                         }
                                     }

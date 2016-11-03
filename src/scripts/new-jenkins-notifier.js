@@ -43,6 +43,8 @@ var sheet;
 var important = /(?:[^A-Za-z])?(QA|Stag(e|ing)|Prod)/i;
 var sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-|QA|Stag(e|ing)|Prod/ig;
 
+var weeklyProdDeployables = ['.com', 'admin-v1', 'admin-v2', 'AnalyticsService', 'BossService', 'Bridgekeeper', 'CMS Dealer Storefront', 'CMS Trade Internal', 'ConfigService', 'EcomService', 'Formservice (clump)', 'GraphQL', 'IdentityService', 'Internal Customer Lookup', 'Internal Inventory Management', 'Internal OMT', 'Internal Statement', 'InventoryService', 'LogisticsService', 'MediaService', 'MessageCenterService', 'TradeService', 'UsercommService'];
+
 var logger = (function () {
     var logger = require('./support/logger');
     logger.buildSound = function (what) {
@@ -222,6 +224,7 @@ module.exports = function(robot) {
                     var params = data.build.parameters ? data.build.parameters : {};
                     var serverName = params.SERVER_HOSTNAME ? params.SERVER_HOSTNAME : params.SERVER_NAME + '.intranet.1stdibs.com';
                     if (data.name.match(important) || serverName.match(important) ) {
+                        var weeklyProdJob = data.name === 'Weekly Production Release';
                         var envName = data.name.match(important) ? data.name.match(important)[1] : serverName.match(important)[1];
                         console.log('Matchy thing: ' + envName);
                         console.log('SREADSHEET -- An important build has completed!');
@@ -263,7 +266,7 @@ module.exports = function(robot) {
                                             var simpleRowName = cell.value.replace(sanitize,'');
                                             console.log('Simplified spreadsheet name: ' + simpleRowName);
                                             console.log('Simplified build name: ' + simpleBuildName);
-                                            if (simpleRowName.toLowerCase() === (simpleBuildName.toLowerCase())) {
+                                            if ((simpleRowName.toLowerCase() === (simpleBuildName.toLowerCase())) || (weeklyProdJob && (weeklyProdDeployables.indexOf(cell.value) > -1))) {
                                                 var releaseStatus = cells[i + 1];
                                                 var releaseTime = cells[i + 2];
                                                 var localFullName = cell.value;

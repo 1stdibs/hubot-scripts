@@ -40,7 +40,7 @@ var doc = new GoogleSpreadsheet('1EJzQgI1JMdjM8CWF5s-4mQOuR_dTGvn7VsoGQbc8wSM');
 var sheet;
 
 // if it's not QA, Stage, or Prod, then the spreadsheet doesn't care
-var important = /(?:[^A-Za-z])?(QA|Stag(e|ing)|Prod)/i;
+var important = /(?:[^A-Za-z])?(Stag(e|ing)|Prod)/i;
 var sanitize = /(JAVA-)|(service)|(\(.*\))|node|(1st)?dibs|deploy|\s|-|QA|Stag(e|ing)|Prod/ig;
 
 var weeklyProdDeployables = ['.com', 'admin-v1', 'admin-v2', 'AnalyticsService', 'BossService', 'Bridgekeeper', 'CMS Dealer Storefront', 'CMS Trade Internal', 'ConfigService', 'EcomService', 'Formservice (clump)', 'GraphQL', 'IdentityService', 'Internal Customer Lookup', 'Internal Inventory Management', 'Internal OMT', 'Internal Statement', 'InventoryService', 'LogisticsService', 'MediaService', 'MessageCenterService', 'TradeService', 'UsercommService'];

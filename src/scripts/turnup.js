@@ -66,8 +66,8 @@ function send (msg, howMany) {
 
 module.exports = function(robot) {
 
-    //[ALTER THIS REGEX TO SUIT YOUR NEEDS]
-    robot.hear(/[turn up|turnup|turnip]]/i, function (msg) {
+    robot.hear(/(turn up|turnup|turnip)/i, function (msg) {
         send(msg);
     });
+
 };

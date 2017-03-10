@@ -33,7 +33,12 @@ var images = [
     'http://o.aolcdn.com/hss/storage/midas/6bc81f4958f714d71db568487588928c/202849138/1.gif',
     'https://media.giphy.com/media/3o6ozw9w2pPU8ndp0k/giphy.gif',
     'https://s3.amazonaws.com/rapgenius/kenan-and-kel-aw-here-it-goes-awh-here-goes-intro-kel-1352766252e.gif',
-    'https://ddppchicago.files.wordpress.com/2017/02/overcoming.gif?w=665'
+    'https://ddppchicago.files.wordpress.com/2017/02/overcoming.gif?w=665',
+    'http://i.imgur.com/qK0BMiH.gif',
+    'https://media.giphy.com/media/i2dE5VvBNxBw4/giphy.gif',
+    'http://i.imgur.com/aZvNY8S.gif',
+    'http://a.fod4.com/images/GifGuide/dancing/tumblr_lit5wdB6j21qcfba3o1_500.gif',
+    'https://33.media.tumblr.com/6800b0da8ced43a3d142441d033b34a8/tumblr_nm568diaWN1rxw730o1_500.gif'
 ];
 
 function shuffle(array) {

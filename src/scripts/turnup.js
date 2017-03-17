@@ -20,7 +20,7 @@ var images = [
     'https://media.giphy.com/media/dLPTwfYtmuLF6/giphy.gif',
     'http://i1.kym-cdn.com/photos/images/original/000/708/752/6f5.gif',
     'http://www.lovethispic.com/uploaded_images/143705-Lisa-Simpson-Dancing.gif',
-    'http://i.imgur.com/arTwCW7.gif'
+    'http://i.imgur.com/arTwCW7.gif',
     'http://i.imgur.com/m6VRS8u.gif',
     'http://i.imgur.com/MiC6C6l.gif',
     'https://media.giphy.com/media/olAik8MhYOB9K/giphy.gif',

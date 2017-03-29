@@ -20,6 +20,7 @@ var scripts = [
     'shiabomb.js',
     'smokebomb.js',
     'turnup.js',
+    'smashingbomb.js',
     'pandabomb.js'
 ];
 

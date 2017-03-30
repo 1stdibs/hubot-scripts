@@ -38,7 +38,9 @@ var images = [
     'https://media.giphy.com/media/i2dE5VvBNxBw4/giphy.gif',
     'http://i.imgur.com/aZvNY8S.gif',
     'http://a.fod4.com/images/GifGuide/dancing/tumblr_lit5wdB6j21qcfba3o1_500.gif',
-    'https://33.media.tumblr.com/6800b0da8ced43a3d142441d033b34a8/tumblr_nm568diaWN1rxw730o1_500.gif'
+    'https://33.media.tumblr.com/6800b0da8ced43a3d142441d033b34a8/tumblr_nm568diaWN1rxw730o1_500.gif',
+    'https://media.giphy.com/media/xUPGcAOBV8MyGs9fBm/giphy.gif',
+    'http://i.imgur.com/zLCysMj.gif'
 ];
 
 function shuffle(array) {

@@ -6,7 +6,7 @@ var scripts = [
     'slam.js',
     'pokemonfusion.js',
     'petoverflow.js',
-    'nugme.coffee',
+    // 'nugme.coffee',//The heroku is down/broken
     'mta.coffee',
     'spot.js',
     'tubeme.js',

@@ -28,6 +28,7 @@ var MetaData = {
     robot;
 var logger = require('./logger');
 var authToken = '';
+var authInterval;
 
 function refreshAuthToken(callback) {
     robot.http('https://accounts.spotify.com/api/token')
@@ -549,6 +550,14 @@ module.exports = function (Robot) {
             backedUp = true;
         }
     }, backupRate);
+
+    if (authInterval) {
+        clearInterval(authInterval);
+    }
+    //every 10 minutes
+    authInterval = setInterval(refreshAuthToken, 1000 * 60 * 10);
+
+
     refreshAuthToken(function () {
         console.log('Set auth token to: ' + authToken);
     });

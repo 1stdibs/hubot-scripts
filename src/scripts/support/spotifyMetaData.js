@@ -27,6 +27,20 @@ var MetaData = {
     mapping = {},
     robot;
 var logger = require('./logger');
+var authToken = '';
+
+function refreshAuthToken(callback) {
+    robot.http('https://accounts.spotify.com/api/token').header('Authorization', 'Basic ' + process.env.HUBOT_SPOTIFY_CREDENTIALS).post('grant_type=client_credentials')(function (err, res, body) {
+        if (err) { console.log(err); callback(err); }
+        else {
+            console.log(res);
+            console.log(body);
+            authToken = JSON.parse(body).access_token;
+            console.log('Authorization token is now: ' + authToken);
+            callback();
+        }
+    });
+}
 
 /**
  * Get ID from from Spotify URI by stripping out resource identifier e.g. 'spotify:track:'
@@ -124,9 +138,11 @@ function getUriInfo (type, uri, callback) {
     logger.minorDibsyInfo('cache MISS [uri: %s]', uri);
     logger.minorDibsyInfo('fetching %s', url);
 
-    robot.http(url).get()(getJSONResponseParser(function (err, jsonData) {
+    robot.http(url).header('Authorization', 'Bearer ' + authToken).get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistUriData(uri, jsonData);
+        } else {
+            console.log('Unable to fetch: ' + url);
         }
         callback(err, jsonData);
     }));
@@ -513,6 +529,7 @@ MetaData.clearCache = function () {
     backedUp = false;
 };
 
+
 module.exports = function (Robot) {
     robot = Robot;
     allData = robot.brain.get(allDataKey) || {};
@@ -524,5 +541,8 @@ module.exports = function (Robot) {
             backedUp = true;
         }
     }, backupRate);
+    refreshAuthToken(function () {
+        console.log('Set auth token to: ' + authToken);
+    });
     return MetaData;
 };

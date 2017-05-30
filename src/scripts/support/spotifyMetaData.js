@@ -30,7 +30,10 @@ var logger = require('./logger');
 var authToken = '';
 
 function refreshAuthToken(callback) {
-    robot.http('https://accounts.spotify.com/api/token').header('Authorization', 'Basic ' + process.env.HUBOT_SPOTIFY_CREDENTIALS).post('grant_type=client_credentials')(function (err, res, body) {
+    robot.http('https://accounts.spotify.com/api/token')
+        .header('Authorization', 'Basic ' + process.env.HUBOT_SPOTIFY_CREDENTIALS)
+        .header('Content-Type', 'application/x-www-form-urlencoded')
+        .post('grant_type=client_credentials')(function (err, res, body) {
         if (err) { console.log(err); callback(err); }
         else {
             console.log(res);
@@ -138,7 +141,9 @@ function getUriInfo (type, uri, callback) {
     logger.minorDibsyInfo('cache MISS [uri: %s]', uri);
     logger.minorDibsyInfo('fetching %s', url);
 
-    robot.http(url).header('Authorization', 'Bearer ' + authToken).get()(getJSONResponseParser(function (err, jsonData) {
+    robot.http(url)
+        .header('Authorization', 'Bearer ' + authToken)
+        .get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistUriData(uri, jsonData);
         } else {

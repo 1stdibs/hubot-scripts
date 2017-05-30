@@ -175,7 +175,10 @@ function query (type, queryString, callback) {
 
     logger.minorDibsyInfo('fetching %s %j', MetaData.uris.search, params);
 
-    robot.http(MetaData.uris.search).query(params).get()(getJSONResponseParser(function (err, jsonData) {
+    robot.http(MetaData.uris.search)
+        .header('Authorization', 'Bearer ' + authToken)
+        .query(params)
+        .get()(getJSONResponseParser(function (err, jsonData) {
         if (!err) {
             persistQueryResult(queryString, type, jsonData);
         }

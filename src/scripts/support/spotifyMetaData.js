@@ -35,13 +35,19 @@ function refreshAuthToken(callback) {
         .header('Authorization', 'Basic ' + process.env.HUBOT_SPOTIFY_CREDENTIALS)
         .header('Content-Type', 'application/x-www-form-urlencoded')
         .post('grant_type=client_credentials')(function (err, res, body) {
-        if (err) { console.log(err); callback(err); }
-        else {
+        if (err) {
+            console.log(err);
+            if (typeof callback === 'function') {
+                callback(err);
+            }
+        } else {
             console.log(res);
             console.log(body);
             authToken = JSON.parse(body).access_token;
             console.log('Authorization token is now: ' + authToken);
-            callback();
+            if (typeof callback === 'function') {
+                callback();
+            }
         }
     });
 }

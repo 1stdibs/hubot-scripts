@@ -28,19 +28,26 @@ var MetaData = {
     robot;
 var logger = require('./logger');
 var authToken = '';
+var authInterval;
 
 function refreshAuthToken(callback) {
     robot.http('https://accounts.spotify.com/api/token')
         .header('Authorization', 'Basic ' + process.env.HUBOT_SPOTIFY_CREDENTIALS)
         .header('Content-Type', 'application/x-www-form-urlencoded')
         .post('grant_type=client_credentials')(function (err, res, body) {
-        if (err) { console.log(err); callback(err); }
-        else {
+        if (err) {
+            console.log(err);
+            if (typeof callback === 'function') {
+                callback(err);
+            }
+        } else {
             console.log(res);
             console.log(body);
             authToken = JSON.parse(body).access_token;
             console.log('Authorization token is now: ' + authToken);
-            callback();
+            if (typeof callback === 'function') {
+                callback();
+            }
         }
     });
 }
@@ -549,6 +556,14 @@ module.exports = function (Robot) {
             backedUp = true;
         }
     }, backupRate);
+
+    if (authInterval) {
+        clearInterval(authInterval);
+    }
+    //every 10 minutes
+    authInterval = setInterval(refreshAuthToken, 1000 * 60 * 10);
+
+
     refreshAuthToken(function () {
         console.log('Set auth token to: ' + authToken);
     });

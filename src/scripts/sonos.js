@@ -265,7 +265,7 @@ module.exports = function(robot) {
 
     function getSpeakerType(match) {
         var type = match || 'main';
-        return type.trim();
+        return type.trim().toLowerCase();
     }
 
     robot.respond(/(.* )?vol(?:ume)?\?/i, function (msg) {

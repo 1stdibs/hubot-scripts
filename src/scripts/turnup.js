@@ -40,7 +40,13 @@ var images = [
     'http://a.fod4.com/images/GifGuide/dancing/tumblr_lit5wdB6j21qcfba3o1_500.gif',
     'https://33.media.tumblr.com/6800b0da8ced43a3d142441d033b34a8/tumblr_nm568diaWN1rxw730o1_500.gif',
     'https://media.giphy.com/media/xUPGcAOBV8MyGs9fBm/giphy.gif',
-    'http://i.imgur.com/zLCysMj.gif'
+    'http://i.imgur.com/zLCysMj.gif',
+    'https://i.giphy.com/sHDMIqW4V6BFu.gif',
+    'http://i.imgur.com/BVdHtK8.gif',
+    'https://s-media-cache-ak0.pinimg.com/originals/94/87/a8/9487a88ca1c556fa5a6bd14f7073a05b.jpg',
+    'https://cdn3.vox-cdn.com/assets/4731132/2014-07-09_15_55_03.gif',
+    'https://media1.popsugar-assets.com/files/thumbor/C4Q6C4YiBJn_XKv-noWCS1sgKgI/fit-in/1200x630/filters:format_auto-!!-:strip_icc-!!-:fill-!white!-/2014/09/25/831/n/1922283/de62532db3e65d80_Fresh-Prince-Of-Bel-Air-the-fresh-prince-of-bel-air-13456178-307-230/i/Tina-Turner-Turn-Up-Front-Step.gif',
+    'https://m.popkey.co/9a4cd5/oGwRD.gif'
 ];
 
 function shuffle(array) {

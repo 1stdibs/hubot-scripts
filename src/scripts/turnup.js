@@ -9,7 +9,7 @@
 //
 // Commands:
 //   .* turn up.*
-//   .* turnup.*
+//   .* turn_up.*
 //   .* turnip.*
 //
 // Author:
@@ -46,7 +46,10 @@ var images = [
     'https://s-media-cache-ak0.pinimg.com/originals/94/87/a8/9487a88ca1c556fa5a6bd14f7073a05b.jpg',
     'https://cdn3.vox-cdn.com/assets/4731132/2014-07-09_15_55_03.gif',
     'https://media1.popsugar-assets.com/files/thumbor/C4Q6C4YiBJn_XKv-noWCS1sgKgI/fit-in/1200x630/filters:format_auto-!!-:strip_icc-!!-:fill-!white!-/2014/09/25/831/n/1922283/de62532db3e65d80_Fresh-Prince-Of-Bel-Air-the-fresh-prince-of-bel-air-13456178-307-230/i/Tina-Turner-Turn-Up-Front-Step.gif',
-    'https://m.popkey.co/9a4cd5/oGwRD.gif'
+    'https://i.makeagif.com/media/12-01-2015/6IltCf.gif',
+    'http://stream1.gifsoup.com/view1/3928049/bobby-brown-step-o.gif',
+    'https://media.tenor.com/images/7bccc6529bd4335bf7b607fbdc55a82c/tenor.gif',
+    'http://stream1.gifsoup.com/view1/4646553/prince-dancing-o.gif'
 ];
 
 function shuffle(array) {
@@ -79,7 +82,7 @@ function send (msg, howMany) {
 
 module.exports = function(robot) {
 
-    robot.hear(/(turn up|turnup|turnip)/i, function (msg) {
+    robot.hear(/(turn up|turn_up|turnip)/i, function (msg) {
         send(msg);
     });
 

@@ -49,7 +49,9 @@ var images = [
     'https://i.makeagif.com/media/12-01-2015/6IltCf.gif',
     'http://stream1.gifsoup.com/view1/3928049/bobby-brown-step-o.gif',
     'https://media.tenor.com/images/7bccc6529bd4335bf7b607fbdc55a82c/tenor.gif',
-    'http://stream1.gifsoup.com/view1/4646553/prince-dancing-o.gif'
+    'http://stream1.gifsoup.com/view1/4646553/prince-dancing-o.gif',
+    'http://i.imgur.com/c6cwHfD.gif',
+    'http://i.imgur.com/jIlvF3F.gif'
 ];
 
 function shuffle(array) {

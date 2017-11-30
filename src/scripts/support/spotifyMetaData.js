@@ -30,7 +30,7 @@ var logger = require('./logger');
 var authToken = '';
 var authInterval;
 var consecutiveAuthFailures = 0;
-var authRetryTO = null;
+var authRetryTimeout = null;
 
 function refreshAuthToken(callback) {
     console.log('Attempt re-authorization');
@@ -44,10 +44,10 @@ function refreshAuthToken(callback) {
         }
 
         //Retry!
-        if (authRetryTO) {
-            clearTimeout(authRetryTO);
+        if (authRetryTimeout) {
+            clearTimeout(authRetryTimeout);
         }
-        authRetryTO = setTimeout(refreshAuthToken, 30 * 1000);//every 30 seconds
+        authRetryTimeout = setTimeout(refreshAuthToken, 30 * 1000);//every 30 seconds
     }
 
     robot.http('https://accounts.spotify.com/api/token')

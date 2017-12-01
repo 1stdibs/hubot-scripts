@@ -29,25 +29,55 @@ var MetaData = {
 var logger = require('./logger');
 var authToken = '';
 var authInterval;
+var consecutiveAuthFailures = 0;
+var authRetryTimeout = null;
 
 function refreshAuthToken(callback) {
+    console.log('Attempt re-authorization');
+
+    function failure(err) {
+        consecutiveAuthFailures += 1;
+        console.log('Auth Failure (x%s)', consecutiveAuthFailures);
+        console.log(err);
+        if (typeof callback === 'function') {
+            callback(err);
+        }
+
+        //Retry!
+        if (authRetryTimeout) {
+            clearTimeout(authRetryTimeout);
+        }
+        authRetryTimeout = setTimeout(refreshAuthToken, 30 * 1000);//every 30 seconds
+    }
+
     robot.http('https://accounts.spotify.com/api/token')
         .header('Authorization', 'Basic ' + process.env.HUBOT_SPOTIFY_CREDENTIALS)
         .header('Content-Type', 'application/x-www-form-urlencoded')
         .post('grant_type=client_credentials')(function (err, res, body) {
         if (err) {
-            console.log(err);
-            if (typeof callback === 'function') {
-                callback(err);
-            }
-        } else {
-            console.log(res);
-            console.log(body);
-            authToken = JSON.parse(body).access_token;
-            console.log('Authorization token is now: ' + authToken);
-            if (typeof callback === 'function') {
-                callback();
-            }
+            failure(err);
+            return;
+        }
+        console.log('Response:');
+        console.log(res);
+        console.log('Body:');
+        console.log(body);
+        var res = {};
+        try {
+            res = JSON.parse(body);
+        } catch (e) {
+            failure('Invalid JSON Response');
+            return;
+        }
+        if (!res || !res.access_token) {
+            failure('auth_token not found in response');
+            return;
+        }
+        authToken = res.access_token;
+        console.log('Authorization token is now: ' + authToken);
+        consecutiveAuthFailures = 0;
+        if (typeof callback === 'function') {
+            callback();
         }
     });
 }
